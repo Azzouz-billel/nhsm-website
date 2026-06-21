@@ -5,12 +5,17 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <div class="section-head">
-      <p class="eyebrow">Your profile</p>
-      <h2>{{ user.board_name }}</h2>
-      <p class="muted">
-        {{ user.get_role_display }}{% if user.academic_group %} · {{ user.get_academic_group_display }}{% endif %}
-      </p>
+    <div class="profile-header">
+      {% if user.avatar %}
+        <img class="profile-avatar" src="{{ user.avatar.url }}" alt="Your profile picture">
+      {% else %}
+        <div class="profile-avatar profile-avatar--placeholder" aria-hidden="true">{{ user.username|first|upper }}</div>
+      {% endif %}
+      <div>
+        <p class="eyebrow">Your profile</p>
+        <h2 class="profile-name">{{ user.board_name }}</h2>
+        <p class="muted">{{ user.get_role_display }}{% if user.academic_group %} · {{ user.get_academic_group_display }}{% endif %}</p>
+      </div>
     </div>
 
     <div class="stat-cards">
@@ -34,7 +39,7 @@
 
     <div class="auth-card profile-form">
       <h3>Edit profile</h3>
-      <form method="post" class="form" novalidate>
+      <form method="post" class="form" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         {% include "partials/form_fields.html" %}
         <div class="form-actions">

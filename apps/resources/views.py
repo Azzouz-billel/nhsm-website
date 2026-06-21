@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
@@ -23,6 +24,8 @@ def home(request):
         "resource_count": approved.count(),
         "subject_count": Subject.objects.count(),
         "semester_count": Subject.objects.values("semester").distinct().count(),
+        "chargily_url": settings.CHARGILY_DONATION_URL,
+        "redotpay_url": settings.REDOTPAY_DONATION_URL,
     }
     return render(request, "home.html", context)
 

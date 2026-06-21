@@ -1202,6 +1202,49 @@ code {
   color: var(--cyan);
 }
 
+/* =================== profile avatar =================== */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  image-rendering: auto;
+  background: var(--surface);
+  border: 3px solid var(--cyan);
+  box-shadow: var(--shadow-sm), var(--glow-cyan);
+}
+.profile-avatar--placeholder {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--cyan);
+}
+.profile-name { margin-bottom: var(--space-2); }
+
+/* =================== donation =================== */
+.donate-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  background: var(--surface);
+  border: 3px solid var(--gold);
+  box-shadow: var(--shadow-md), 0 0 30px rgba(255, 210, 63, 0.18);
+  padding: var(--space-6);
+}
+.donate-icon { font-size: 3.4rem; line-height: 1; }
+.donate-body { flex: 1; min-width: 260px; }
+.donate-body h2 { color: var(--gold); text-shadow: var(--glow-gold); margin-bottom: var(--space-3); }
+.donate-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-4); }
+.donate-note { font-size: 0.95rem; margin: var(--space-3) 0 0; }
+
 /* ----------------------------------------------------------------- reveals */
 html.js .reveal { opacity: 0; }
 

@@ -85,6 +85,28 @@
   </div>
 </section>
 
+<!-- ===================== DONATION / SUPPORT ===================== -->
+<section class="section" id="support">
+  <div class="container">
+    <div class="donate-card reveal">
+      <div class="donate-icon" aria-hidden="true">🪙</div>
+      <div class="donate-body">
+        <p class="eyebrow">Support the hub</p>
+        <h2>Help us level up</h2>
+        <p class="muted">NHSM Hub is built and run by students. Chip in to buy a proper domain name
+          and keep the servers running — every dinar pushes the project further.</p>
+        <div class="donate-actions">
+          <a class="btn btn-primary" href="{{ chargily_url|default:'#' }}"
+             {% if chargily_url %}target="_blank" rel="noopener"{% endif %}>Baridi Mob · Chargily</a>
+          <a class="btn btn-ghost" href="{{ redotpay_url|default:'#' }}"
+             {% if redotpay_url %}target="_blank" rel="noopener"{% endif %}>RedotPay</a>
+        </div>
+        <p class="donate-note muted">Secure payment via Chargily (Baridi Mob / CIB / EDAHABIA) or RedotPay (card &amp; crypto).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 {% endblock %}
 
 {% block extra_js %}

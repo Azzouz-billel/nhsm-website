@@ -56,6 +56,9 @@ class User(AbstractUser):
     theme_preference = models.CharField(
         max_length=10, choices=ThemePreference.choices, default=ThemePreference.SYSTEM
     )
+    avatar = models.ImageField(
+        upload_to="avatars/", blank=True, help_text="Profile picture."
+    )
 
     @property
     def is_admin(self):
