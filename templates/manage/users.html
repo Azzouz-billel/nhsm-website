@@ -1,0 +1,28 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Users{% endblock %}
+
+{% block manage_content %}
+<div class="manage-bar">
+  <span class="muted">{{ users|length }} user{{ users|length|pluralize }} · promote to admin with <code>python manage.py promote_user &lt;username&gt; admin</code></span>
+</div>
+
+<table class="lb-table manage-table">
+  <thead><tr><th>Username</th><th>Role</th><th>Group</th><th>Active</th><th class="col-actions">Actions</th></tr></thead>
+  <tbody>
+    {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td><span class="req-status role-{{ u.role }}">{{ u.get_role_display }}</span></td>
+        <td class="muted">{{ u.get_academic_group_display|default:"—" }}</td>
+        <td>{% if u.is_active %}✔{% else %}<span class="danger">off</span>{% endif %}</td>
+        <td class="manage-row-actions">
+          <a class="btn btn-ghost btn-sm" href="{% url 'manage_user_edit' u.pk %}">Edit</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="muted">No users.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

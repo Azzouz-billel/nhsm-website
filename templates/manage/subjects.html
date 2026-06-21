@@ -1,0 +1,31 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Subjects{% endblock %}
+
+{% block manage_content %}
+<div class="manage-bar">
+  <span class="muted">{{ subjects|length }} module{{ subjects|length|pluralize }}</span>
+  <a class="btn btn-primary btn-sm" href="{% url 'manage_subject_create' %}">+ Add subject</a>
+</div>
+
+<table class="lb-table manage-table">
+  <thead><tr><th>Name</th><th>Semester</th><th>Description</th><th class="col-actions">Actions</th></tr></thead>
+  <tbody>
+    {% for s in subjects %}
+      <tr>
+        <td>{{ s.name }}</td>
+        <td>S{{ s.semester }}</td>
+        <td class="muted">{{ s.description|default:"—" }}</td>
+        <td class="manage-row-actions">
+          <a class="btn btn-ghost btn-sm" href="{% url 'manage_subject_edit' s.pk %}">Edit</a>
+          <form method="post" action="{% url 'manage_subject_delete' s.pk %}" onsubmit="return confirm('Delete “{{ s.name|escapejs }}”? Its resources go too.');">
+            {% csrf_token %}<button class="btn btn-ghost btn-sm danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" class="muted">No subjects yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

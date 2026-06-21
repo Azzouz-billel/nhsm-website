@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Your profile — NHSM Hub{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Your profile</p>
+      <h2>{{ user.board_name }}</h2>
+      <p class="muted">
+        {{ user.get_role_display }}{% if user.academic_group %} · {{ user.get_academic_group_display }}{% endif %}
+      </p>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="num">{{ stats.total_study_minutes }}</div>
+        <div class="label">Minutes studied</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">{{ stats.current_streak }}</div>
+        <div class="label">Day streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">{{ stats.total_sessions }}</div>
+        <div class="label">Focus sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">{{ stats.contributions }}</div>
+        <div class="label">Approved uploads</div>
+      </div>
+    </div>
+
+    <div class="auth-card profile-form">
+      <h3>Edit profile</h3>
+      <form method="post" class="form" novalidate>
+        {% csrf_token %}
+        {% include "partials/form_fields.html" %}
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save changes</button>
+          <a class="btn btn-ghost" href="{% url 'resource_upload' %}">Upload a resource</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

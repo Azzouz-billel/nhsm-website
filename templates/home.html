@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="hero hero--intro">
+  <div class="hero-sparkles" id="sparkles-hero" aria-hidden="true"></div>
+  <div class="container hero-intro-grid">
+    <div class="hero-copy">
+      <p class="eyebrow reveal">National Higher School of Mathematics</p>
+      <h1 class="sc-title reveal">NHSM HUB</h1>
+      <p class="hero-tag reveal">Your student study base — course notes, past exams, a focus timer,
+        and your year-group leaderboard, all in one retro-coded library.</p>
+      <div class="hero-actions reveal">
+        <a class="btn btn-primary" href="{% url 'resource_library' %}">Browse Resources</a>
+        <a class="btn btn-ghost" href="{% url 'register' %}">Create Account</a>
+      </div>
+      <div class="hero-stats reveal">
+        <p class="stats-title">Resources Uploaded</p>
+        <div class="stats-row">
+          <div class="stat"><div class="num">{{ resource_count }}</div><div class="label">Resources</div></div>
+          <div class="stat"><div class="num">{{ subject_count }}</div><div class="label">Modules</div></div>
+          <div class="stat"><div class="num">{{ semester_count }}</div><div class="label">Semesters</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <img class="hero-book" src="{% static 'img/2.png' %}" alt="Stack of study books"
+           width="1080" height="1080" loading="eager">
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <h2>Power-Up Study Tools</h2>
+      <p class="muted">Six tools to study smarter — pick your power-up.</p>
+    </div>
+    <div class="carousel reveal" data-carousel>
+      <button class="carousel-arrow carousel-arrow--prev" type="button" data-carousel-prev aria-label="Previous tools">
+        <svg class="chev" viewBox="0 0 9 16" shape-rendering="crispEdges" aria-hidden="true"><g fill="currentColor"><rect x="0" y="0" width="3" height="3"/><rect x="2" y="2" width="3" height="3"/><rect x="4" y="4" width="3" height="3"/><rect x="6" y="6" width="3" height="3"/><rect x="4" y="9" width="3" height="3"/><rect x="2" y="11" width="3" height="3"/><rect x="0" y="13" width="3" height="3"/></g></svg>
+      </button>
+      <div class="carousel-track" data-carousel-track>
+        <article class="feature-card carousel-card">
+          <div class="icon">📚</div>
+          <h3>Resource Library</h3>
+          <p>Course notes — Cours, TD, TP and more — filterable by semester and module, opening straight from Google Drive.</p>
+          <a class="card-link" href="{% url 'resource_library' %}">Browse resources →</a>
+        </article>
+        <article class="feature-card carousel-card">
+          <div class="icon">📝</div>
+          <h3>Annales</h3>
+          <p>A dedicated past-exams archive (EMD &amp; rattrapage) with corrigés flagged when available.</p>
+          <a class="card-link" href="{% url 'annales' %}">Open the annales →</a>
+        </article>
+        <article class="feature-card carousel-card">
+          <div class="icon">⏱️</div>
+          <h3>Focus Timer</h3>
+          <p>A Pomodoro timer that logs your minutes per module and keeps a daily study streak.</p>
+          <a class="card-link" href="{% url 'timer' %}">Start a session →</a>
+        </article>
+        <article class="feature-card carousel-card">
+          <div class="icon">🏆</div>
+          <h3>Leaderboard</h3>
+          <p>Friendly rankings within your own year group, with an anonymous option whenever you want it.</p>
+          <a class="card-link" href="{% url 'leaderboard' %}">See the rankings →</a>
+        </article>
+        <article class="feature-card carousel-card">
+          <div class="icon">📨</div>
+          <h3>Request Board</h3>
+          <p>Ask for a missing resource and upvote what you need — contributors tackle the most-wanted first.</p>
+          <a class="card-link" href="{% url 'request_board' %}">Open the board →</a>
+        </article>
+        <article class="feature-card carousel-card">
+          <div class="icon">🎓</div>
+          <h3>Your Profile</h3>
+          <p>Track your study stats and streak, set a display name, and choose your academic year group.</p>
+          <a class="card-link" href="{% url 'register' %}">Join NHSM Hub →</a>
+        </article>
+      </div>
+      <button class="carousel-arrow carousel-arrow--next" type="button" data-carousel-next aria-label="Next tools">
+        <svg class="chev" viewBox="0 0 9 16" shape-rendering="crispEdges" aria-hidden="true"><g fill="currentColor"><rect x="0" y="0" width="3" height="3"/><rect x="2" y="2" width="3" height="3"/><rect x="4" y="4" width="3" height="3"/><rect x="6" y="6" width="3" height="3"/><rect x="4" y="9" width="3" height="3"/><rect x="2" y="11" width="3" height="3"/><rect x="0" y="13" width="3" height="3"/></g></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="https://cdn.jsdelivr.net/npm/@tsparticles/slim@3/tsparticles.slim.bundle.min.js"></script>
+<script defer src="{% static 'js/sparkles.js' %}"></script>
+<script defer src="{% static 'js/carousel.js' %}"></script>
+{% endblock %}

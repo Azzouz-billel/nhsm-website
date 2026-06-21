@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Review queue — NHSM Hub{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Moderation</p>
+      <h2>Review queue</h2>
+      <p class="muted">Pending resource submissions awaiting approval.</p>
+    </div>
+
+    {% if pending %}
+      <div class="queue-list">
+        {% for resource in pending %}
+          <article class="queue-item">
+            <div class="queue-meta">
+              <span class="badge">{{ resource.get_resource_type_display }}</span>
+              <span class="badge sem">S{{ resource.subject.semester }}</span>
+            </div>
+            <div class="queue-body">
+              <h3>{{ resource.title }}</h3>
+              <p class="muted">
+                {{ resource.subject.name }}
+                {% if resource.uploader %}· by {{ resource.uploader.username }}{% endif %}
+              </p>
+              {% if resource.description %}<p>{{ resource.description }}</p>{% endif %}
+              <a class="queue-link" href="{{ resource.drive_link }}" target="_blank" rel="noopener">View Drive link →</a>
+            </div>
+            <div class="queue-actions">
+              <form method="post" action="{% url 'moderation_review' resource.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="approve">
+                <button class="btn btn-primary btn-sm" type="submit">Approve</button>
+              </form>
+              <form method="post" action="{% url 'moderation_review' resource.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                <button class="btn btn-ghost btn-sm" type="submit">Reject</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">Nothing to review — the queue is clear. 🎉</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

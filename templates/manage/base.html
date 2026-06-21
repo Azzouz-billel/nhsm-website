@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Admin — NHSM Hub{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="eyebrow">Admin control</p>
+      <h2>{% block manage_title %}Admin{% endblock %}</h2>
+    </div>
+    <div class="manage-layout">
+      <aside class="manage-nav" aria-label="Admin sections">
+        <a href="{% url 'manage_dashboard' %}" class="{% if request.resolver_match.url_name == 'manage_dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{% url 'manage_resources' %}" class="{% if 'resource' in request.resolver_match.url_name %}active{% endif %}">Resources</a>
+        <a href="{% url 'manage_subjects' %}" class="{% if 'subject' in request.resolver_match.url_name %}active{% endif %}">Subjects</a>
+        <a href="{% url 'manage_exams' %}" class="{% if 'exam' in request.resolver_match.url_name %}active{% endif %}">Annales</a>
+        <a href="{% url 'manage_users' %}" class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">Users</a>
+      </aside>
+      <div class="manage-content">
+        {% block manage_content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

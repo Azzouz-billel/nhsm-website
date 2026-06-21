@@ -1,0 +1,33 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Annales (exam papers){% endblock %}
+
+{% block manage_content %}
+<div class="manage-bar">
+  <span class="muted">{{ exams|length }} paper{{ exams|length|pluralize }}</span>
+  <a class="btn btn-primary btn-sm" href="{% url 'manage_exam_create' %}">+ Add exam paper</a>
+</div>
+
+<table class="lb-table manage-table">
+  <thead><tr><th>Title</th><th>Subject</th><th>Year</th><th>Type</th><th>Corrigé</th><th class="col-actions">Actions</th></tr></thead>
+  <tbody>
+    {% for e in exams %}
+      <tr>
+        <td>{{ e.title }}</td>
+        <td class="muted">{{ e.subject.name }}</td>
+        <td>{{ e.year }}</td>
+        <td>{{ e.get_exam_type_display }}</td>
+        <td>{% if e.has_solution %}✔{% else %}—{% endif %}</td>
+        <td class="manage-row-actions">
+          <a class="btn btn-ghost btn-sm" href="{% url 'manage_exam_edit' e.pk %}">Edit</a>
+          <form method="post" action="{% url 'manage_exam_delete' e.pk %}" onsubmit="return confirm('Delete “{{ e.title|escapejs }}”?');">
+            {% csrf_token %}<button class="btn btn-ghost btn-sm danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="muted">No exam papers yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

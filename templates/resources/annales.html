@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Annales — past exams — NHSM Hub{% endblock %}
+{% block description %}Browse NHSM past exam papers (EMD, rattrapage…) by year, semester, module and type, with corrigés flagged when available.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Annales · past exams</p>
+      <h2>Practise on real exam papers.</h2>
+      <p class="muted">Sujets d'examen (EMD, rattrapage…) by year and module. A corrigé badge shows when a solution is available.</p>
+    </div>
+
+    <div class="lib-layout">
+      <aside class="filter-bar" aria-label="Filters">
+        <div class="filter-group">
+          <label for="filter-search">Search</label>
+          <input type="search" id="filter-search" class="field" data-filter="q"
+                 placeholder="Title or module…" autocomplete="off">
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-year">Year</label>
+          <select id="filter-year" class="field" data-filter="year">
+            <option value="">All years</option>
+            {% for y in years %}
+              <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-semester">Semester</label>
+          <select id="filter-semester" class="field" data-filter="semester">
+            <option value="">All semesters</option>
+            {% for s in semesters %}
+              <option value="{{ s }}">Semester {{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-subject">Module</label>
+          <select id="filter-subject" class="field" data-filter="subject">
+            <option value="">All modules</option>
+            {% for subject in subjects %}
+              <option value="{{ subject.slug }}">S{{ subject.semester }} · {{ subject.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Exam type</label>
+          <div class="chip-row" data-chip-group="type">
+            <button type="button" class="chip" data-filter-chip="type" data-value="" aria-pressed="true">All</button>
+            {% for value, label in exam_types %}
+              <button type="button" class="chip" data-filter-chip="type" data-value="{{ value }}" aria-pressed="false">{{ label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="checkbox-row">
+            <input type="checkbox" data-filter-check="solution" value="1">
+            <span>Corrigé available only</span>
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-ghost btn-sm" data-filter-reset>Clear filters</button>
+      </aside>
+
+      <div>
+        <div class="results-head">
+          <h3 style="margin:0;">Exam papers</h3>
+          <span class="results-count" data-results-count aria-live="polite"></span>
+        </div>
+        <div class="resource-grid" data-results></div>
+        <div class="empty-state" data-empty hidden>No exam papers match these filters yet.</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/annales.js' %}"></script>
+{% endblock %}

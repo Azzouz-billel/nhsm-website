@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Focus timer — NHSM Hub{% endblock %}
+{% block description %}A Pomodoro focus timer that logs your study minutes per module and keeps a daily streak.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Focus timer</p>
+      <h2>Study in focused blocks.</h2>
+      <p class="muted">Pick a module, start a 25-minute block, and take a break every cycle. {% if user.is_authenticated %}Your time is logged automatically.{% else %}<a href="{% url 'login' %}">Sign in</a> to track your time and streak.{% endif %}</p>
+    </div>
+
+    <div class="timer-layout">
+      <div class="timer-card" data-timer
+           data-auth="{{ user.is_authenticated|yesno:'1,0' }}"
+           data-session-url="{% url 'api_study_session_create' %}">
+        <div class="timer-settings">
+          <div class="ts-field">
+            <label for="timer-subject">Module</label>
+            <select id="timer-subject" class="field" data-subject>
+              <option value="">— Pick a module —</option>
+              {% for subject in subjects %}
+                <option value="{{ subject.id }}">S{{ subject.semester }} · {{ subject.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="ts-field ts-num">
+            <label for="timer-focus">Focus</label>
+            <input id="timer-focus" class="field" type="number" min="1" max="60" value="25" data-focus>
+          </div>
+          <div class="ts-field ts-num">
+            <label for="timer-break">Break</label>
+            <input id="timer-break" class="field" type="number" min="1" max="30" value="5" data-break>
+          </div>
+        </div>
+
+        <p class="timer-phase" data-phase>Focus</p>
+
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 280 280" aria-hidden="true">
+            <circle class="ring-track" cx="140" cy="140" r="120" fill="none" stroke-width="14"></circle>
+            <circle class="ring-progress" cx="140" cy="140" r="120" fill="none" stroke-width="14"
+                    transform="rotate(-90 140 140)" data-ring></circle>
+          </svg>
+          <div class="ring-time" data-time aria-live="polite">25:00</div>
+        </div>
+
+        <div class="cycle-dots" data-dots aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span>
+          <span class="dot"></span><span class="dot"></span>
+        </div>
+
+        <div class="timer-controls">
+          <button class="btn btn-primary" data-start>Start</button>
+          <button class="btn btn-ghost" data-skip>Skip</button>
+          <button class="btn btn-ghost" data-reset>Reset</button>
+        </div>
+
+        <p class="timer-hint" data-hint></p>
+      </div>
+
+      <aside class="timer-side">
+        {% if user.is_authenticated %}
+          <div class="stat-cards stat-cards--tight">
+            <div class="stat-card">
+              <div class="num" data-stat-today>{{ today_minutes }}</div>
+              <div class="label">Minutes today</div>
+            </div>
+            <div class="stat-card">
+              <div class="num" data-stat-streak>{{ stats.current_streak }}</div>
+              <div class="label">Day streak</div>
+            </div>
+            <div class="stat-card">
+              <div class="num" data-stat-total>{{ stats.total_study_minutes }}</div>
+              <div class="label">Total minutes</div>
+            </div>
+            <div class="stat-card">
+              <div class="num" data-stat-sessions>{{ stats.total_sessions }}</div>
+              <div class="label">Sessions</div>
+            </div>
+          </div>
+
+          <div class="auth-card subject-breakdown">
+            <h3>Study by module</h3>
+            {% if per_subject %}
+              <ul class="breakdown-list">
+                {% for row in per_subject %}
+                  <li>
+                    <span>{{ row.subject__name|default:"No module" }}</span>
+                    <span class="muted">{{ row.total }} min</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">No sessions yet — finish a focus block to see your breakdown.</p>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="auth-card">
+            <h3>Track your progress</h3>
+            <p class="muted">Sign in to log minutes per module, build a daily streak, and climb your year-group leaderboard.</p>
+            <div class="form-actions">
+              <a class="btn btn-primary" href="{% url 'login' %}">Log in</a>
+              <a class="btn btn-ghost" href="{% url 'register' %}">Sign up</a>
+            </div>
+          </div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/timer.js' %}"></script>
+{% endblock %}

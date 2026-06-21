@@ -1,0 +1,152 @@
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+
+from .models import (
+    ExamPaper,
+    ExamType,
+    Resource,
+    ResourceStatus,
+    ResourceType,
+    Subject,
+)
+
+User = get_user_model()
+
+SEARCH_URL = "/api/resources/search"
+EXAM_SEARCH_URL = "/api/exams/search"
+
+
+class ResourceSearchTests(TestCase):
+    def setUp(self):
+        self.analyse = Subject.objects.create(name="Analyse 1", semester=1)
+        self.algebre = Subject.objects.create(name="Algèbre 2", semester=2)
+        Resource.objects.create(
+            title="Analyse 1 Cours",
+            subject=self.analyse,
+            resource_type=ResourceType.COURSE,
+            drive_link="https://drive.google.com/x",
+            status=ResourceStatus.APPROVED,
+        )
+        Resource.objects.create(
+            title="Algèbre 2 TD",
+            subject=self.algebre,
+            resource_type=ResourceType.TD,
+            drive_link="https://drive.google.com/y",
+            status=ResourceStatus.APPROVED,
+        )
+        Resource.objects.create(
+            title="Pending upload",
+            subject=self.analyse,
+            resource_type=ResourceType.COURSE,
+            drive_link="https://drive.google.com/z",
+            status=ResourceStatus.PENDING,
+        )
+
+    def test_excludes_non_approved_resources(self):
+        response = self.client.get(SEARCH_URL)
+        self.assertEqual(response.json()["count"], 2)
+
+    def test_filters_by_semester(self):
+        response = self.client.get(SEARCH_URL, {"semester": 2})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Algèbre 2 TD"])
+
+    def test_filters_by_type(self):
+        response = self.client.get(SEARCH_URL, {"type": ResourceType.TD})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Algèbre 2 TD"])
+
+    def test_filters_by_text_query(self):
+        response = self.client.get(SEARCH_URL, {"q": "algèbre"})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Algèbre 2 TD"])
+
+
+class ResourceApprovalTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Topologie", semester=3)
+        self.uploader = User.objects.create_user(username="contributor", password="x")
+        self.resource = Resource.objects.create(
+            title="Topologie Cours",
+            subject=self.subject,
+            drive_link="https://drive.google.com/t",
+            status=ResourceStatus.PENDING,
+            uploader=self.uploader,
+        )
+
+    def test_approve_sets_status_to_approved(self):
+        self.resource.approve()
+        self.resource.refresh_from_db()
+        self.assertEqual(self.resource.status, ResourceStatus.APPROVED)
+
+    def test_approve_updates_uploader_contribution_count(self):
+        self.resource.approve()
+        self.assertEqual(self.uploader.stats.contributions, 1)
+
+
+class ExamSearchTests(TestCase):
+    def setUp(self):
+        self.analyse = Subject.objects.create(name="Analyse 1", semester=1)
+        self.algebre = Subject.objects.create(name="Algèbre 2", semester=2)
+        ExamPaper.objects.create(
+            title="Analyse 1 EMD1 2024",
+            subject=self.analyse,
+            year=2024,
+            exam_type=ExamType.EMD1,
+            drive_link="https://drive.google.com/a",
+            has_solution=True,
+        )
+        ExamPaper.objects.create(
+            title="Algèbre 2 Rattrapage 2023",
+            subject=self.algebre,
+            year=2023,
+            exam_type=ExamType.RATTRAPAGE,
+            drive_link="https://drive.google.com/b",
+            has_solution=False,
+        )
+
+    def test_returns_all_exam_papers(self):
+        response = self.client.get(EXAM_SEARCH_URL)
+        self.assertEqual(response.json()["count"], 2)
+
+    def test_filters_by_year(self):
+        response = self.client.get(EXAM_SEARCH_URL, {"year": 2024})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Analyse 1 EMD1 2024"])
+
+    def test_filters_by_solution_available(self):
+        response = self.client.get(EXAM_SEARCH_URL, {"solution": "1"})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Analyse 1 EMD1 2024"])
+
+
+class ResourceUploadTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Analyse 1", semester=1)
+        self.user = User.objects.create_user(username="uploader", password="x")
+        self.payload = {
+            "title": "My lecture notes",
+            "subject": self.subject.pk,
+            "resource_type": ResourceType.COURSE,
+            "drive_link": "https://drive.google.com/n",
+            "description": "",
+        }
+
+    def test_upload_creates_pending_resource(self):
+        self.client.force_login(self.user)
+        self.client.post("/resources/upload/", self.payload)
+        self.assertEqual(
+            Resource.objects.get(title="My lecture notes").status,
+            ResourceStatus.PENDING,
+        )
+
+    def test_upload_sets_uploader_to_current_user(self):
+        self.client.force_login(self.user)
+        self.client.post("/resources/upload/", self.payload)
+        self.assertEqual(
+            Resource.objects.get(title="My lecture notes").uploader_id, self.user.pk
+        )
+
+    def test_anonymous_upload_is_redirected(self):
+        response = self.client.post("/resources/upload/", self.payload)
+        self.assertEqual(response.status_code, 302)

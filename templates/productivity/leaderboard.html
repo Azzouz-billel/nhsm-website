@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Leaderboard — NHSM Hub{% endblock %}
+{% block description %}Friendly focus-time rankings within your year group, with an anonymous option and a sortable streak column.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Leaderboard</p>
+      <h2>Focus rankings.</h2>
+      <p class="muted">Ranked by focus minutes. Defaults to your year group — switch to global anytime. Set yourself to anonymous in your <a href="{% url 'profile' %}">profile</a>.</p>
+    </div>
+
+    <div class="lb-controls" data-lb
+         data-api="{% url 'api_leaderboard' %}"
+         data-my-group="{{ my_group }}">
+      <div class="ts-field">
+        <label for="lb-window">Window</label>
+        <select id="lb-window" class="field" data-filter-window>
+          <option value="today">Today</option>
+          <option value="week">This week</option>
+          <option value="semester">This semester</option>
+          <option value="all" selected>All-time</option>
+        </select>
+      </div>
+      <div class="ts-field">
+        <label for="lb-group">Group</label>
+        <select id="lb-group" class="field" data-filter-group>
+          <option value="global" {% if not my_group %}selected{% endif %}>Global</option>
+          {% for value, label in groups %}
+            <option value="{{ value }}" {% if value == my_group %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="mvp-card" data-mvp hidden>
+      <span class="mvp-badge">★ MVP</span>
+      <span class="mvp-name" data-mvp-name></span>
+      <span class="mvp-meta" data-mvp-meta></span>
+    </div>
+
+    <div class="me-card" data-me hidden>
+      <span class="me-label">Your position</span>
+      <span class="me-rank" data-me-rank></span>
+      <span class="me-meta" data-me-meta></span>
+    </div>
+
+    <table class="lb-table">
+      <thead>
+        <tr>
+          <th class="col-rank">#</th>
+          <th>Student</th>
+          <th class="col-group">Group</th>
+          <th class="col-num sortable" data-sort="minutes" aria-sort="descending">Minutes</th>
+          <th class="col-num sortable" data-sort="streak">Streak</th>
+        </tr>
+      </thead>
+      <tbody data-rows></tbody>
+    </table>
+    <div class="empty-state" data-empty hidden>No focus time logged for this filter yet.</div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/leaderboard.js' %}"></script>
+{% endblock %}

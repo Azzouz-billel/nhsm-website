@@ -1,0 +1,54 @@
+from django import forms
+
+from apps.accounts.models import User
+from apps.resources.models import ExamPaper, Resource, Subject
+
+
+def _style(form):
+    """Add the .field CSS class to every non-checkbox widget."""
+    for field in form.fields.values():
+        if isinstance(field.widget, forms.CheckboxInput):
+            continue
+        existing = field.widget.attrs.get("class", "")
+        field.widget.attrs["class"] = (existing + " field").strip()
+
+
+class SubjectAdminForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ("name", "semester", "description")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self)
+
+
+class ResourceAdminForm(forms.ModelForm):
+    class Meta:
+        model = Resource
+        fields = ("title", "subject", "resource_type", "drive_link", "description", "status")
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self)
+
+
+class ExamAdminForm(forms.ModelForm):
+    class Meta:
+        model = ExamPaper
+        fields = ("title", "subject", "year", "exam_type", "drive_link", "has_solution", "solution_link")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self)
+
+
+class UserRoleForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("role", "academic_group", "is_active")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self)

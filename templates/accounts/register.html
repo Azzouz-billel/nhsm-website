@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Create account — NHSM Hub{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container auth-wrap">
+    <div class="auth-card">
+      <p class="eyebrow">Join NHSM Hub</p>
+      <h2>Create your account</h2>
+      <p class="muted">Track your study time, climb your year-group leaderboard, and contribute resources.</p>
+      <form method="post" class="form" novalidate>
+        {% csrf_token %}
+        {% include "partials/form_fields.html" %}
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Create account</button>
+        </div>
+      </form>
+      <p class="muted auth-alt">Already have an account? <a href="{% url 'login' %}">Log in</a>.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Resource library — NHSM Hub{% endblock %}
+{% block description %}Filter NHSM course notes by semester, module and resource type, and open them in Google Drive.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Resource library</p>
+      <h2>Find your study material.</h2>
+      <p class="muted">Filter by semester, module or type. Results update as you choose.</p>
+    </div>
+
+    <div class="lib-layout">
+      <aside class="filter-bar" aria-label="Filters">
+        <div class="filter-group">
+          <label for="filter-search">Search</label>
+          <input type="search" id="filter-search" class="field" data-filter="q"
+                 placeholder="Title or keyword…" autocomplete="off">
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-semester">Semester</label>
+          <select id="filter-semester" class="field" data-filter="semester">
+            <option value="">All semesters</option>
+            {% for s in semesters %}
+              <option value="{{ s }}">Semester {{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-subject">Module</label>
+          <select id="filter-subject" class="field" data-filter="subject">
+            <option value="">All modules</option>
+            {% for subject in subjects %}
+              <option value="{{ subject.slug }}" data-semester="{{ subject.semester }}">
+                S{{ subject.semester }} · {{ subject.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Type</label>
+          <div class="chip-row" data-chip-group="type">
+            <button type="button" class="chip" data-filter-chip="type" data-value="" aria-pressed="true">All</button>
+            {% for value, label in resource_types %}
+              <button type="button" class="chip" data-filter-chip="type" data-value="{{ value }}" aria-pressed="false">{{ label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-ghost btn-sm" data-filter-reset>Clear filters</button>
+      </aside>
+
+      <div>
+        <div class="results-head">
+          <h3 style="margin:0;">Results</h3>
+          <span class="results-count" data-results-count aria-live="polite"></span>
+        </div>
+        <div class="resource-grid" data-results></div>
+        <div class="empty-state" data-empty hidden>No resources match these filters yet.</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/resources.js' %}"></script>
+{% endblock %}

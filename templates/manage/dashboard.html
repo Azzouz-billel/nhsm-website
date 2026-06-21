@@ -1,0 +1,19 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Dashboard{% endblock %}
+
+{% block manage_content %}
+<div class="stat-cards">
+  <div class="stat-card"><div class="num">{{ resource_total }}</div><div class="label">Resources · {{ resource_pending }} pending</div></div>
+  <div class="stat-card"><div class="num">{{ exam_total }}</div><div class="label">Exam papers</div></div>
+  <div class="stat-card"><div class="num">{{ subject_total }}</div><div class="label">Subjects</div></div>
+  <div class="stat-card"><div class="num">{{ request_total }}</div><div class="label">Requests</div></div>
+  <div class="stat-card"><div class="num">{{ user_total }}</div><div class="label">Users · {{ admin_total }} admin</div></div>
+</div>
+
+<div class="manage-actions">
+  <a class="btn btn-primary" href="{% url 'manage_resource_create' %}">+ Add resource</a>
+  <a class="btn btn-ghost" href="{% url 'manage_exam_create' %}">+ Add exam paper</a>
+  <a class="btn btn-ghost" href="{% url 'manage_subject_create' %}">+ Add subject</a>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}{{ heading }}{% endblock %}
+
+{% block manage_content %}
+<div class="auth-card manage-form">
+  <form method="post" class="form" novalidate>
+    {% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Save</button>
+      <a class="btn btn-ghost" href="{% url back_url %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

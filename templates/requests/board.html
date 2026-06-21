@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Request board — NHSM Hub{% endblock %}
+{% block description %}Ask for missing resources and upvote the ones you need most. Contributors work through the most-wanted first.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Request board</p>
+      <h2>Ask for what's missing.</h2>
+      <p class="muted">Post a request, upvote the ones you need, and contributors tackle the most-wanted first.</p>
+    </div>
+
+    <div class="lib-layout">
+      <aside class="filter-bar">
+        <h3 style="margin-top:0;">Request a resource</h3>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'request_board' %}" class="form" novalidate>
+            {% csrf_token %}
+            {% include "partials/form_fields.html" %}
+            <button class="btn btn-primary" type="submit">Post request</button>
+          </form>
+        {% else %}
+          <p class="muted"><a href="{% url 'login' %}">Log in</a> to post a request or upvote.</p>
+        {% endif %}
+      </aside>
+
+      <div>
+        <div class="chip-row req-filter">
+          <a class="chip {% if not active_status %}active{% endif %}" href="{% url 'request_board' %}">All</a>
+          {% for value, label in statuses %}
+            <a class="chip {% if active_status == value %}active{% endif %}" href="?status={{ value }}">{{ label }}</a>
+          {% endfor %}
+        </div>
+
+        {% for req in requests %}
+          <article class="req-card">
+            <form class="vote-form" method="post" action="{% url 'request_vote' req.id %}" data-vote>
+              {% csrf_token %}
+              <button type="submit" class="vote-btn {% if req.id in voted_ids %}voted{% endif %}" data-vote-btn
+                      aria-pressed="{% if req.id in voted_ids %}true{% else %}false{% endif %}">
+                <span class="vote-arrow" aria-hidden="true">▲</span>
+                <span class="vote-count" data-vote-count>{{ req.votes_count }}</span>
+              </button>
+            </form>
+
+            <div class="req-body">
+              <div class="req-meta">
+                <span class="req-status {{ req.status }}">{{ req.get_status_display }}</span>
+                {% if req.subject %}<span class="badge sem">S{{ req.subject.semester }} · {{ req.subject.name }}</span>{% endif %}
+              </div>
+              <h3>{{ req.title }}</h3>
+              {% if req.description %}<p class="muted">{{ req.description }}</p>{% endif %}
+              <p class="req-byline">{% if req.author %}by {{ req.author.board_name }}{% endif %} · {{ req.created_at|date:"M j, Y" }}</p>
+
+              {% if req.status == 'fulfilled' and req.fulfilled_link %}
+                <a class="btn btn-primary btn-sm" href="{{ req.fulfilled_link }}" target="_blank" rel="noopener">Open resource →</a>
+              {% endif %}
+
+              {% if user == req.author or user.is_approver %}
+                <details class="req-manage">
+                  <summary>Manage</summary>
+                  <form method="post" action="{% url 'request_status' req.id %}" class="req-status-form">
+                    {% csrf_token %}
+                    <select name="status" class="field">
+                      {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if req.status == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <input type="url" name="fulfilled_link" class="field" placeholder="Link (when fulfilled)" value="{{ req.fulfilled_link }}">
+                    <button class="btn btn-ghost btn-sm" type="submit">Save</button>
+                  </form>
+                </details>
+              {% endif %}
+            </div>
+          </article>
+        {% empty %}
+          <div class="empty-state">No requests yet — be the first to ask for a resource.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/requests.js' %}"></script>
+{% endblock %}

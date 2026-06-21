@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Upload a resource — NHSM Hub{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container auth-wrap">
+    <div class="auth-card">
+      <p class="eyebrow">Contribute</p>
+      <h2>Upload a resource</h2>
+      <p class="muted">Share a Google Drive link. An approver reviews it before it appears in the library.</p>
+      <form method="post" class="form" novalidate>
+        {% csrf_token %}
+        {% include "partials/form_fields.html" %}
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Submit for review</button>
+          <a class="btn btn-ghost" href="{% url 'resource_library' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
