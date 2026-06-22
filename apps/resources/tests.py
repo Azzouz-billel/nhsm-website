@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from .models import (
@@ -7,6 +8,7 @@ from .models import (
     Resource,
     ResourceStatus,
     ResourceType,
+    Speciality,
     Subject,
 )
 
@@ -150,3 +152,19 @@ class ResourceUploadTests(TestCase):
     def test_anonymous_upload_is_redirected(self):
         response = self.client.post("/resources/upload/", self.payload)
         self.assertEqual(response.status_code, 302)
+
+
+class SubjectValidationTests(TestCase):
+    def test_advanced_subject_requires_speciality(self):
+        subject = Subject(name="Cryptographie Avancée", semester=7)
+        with self.assertRaises(ValidationError):
+            subject.full_clean()
+
+    def test_common_core_subject_rejects_speciality(self):
+        subject = Subject(name="Analyse 1", semester=3, speciality=Speciality.MODELING)
+        with self.assertRaises(ValidationError):
+            subject.full_clean()
+
+    def test_advanced_subject_with_speciality_is_valid(self):
+        subject = Subject(name="Modélisation", semester=8, speciality=Speciality.MODELING)
+        self.assertIsNone(subject.full_clean())

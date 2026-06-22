@@ -5,9 +5,16 @@ pending -> approved -> rejected workflow; only approved resources are public.
 """
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+
+
+class Speciality(models.TextChoices):
+    CRYPTOLOGY = "cryptology", "Cryptology"
+    MODELING = "modeling", "Modeling"
+    DATA_SCIENCE = "data_science", "Data Science"
 
 
 class Subject(models.Model):
@@ -17,6 +24,12 @@ class Subject(models.Model):
     slug = models.SlugField(max_length=160, unique=True, blank=True)
     semester = models.PositiveSmallIntegerField(help_text="1–10 across the five years.")
     description = models.CharField(max_length=255, blank=True)
+    speciality = models.CharField(
+        max_length=20,
+        choices=Speciality.choices,
+        blank=True,
+        help_text="Required for S7–S10; leave blank for the S1–S6 common core.",
+    )
 
     class Meta:
         ordering = ["semester", "name"]
@@ -28,6 +41,19 @@ class Subject(models.Model):
 
     def __str__(self):
         return f"S{self.semester} · {self.name}"
+
+    def clean(self):
+        super().clean()
+        if self.semester is None:
+            return
+        if self.semester >= 7 and not self.speciality:
+            raise ValidationError(
+                {"speciality": "Modules from S7 onward must have a speciality."}
+            )
+        if self.semester <= 6 and self.speciality:
+            raise ValidationError(
+                {"speciality": "S1–S6 modules are common core; leave speciality blank."}
+            )
 
     def save(self, *args, **kwargs):
         if not self.slug:
