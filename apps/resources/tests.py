@@ -231,3 +231,9 @@ class SpecialityFilterRenderTests(TestCase):
     def test_annales_page_renders_speciality_filter(self):
         response = self.client.get(reverse("annales"))
         self.assertContains(response, "Data Science")
+
+
+class FooterSocialLinksTests(TestCase):
+    def test_footer_links_to_github_profile(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "https://github.com/Azzouz-billel")
