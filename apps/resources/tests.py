@@ -168,3 +168,26 @@ class SubjectValidationTests(TestCase):
     def test_advanced_subject_with_speciality_is_valid(self):
         subject = Subject(name="Modélisation", semester=8, speciality=Speciality.MODELING)
         self.assertIsNone(subject.full_clean())
+
+
+class ResourceSpecialityFilterTests(TestCase):
+    def setUp(self):
+        crypto = Subject.objects.create(
+            name="Cryptographie", semester=7, speciality=Speciality.CRYPTOLOGY
+        )
+        modeling = Subject.objects.create(
+            name="Modélisation", semester=7, speciality=Speciality.MODELING
+        )
+        Resource.objects.create(
+            title="Crypto Cours", subject=crypto, resource_type=ResourceType.COURSE,
+            drive_link="https://drive.google.com/c", status=ResourceStatus.APPROVED,
+        )
+        Resource.objects.create(
+            title="Modeling Cours", subject=modeling, resource_type=ResourceType.COURSE,
+            drive_link="https://drive.google.com/m", status=ResourceStatus.APPROVED,
+        )
+
+    def test_filters_resources_by_speciality(self):
+        response = self.client.get(SEARCH_URL, {"speciality": "cryptology"})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Crypto Cours"])

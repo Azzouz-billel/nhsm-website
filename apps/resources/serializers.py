@@ -8,6 +8,8 @@ class ResourceSerializer(serializers.ModelSerializer):
     subject_slug = serializers.CharField(source="subject.slug", read_only=True)
     semester = serializers.IntegerField(source="subject.semester", read_only=True)
     type_label = serializers.CharField(source="get_resource_type_display", read_only=True)
+    speciality = serializers.CharField(source="subject.speciality", read_only=True)
+    speciality_label = serializers.CharField(source="subject.get_speciality_display", read_only=True)
 
     class Meta:
         model = Resource
@@ -17,6 +19,8 @@ class ResourceSerializer(serializers.ModelSerializer):
             "subject_name",
             "subject_slug",
             "semester",
+            "speciality",
+            "speciality_label",
             "resource_type",
             "type_label",
             "drive_link",
@@ -30,6 +34,8 @@ class ExamPaperSerializer(serializers.ModelSerializer):
     subject_slug = serializers.CharField(source="subject.slug", read_only=True)
     semester = serializers.IntegerField(source="subject.semester", read_only=True)
     type_label = serializers.CharField(source="get_exam_type_display", read_only=True)
+    speciality = serializers.CharField(source="subject.speciality", read_only=True)
+    speciality_label = serializers.CharField(source="subject.get_speciality_display", read_only=True)
 
     class Meta:
         model = ExamPaper
@@ -39,6 +45,8 @@ class ExamPaperSerializer(serializers.ModelSerializer):
             "subject_name",
             "subject_slug",
             "semester",
+            "speciality",
+            "speciality_label",
             "year",
             "exam_type",
             "type_label",

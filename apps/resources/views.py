@@ -89,6 +89,10 @@ class ResourceSearchAPIView(ListAPIView):
         if subject:
             qs = qs.filter(subject__slug=subject)
 
+        speciality = params.get("speciality")
+        if speciality:
+            qs = qs.filter(subject__speciality=speciality)
+
         resource_type = params.get("type")
         if resource_type:
             qs = qs.filter(resource_type=resource_type)
@@ -143,6 +147,10 @@ class ExamSearchAPIView(ListAPIView):
         subject = params.get("subject")
         if subject:
             qs = qs.filter(subject__slug=subject)
+
+        speciality = params.get("speciality")
+        if speciality:
+            qs = qs.filter(subject__speciality=speciality)
 
         exam_type = params.get("type")
         if exam_type:
