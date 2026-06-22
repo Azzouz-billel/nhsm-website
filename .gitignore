@@ -13,3 +13,6 @@ media/
 # OS / editors
 .DS_Store
 *.log
+
+# Nested clone of this same repo — never track it as a gitlink
+nhsm-website/
