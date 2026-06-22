@@ -522,6 +522,10 @@ img { max-width: 100%; display: block; }
   background: var(--surface-3);
   color: var(--text-muted);
 }
+.badge.spec {
+  background: var(--surface-3);
+  color: var(--accent);
+}
 .badge-solution {
   background: var(--success-soft);
   color: var(--success);

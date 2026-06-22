@@ -7,7 +7,7 @@
   var emptyEl = document.querySelector("[data-empty]");
   if (!grid) return;
 
-  var state = { q: "", semester: "", subject: "", type: "" };
+  var state = { q: "", semester: "", speciality: "", subject: "", type: "" };
   var debounceTimer = null;
 
   function escapeHtml(value) {
@@ -22,6 +22,7 @@
         '<div class="meta">' +
           '<span class="badge">' + escapeHtml(r.type_label) + "</span>" +
           '<span class="badge sem">S' + escapeHtml(r.semester) + "</span>" +
+          (r.speciality ? '<span class="badge spec">' + escapeHtml(r.speciality_label) + "</span>" : "") +
         "</div>" +
         "<h3>" + escapeHtml(r.title) + "</h3>" +
         '<p class="subj">' + escapeHtml(r.subject_name) + "</p>" +
@@ -102,7 +103,7 @@
   var reset = document.querySelector("[data-filter-reset]");
   if (reset) {
     reset.addEventListener("click", function () {
-      state = { q: "", semester: "", subject: "", type: "" };
+      state = { q: "", semester: "", speciality: "", subject: "", type: "" };
       document.querySelectorAll("[data-filter]").forEach(function (i) { i.value = ""; });
       document.querySelectorAll("[data-filter-chip]").forEach(function (c) {
         c.setAttribute("aria-pressed", c.getAttribute("data-value") === "" ? "true" : "false");

@@ -12,6 +12,7 @@ from .models import (
     Resource,
     ResourceStatus,
     ResourceType,
+    Speciality,
     Subject,
 )
 from .serializers import ExamPaperSerializer, ResourceSerializer
@@ -47,6 +48,7 @@ def resource_library(request):
         "subjects": subjects,
         "semesters": semesters,
         "resource_types": ResourceType.choices,
+        "specialities": Speciality.choices,
     }
     return render(request, "resources/library.html", context)
 
@@ -123,6 +125,7 @@ def annales(request):
         "semesters": sorted({s.semester for s in subjects}),
         "years": list(years),
         "exam_types": ExamType.choices,
+        "specialities": Speciality.choices,
     }
     return render(request, "resources/annales.html", context)
 

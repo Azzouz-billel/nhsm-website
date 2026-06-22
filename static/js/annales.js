@@ -7,7 +7,7 @@
   var emptyEl = document.querySelector("[data-empty]");
   if (!grid) return;
 
-  var state = { q: "", year: "", semester: "", subject: "", type: "", solution: "" };
+  var state = { q: "", year: "", semester: "", speciality: "", subject: "", type: "", solution: "" };
   var debounceTimer = null;
 
   function escapeHtml(value) {
@@ -34,6 +34,7 @@
           '<span class="badge">' + escapeHtml(exam.type_label) + "</span>" +
           '<span class="badge sem">' + escapeHtml(exam.year) + "</span>" +
           '<span class="badge sem">S' + escapeHtml(exam.semester) + "</span>" +
+          (exam.speciality ? '<span class="badge spec">' + escapeHtml(exam.speciality_label) + "</span>" : "") +
         "</div>" +
         "<h3>" + escapeHtml(exam.title) + "</h3>" +
         '<p class="subj">' + escapeHtml(exam.subject_name) + "</p>" +
@@ -120,7 +121,7 @@
   var reset = document.querySelector("[data-filter-reset]");
   if (reset) {
     reset.addEventListener("click", function () {
-      state = { q: "", year: "", semester: "", subject: "", type: "", solution: "" };
+      state = { q: "", year: "", semester: "", speciality: "", subject: "", type: "", solution: "" };
       document.querySelectorAll("[data-filter]").forEach(function (i) { i.value = ""; });
       document.querySelectorAll("[data-filter-check]").forEach(function (c) { c.checked = false; });
       document.querySelectorAll("[data-filter-chip]").forEach(function (c) {

@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import (
     ExamPaper,
@@ -220,3 +221,13 @@ class ResourceSpecialityFilterTests(TestCase):
         response = self.client.get(SEARCH_URL, {"speciality": "cryptology"})
         titles = [r["title"] for r in response.json()["results"]]
         self.assertEqual(titles, ["Crypto Cours"])
+
+
+class SpecialityFilterRenderTests(TestCase):
+    def test_library_page_renders_speciality_filter(self):
+        response = self.client.get(reverse("resource_library"))
+        self.assertContains(response, "Cryptology")
+
+    def test_annales_page_renders_speciality_filter(self):
+        response = self.client.get(reverse("annales"))
+        self.assertContains(response, "Data Science")
