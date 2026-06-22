@@ -98,3 +98,9 @@ class SubjectAdminFormTests(TestCase):
             data={"name": "Crypto Avancée", "semester": 8, "speciality": "cryptology", "description": ""}
         )
         self.assertTrue(form.is_valid())
+
+    def test_rejects_common_core_subject_with_speciality(self):
+        form = SubjectAdminForm(
+            data={"name": "Analyse 1", "semester": 3, "speciality": "cryptology", "description": ""}
+        )
+        self.assertIn("speciality", form.errors)
