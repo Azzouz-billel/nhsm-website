@@ -122,6 +122,35 @@ class ExamSearchTests(TestCase):
         self.assertEqual(titles, ["Analyse 1 EMD1 2024"])
 
 
+class ExamSpecialityFilterTests(TestCase):
+    def setUp(self):
+        crypto = Subject.objects.create(
+            name="Cryptographie", semester=7, speciality=Speciality.CRYPTOLOGY
+        )
+        modeling = Subject.objects.create(
+            name="Modélisation", semester=7, speciality=Speciality.MODELING
+        )
+        ExamPaper.objects.create(
+            title="Crypto EMD1",
+            subject=crypto,
+            year=2024,
+            exam_type=ExamType.EMD1,
+            drive_link="https://drive.google.com/crypto",
+        )
+        ExamPaper.objects.create(
+            title="Modeling EMD1",
+            subject=modeling,
+            year=2024,
+            exam_type=ExamType.EMD1,
+            drive_link="https://drive.google.com/modeling",
+        )
+
+    def test_filters_exams_by_speciality(self):
+        response = self.client.get(EXAM_SEARCH_URL, {"speciality": "cryptology"})
+        titles = [r["title"] for r in response.json()["results"]]
+        self.assertEqual(titles, ["Crypto EMD1"])
+
+
 class ResourceUploadTests(TestCase):
     def setUp(self):
         self.subject = Subject.objects.create(name="Analyse 1", semester=1)
