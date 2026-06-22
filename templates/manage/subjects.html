@@ -9,12 +9,13 @@
 </div>
 
 <table class="lb-table manage-table">
-  <thead><tr><th>Name</th><th>Semester</th><th>Description</th><th class="col-actions">Actions</th></tr></thead>
+  <thead><tr><th>Name</th><th>Semester</th><th>Speciality</th><th>Description</th><th class="col-actions">Actions</th></tr></thead>
   <tbody>
     {% for s in subjects %}
       <tr>
         <td>{{ s.name }}</td>
         <td>S{{ s.semester }}</td>
+        <td class="muted">{{ s.get_speciality_display|default:"—" }}</td>
         <td class="muted">{{ s.description|default:"—" }}</td>
         <td class="manage-row-actions">
           <a class="btn btn-ghost btn-sm" href="{% url 'manage_subject_edit' s.pk %}">Edit</a>
@@ -24,7 +25,7 @@
         </td>
       </tr>
     {% empty %}
-      <tr><td colspan="4" class="muted">No subjects yet.</td></tr>
+      <tr><td colspan="5" class="muted">No subjects yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>

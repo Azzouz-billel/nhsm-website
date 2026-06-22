@@ -3,6 +3,7 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from apps.accounts.models import Role
+from apps.administration.forms import SubjectAdminForm
 from apps.resources.models import Resource, ResourceStatus, Subject
 
 User = get_user_model()
@@ -85,3 +86,15 @@ class UserRoleEditTests(TestCase):
         )
         self.target.refresh_from_db()
         self.assertEqual(self.target.role, Role.APPROVER)
+
+
+class SubjectAdminFormTests(TestCase):
+    def test_rejects_advanced_subject_without_speciality(self):
+        form = SubjectAdminForm(data={"name": "Crypto Avancée", "semester": 8, "description": ""})
+        self.assertFalse(form.is_valid())
+
+    def test_accepts_advanced_subject_with_speciality(self):
+        form = SubjectAdminForm(
+            data={"name": "Crypto Avancée", "semester": 8, "speciality": "cryptology", "description": ""}
+        )
+        self.assertTrue(form.is_valid())

@@ -16,7 +16,7 @@ def _style(form):
 class SubjectAdminForm(forms.ModelForm):
     class Meta:
         model = Subject
-        fields = ("name", "semester", "description")
+        fields = ("name", "semester", "speciality", "description")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

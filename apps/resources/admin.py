@@ -5,8 +5,8 @@ from .models import ExamPaper, Resource, Subject
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ("name", "semester")
-    list_filter = ("semester",)
+    list_display = ("name", "semester", "speciality")
+    list_filter = ("semester", "speciality")
     search_fields = ("name",)
     prepopulated_fields = {"slug": ("name",)}
 
@@ -14,7 +14,7 @@ class SubjectAdmin(admin.ModelAdmin):
 @admin.register(Resource)
 class ResourceAdmin(admin.ModelAdmin):
     list_display = ("title", "subject", "resource_type", "status", "created_at")
-    list_filter = ("status", "resource_type", "subject__semester")
+    list_filter = ("status", "resource_type", "subject__semester", "subject__speciality")
     search_fields = ("title", "description")
     autocomplete_fields = ("subject",)
     actions = ("approve_selected", "reject_selected")
@@ -35,6 +35,6 @@ class ResourceAdmin(admin.ModelAdmin):
 @admin.register(ExamPaper)
 class ExamPaperAdmin(admin.ModelAdmin):
     list_display = ("title", "subject", "year", "exam_type", "has_solution")
-    list_filter = ("year", "exam_type", "has_solution", "subject__semester")
+    list_filter = ("year", "exam_type", "has_solution", "subject__semester", "subject__speciality")
     search_fields = ("title", "subject__name")
     autocomplete_fields = ("subject",)
