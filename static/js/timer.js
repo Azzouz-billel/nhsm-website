@@ -29,12 +29,17 @@
   var PHASE_LABEL = { focus: "Focus", break: "Short break", long: "Long break" };
 
   var auth = root.getAttribute("data-auth") === "1";
+  var STORE_KEY = "nhsm-timer";
+  // Resuming a block that ended longer ago than this (e.g. a tab left open
+  // overnight) is treated as stale rather than logging a phantom focus block.
+  var STALE_MS = 60 * 60 * 1000;
   var state = {
     phase: "focus",
     total: 25 * 60,
     remaining: 25 * 60,
     running: false,
     completedFocus: 0,
+    endAt: null,
   };
   var ticker = null;
   var audioCtx = null;
@@ -85,12 +90,15 @@
     state.phase = phase;
     state.total = phaseSeconds(phase);
     state.remaining = state.total;
+    if (state.running) state.endAt = Date.now() + state.total * 1000;
     render();
+    persist();
   }
 
   function tick() {
-    state.remaining -= 1;
+    state.remaining = Math.round((state.endAt - Date.now()) / 1000);
     if (state.remaining <= 0) {
+      state.remaining = 0;
       completePhase();
     } else {
       render();
@@ -121,14 +129,21 @@
     els.hint.textContent = "";
     ensureAudio();
     state.running = true;
+    state.endAt = Date.now() + state.remaining * 1000;
     ticker = setInterval(tick, 1000);
     render();
+    persist();
   }
 
   function pause() {
+    if (state.running && state.endAt) {
+      state.remaining = Math.max(0, Math.round((state.endAt - Date.now()) / 1000));
+    }
     state.running = false;
+    state.endAt = null;
     clearInterval(ticker);
     render();
+    persist();
   }
 
   function toggle() {
@@ -202,16 +217,90 @@
     }
   }
 
+  function persist() {
+    try {
+      localStorage.setItem(
+        STORE_KEY,
+        JSON.stringify({
+          phase: state.phase,
+          completedFocus: state.completedFocus,
+          running: state.running,
+          endAt: state.endAt,
+          remaining: state.remaining,
+          focus: els.focus.value,
+          brk: els.brk.value,
+          subject: els.subject.value,
+        })
+      );
+    } catch (e) {
+      /* storage unavailable — the timer still works for this page view */
+    }
+  }
+
+  // Restore a timer saved on a previous page view so it keeps running across
+  // navigations. The countdown is wall-clock based (endAt), so time elapsed
+  // while away is accounted for instead of lost.
+  function restore() {
+    var raw;
+    try {
+      raw = localStorage.getItem(STORE_KEY);
+    } catch (e) {
+      return;
+    }
+    if (!raw) return;
+    var saved;
+    try {
+      saved = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+
+    if (saved.focus != null) els.focus.value = saved.focus;
+    if (saved.brk != null) els.brk.value = saved.brk;
+    if (saved.subject != null) els.subject.value = saved.subject;
+
+    state.phase = saved.phase || "focus";
+    state.completedFocus = saved.completedFocus || 0;
+    state.total = phaseSeconds(state.phase);
+
+    if (saved.running && saved.endAt) {
+      state.endAt = saved.endAt;
+      state.running = true;
+      state.remaining = Math.round((state.endAt - Date.now()) / 1000);
+      if (state.remaining <= 0) {
+        // The phase finished while we were away. Ignore a long-abandoned timer;
+        // otherwise complete that block and roll into the next phase.
+        if (Date.now() - state.endAt > STALE_MS) {
+          state.running = false;
+          state.endAt = null;
+          state.completedFocus = 0;
+          setPhase("focus");
+          return;
+        }
+        completePhase();
+      }
+      ticker = setInterval(tick, 1000);
+    } else {
+      state.running = false;
+      state.endAt = null;
+      state.remaining = saved.remaining != null ? saved.remaining : state.total;
+    }
+  }
+
   els.start.addEventListener("click", toggle);
   els.skip.addEventListener("click", skip);
   els.reset.addEventListener("click", reset);
+  els.subject.addEventListener("change", persist);
 
-  // Editing durations while paused re-arms the current phase.
+  // Editing durations re-arms the current phase when paused, and is saved
+  // either way so the change survives a page navigation.
   [els.focus, els.brk].forEach(function (input) {
     input.addEventListener("change", function () {
       if (!state.running) setPhase(state.phase);
+      else persist();
     });
   });
 
+  restore();
   render();
 })();
