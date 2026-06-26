@@ -20,12 +20,21 @@ DATABASES = {
     "default": env.db("DATABASE_URL"),
 }
 
-# Optional S3 media storage — enabled only when a bucket is configured.
+# Persistent media storage. Uploaded files (avatars) would otherwise vanish
+# with the ephemeral container disk and aren't served when DEBUG is off, so a
+# cloud backend is required for media to work in production.
+# Preference order: S3 if a bucket is set, else Cloudinary if CLOUDINARY_URL is
+# set. With neither, media falls back to local storage (uploads won't persist).
 if env("AWS_STORAGE_BUCKET_NAME", default=""):
     STORAGES["default"] = {"BACKEND": "storages.backends.s3.S3Storage"}  # noqa: F405
     AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
     AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="eu-west-1")
     AWS_QUERYSTRING_AUTH = False
+elif env("CLOUDINARY_URL", default=""):
+    INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]  # noqa: F405
+    STORAGES["default"] = {  # noqa: F405
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+    }
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True

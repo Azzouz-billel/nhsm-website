@@ -10,3 +10,8 @@ gunicorn==23.0.0
 psycopg[binary]==3.2.3
 django-storages==1.14.4
 boto3==1.35.36
+
+# Media hosting — avatars persist across deploys. Activated in production
+# only when CLOUDINARY_URL is set (see config/settings/production.py).
+cloudinary==1.44.2
+django-cloudinary-storage==0.3.0
