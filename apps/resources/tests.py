@@ -243,3 +243,9 @@ class AnnalesExamTypeTests(TestCase):
     def test_annales_page_offers_final_exam_type(self):
         response = self.client.get(reverse("annales"))
         self.assertContains(response, "Final exam")
+
+
+class GoogleSiteVerificationTests(TestCase):
+    def test_serves_verification_token_at_site_root(self):
+        response = self.client.get("/googleb55567535a46ef21.html")
+        self.assertContains(response, "google-site-verification: googleb55567535a46ef21.html")
