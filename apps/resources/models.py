@@ -145,6 +145,7 @@ class ExamType(models.TextChoices):
     EMD2 = "emd2", "EMD 2"
     RATTRAPAGE = "rattrapage", "Rattrapage"
     CONTROLE = "controle", "Contrôle continu"
+    FINAL = "final", "Final exam"
     OTHER = "other", "Autre"
 
 

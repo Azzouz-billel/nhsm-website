@@ -237,3 +237,9 @@ class FooterSocialLinksTests(TestCase):
     def test_footer_links_to_github_profile(self):
         response = self.client.get(reverse("home"))
         self.assertContains(response, "https://github.com/Azzouz-billel")
+
+
+class AnnalesExamTypeTests(TestCase):
+    def test_annales_page_offers_final_exam_type(self):
+        response = self.client.get(reverse("annales"))
+        self.assertContains(response, "Final exam")
