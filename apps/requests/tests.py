@@ -82,3 +82,26 @@ class StatusUpdateTests(TestCase):
             f"/requests/{self.req.pk}/status/", {"status": "fulfilled"}
         )
         self.assertEqual(response.status_code, 403)
+
+
+class DeleteTests(TestCase):
+    def setUp(self):
+        self.author = User.objects.create_user(username="author", password="x")
+        self.other = User.objects.create_user(username="other", password="x")
+        self.admin = User.objects.create_user(username="boss", password="x", role="admin")
+        self.req = ResourceRequest.objects.create(title="A request", author=self.author)
+
+    def test_author_can_delete_request(self):
+        self.client.force_login(self.author)
+        self.client.post(f"/requests/{self.req.pk}/delete/")
+        self.assertEqual(ResourceRequest.objects.filter(pk=self.req.pk).count(), 0)
+
+    def test_admin_can_delete_request(self):
+        self.client.force_login(self.admin)
+        self.client.post(f"/requests/{self.req.pk}/delete/")
+        self.assertEqual(ResourceRequest.objects.filter(pk=self.req.pk).count(), 0)
+
+    def test_other_user_cannot_delete_request(self):
+        self.client.force_login(self.other)
+        response = self.client.post(f"/requests/{self.req.pk}/delete/")
+        self.assertEqual(response.status_code, 403)

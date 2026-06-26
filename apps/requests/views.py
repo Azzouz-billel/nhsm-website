@@ -87,3 +87,15 @@ def update_status(request, pk):
         resource_request.save(update_fields=["status", "fulfilled_link"])
         messages.success(request, "Request updated.")
     return redirect("request_board")
+
+
+@login_required
+@require_POST
+def delete(request, pk):
+    """Delete a request — allowed for its author or an admin."""
+    resource_request = get_object_or_404(ResourceRequest, pk=pk)
+    if request.user != resource_request.author and not request.user.is_admin:
+        return HttpResponseForbidden("You can't delete this request.")
+    resource_request.delete()
+    messages.success(request, "Request deleted.")
+    return redirect("request_board")
