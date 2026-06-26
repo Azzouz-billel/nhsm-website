@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from .models import Role, ThemePreference
 
@@ -15,25 +15,13 @@ VALID = {
     "email": "s@example.com",
     "academic_group": "",
     "display_name": "",
-    "invite_code": "",
 }
 
 
-@override_settings(APPROVER_INVITE_CODE="secret-code")
 class RegistrationTests(TestCase):
-    def test_registration_without_invite_creates_student(self):
+    def test_registration_creates_student(self):
         self.client.post(REGISTER_URL, VALID)
         self.assertEqual(User.objects.get(username="newstudent").role, Role.STUDENT)
-
-    def test_valid_invite_creates_approver(self):
-        data = dict(VALID, username="newapprover", invite_code="secret-code")
-        self.client.post(REGISTER_URL, data)
-        self.assertEqual(User.objects.get(username="newapprover").role, Role.APPROVER)
-
-    def test_invalid_invite_rejects_registration(self):
-        data = dict(VALID, username="badactor", invite_code="wrong-code")
-        self.client.post(REGISTER_URL, data)
-        self.assertFalse(User.objects.filter(username="badactor").exists())
 
 
 class ThemePreferenceTests(TestCase):
