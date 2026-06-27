@@ -249,3 +249,13 @@ class GoogleSiteVerificationTests(TestCase):
     def test_serves_verification_token_at_site_root(self):
         response = self.client.get("/googleb55567535a46ef21.html")
         self.assertContains(response, "google-site-verification: googleb55567535a46ef21.html")
+
+
+class HealthCheckTests(TestCase):
+    def test_healthz_returns_ok(self):
+        response = self.client.get("/healthz")
+        self.assertEqual(response.content, b"ok")
+
+    def test_healthz_makes_no_database_queries(self):
+        with self.assertNumQueries(0):
+            self.client.get("/healthz")

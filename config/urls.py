@@ -13,8 +13,16 @@ def google_site_verification(request):
     )
 
 
+def health_check(request):
+    """Lightweight liveness endpoint with no DB access. An external uptime
+    pinger hits this to keep the free Render instance awake without waking the
+    (scale-to-zero) database."""
+    return HttpResponse("ok", content_type="text/plain")
+
+
 urlpatterns = [
     path("googleb55567535a46ef21.html", google_site_verification),
+    path("healthz", health_check),
     path("admin/", admin.site.urls),
     path("api/", include("apps.resources.api_urls")),
     path("api/", include("apps.productivity.api_urls")),
