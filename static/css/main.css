@@ -1282,3 +1282,40 @@ html.js .reveal { opacity: 0; }
   html.js .reveal { opacity: 1 !important; transform: none !important; }
   * { scroll-behavior: auto; }
 }
+
+/* Pixel-art custom cursor. Scoped to real mouse pointers so touch devices and
+   stylus users keep their native behaviour. Colours are baked into the PNGs. */
+@media (hover: hover) and (pointer: fine) {
+  html,
+  body {
+    cursor: url("../img/cursor-arrow.png") 0 0, auto;
+  }
+
+  a,
+  button,
+  summary,
+  label[for],
+  select,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  .btn,
+  .chip,
+  .vote-btn,
+  .theme-toggle,
+  .nav-toggle {
+    cursor: url("../img/cursor-pointer.png") 5 0, pointer;
+  }
+
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="number"],
+  textarea {
+    cursor: text;
+  }
+}
