@@ -1283,12 +1283,12 @@ html.js .reveal { opacity: 0; }
   * { scroll-behavior: auto; }
 }
 
-/* Pixel-art custom cursor. Scoped to real mouse pointers so touch devices and
-   stylus users keep their native behaviour. Colours are baked into the PNGs. */
+/* Pixel-art custom cursor (sword default, shield on clickables). Scoped to real
+   mouse pointers so touch devices and stylus users keep their native behaviour. */
 @media (hover: hover) and (pointer: fine) {
   html,
   body {
-    cursor: url("../img/cursor-arrow.png") 0 0, auto;
+    cursor: url("../img/cursor-sword.png") 2 2, auto;
   }
 
   a,
@@ -1306,7 +1306,7 @@ html.js .reveal { opacity: 0; }
   .vote-btn,
   .theme-toggle,
   .nav-toggle {
-    cursor: url("../img/cursor-pointer.png") 5 0, pointer;
+    cursor: url("../img/cursor-shield.png") 11 2, pointer;
   }
 
   input[type="text"],
