@@ -39,3 +39,13 @@ class UserStatsSignalTests(TestCase):
     def test_creating_user_creates_stats(self):
         user = User.objects.create_user(username="fresh", password="x")
         self.assertEqual(user.stats.total_study_minutes, 0)
+
+
+class ProfileFormTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="profiler", password="x")
+
+    def test_profile_page_has_no_file_upload(self):
+        self.client.force_login(self.user)
+        response = self.client.get("/accounts/profile/")
+        self.assertNotContains(response, 'type="file"')
