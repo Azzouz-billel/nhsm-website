@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import AcademicGroup
-from apps.resources.models import Subject
+from apps.resources.models import Speciality, Subject
 
 from .models import StudySession
 from .serializers import StudySessionSerializer
@@ -19,6 +19,32 @@ from .serializers import StudySessionSerializer
 User = get_user_model()
 
 WINDOWS = {"today", "week", "semester", "all"}
+
+# Which semesters (and, for 4th-year tracks, which speciality) each academic
+# group studies. Used to scope the timer's module list to the user's own year.
+_GROUP_SCOPE = {
+    AcademicGroup.FIRST_CYCLE: ((1, 2), ""),
+    AcademicGroup.SECOND_YEAR: ((3, 4), ""),
+    AcademicGroup.THIRD_YEAR: ((5, 6), ""),
+    AcademicGroup.FOURTH_MODELING: ((7, 8), Speciality.MODELING),
+    AcademicGroup.FOURTH_CRYPTOLOGY: ((7, 8), Speciality.CRYPTOLOGY),
+    AcademicGroup.FOURTH_DATA_SCIENCE: ((7, 8), Speciality.DATA_SCIENCE),
+    AcademicGroup.FIFTH_YEAR: ((9, 10), ""),
+}
+
+
+def _subjects_for(user):
+    """Timer modules scoped to the user's year (and track for 4th-years). A
+    blank/unknown group — anonymous users or profiles not filled in — sees all."""
+    subjects = Subject.objects.order_by("semester", "name")
+    scope = _GROUP_SCOPE.get(user.academic_group) if user.is_authenticated else None
+    if not scope:
+        return subjects
+    semesters, speciality = scope
+    subjects = subjects.filter(semester__in=semesters)
+    if speciality:
+        subjects = subjects.filter(speciality=speciality)
+    return subjects
 
 
 def _subject_breakdown(user):
@@ -32,7 +58,7 @@ def _subject_breakdown(user):
 
 def timer(request):
     """Pomodoro timer. Anonymous users can run it; only signed-in time is logged."""
-    context = {"subjects": Subject.objects.order_by("semester", "name")}
+    context = {"subjects": _subjects_for(request.user)}
     if request.user.is_authenticated:
         today = timezone.localdate()
         context["stats"] = request.user.stats

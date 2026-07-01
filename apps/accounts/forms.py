@@ -18,7 +18,7 @@ class RegistrationForm(UserCreationForm):
     email = forms.EmailField(required=False)
     academic_group = forms.ChoiceField(
         choices=[("", "— Select your group —")] + list(AcademicGroup.choices),
-        required=False,
+        required=True,
     )
     display_name = forms.CharField(max_length=60, required=False)
 

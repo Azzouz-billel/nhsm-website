@@ -13,7 +13,7 @@ VALID = {
     "password1": "Topology2026!",
     "password2": "Topology2026!",
     "email": "s@example.com",
-    "academic_group": "",
+    "academic_group": "first_cycle",
     "display_name": "",
 }
 
@@ -22,6 +22,11 @@ class RegistrationTests(TestCase):
     def test_registration_creates_student(self):
         self.client.post(REGISTER_URL, VALID)
         self.assertEqual(User.objects.get(username="newstudent").role, Role.STUDENT)
+
+    def test_registration_requires_academic_group(self):
+        data = dict(VALID, username="nogroup", academic_group="")
+        self.client.post(REGISTER_URL, data)
+        self.assertFalse(User.objects.filter(username="nogroup").exists())
 
 
 class ThemePreferenceTests(TestCase):

@@ -130,3 +130,33 @@ class LeaderboardTests(TestCase):
             LEADERBOARD_URL, {"group": "second_year", "sort": "streak"}
         ).json()["rows"]
         self.assertEqual(rows[0]["name"], "Bob")  # streak 9 beats Alice's 2
+
+
+class TimerModuleFilterTests(TestCase):
+    def setUp(self):
+        from apps.resources.models import Speciality
+        Subject.objects.create(name="Analyse 1", semester=1)
+        Subject.objects.create(name="Topologie", semester=5)
+        Subject.objects.create(name="Algebre", semester=6)
+        Subject.objects.create(name="Crypto", semester=7, speciality=Speciality.CRYPTOLOGY)
+        Subject.objects.create(name="Modeling", semester=7, speciality=Speciality.MODELING)
+
+    def test_third_year_sees_only_its_semesters(self):
+        from apps.accounts.models import AcademicGroup
+        user = User.objects.create_user(username="y3", password="x", academic_group=AcademicGroup.THIRD_YEAR)
+        self.client.force_login(user)
+        names = [s.name for s in self.client.get("/timer/").context["subjects"]]
+        self.assertEqual(names, ["Topologie", "Algebre"])
+
+    def test_fourth_year_track_sees_only_its_speciality(self):
+        from apps.accounts.models import AcademicGroup
+        user = User.objects.create_user(username="y4c", password="x", academic_group=AcademicGroup.FOURTH_CRYPTOLOGY)
+        self.client.force_login(user)
+        names = [s.name for s in self.client.get("/timer/").context["subjects"]]
+        self.assertEqual(names, ["Crypto"])
+
+    def test_user_without_group_sees_all_modules(self):
+        user = User.objects.create_user(username="nogroup", password="x")
+        self.client.force_login(user)
+        count = len(self.client.get("/timer/").context["subjects"])
+        self.assertEqual(count, 5)
