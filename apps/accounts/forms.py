@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import MaxLengthValidator
 
 from .models import AcademicGroup, User
 
@@ -28,6 +29,10 @@ class RegistrationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        username = self.fields["username"]
+        username.max_length = 30
+        username.validators.append(MaxLengthValidator(30))
+        username.widget.attrs["maxlength"] = "30"
         _style_fields(self.fields)
 
     def save(self, commit=True):

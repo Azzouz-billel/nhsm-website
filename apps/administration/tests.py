@@ -104,3 +104,10 @@ class SubjectAdminFormTests(TestCase):
             data={"name": "Analyse 1", "semester": 3, "speciality": "cryptology", "description": ""}
         )
         self.assertIn("speciality", form.errors)
+
+
+class AdminFormLimitTests(TestCase):
+    def test_subject_admin_form_rejects_long_name(self):
+        from apps.administration.forms import SubjectAdminForm
+        form = SubjectAdminForm(data={"name": "x" * 71, "semester": 1, "description": ""})
+        self.assertFalse(form.is_valid())

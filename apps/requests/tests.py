@@ -105,3 +105,18 @@ class DeleteTests(TestCase):
         self.client.force_login(self.other)
         response = self.client.post(f"/requests/{self.req.pk}/delete/")
         self.assertEqual(response.status_code, 403)
+
+
+class RequestLimitTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Analyse 1", semester=1)
+
+    def test_rejects_title_over_70(self):
+        from apps.requests.forms import RequestForm
+        form = RequestForm(data={"title": "x" * 71, "subject": self.subject.pk, "description": ""})
+        self.assertFalse(form.is_valid())
+
+    def test_rejects_description_over_70(self):
+        from apps.requests.forms import RequestForm
+        form = RequestForm(data={"title": "ok", "subject": self.subject.pk, "description": "x" * 71})
+        self.assertFalse(form.is_valid())

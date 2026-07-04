@@ -54,3 +54,10 @@ class ProfileFormTests(TestCase):
         self.client.force_login(self.user)
         response = self.client.get("/accounts/profile/")
         self.assertNotContains(response, 'type="file"')
+
+
+class UsernameLimitTests(TestCase):
+    def test_registration_rejects_long_username(self):
+        long_name = "x" * 31
+        self.client.post(REGISTER_URL, dict(VALID, username=long_name))
+        self.assertFalse(User.objects.filter(username=long_name).exists())

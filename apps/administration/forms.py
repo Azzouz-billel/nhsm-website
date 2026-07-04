@@ -1,7 +1,21 @@
 from django import forms
+from django.core.validators import MaxLengthValidator
 
 from apps.accounts.models import User
 from apps.resources.models import ExamPaper, Resource, Subject
+
+MAX_TEXT = 70
+
+
+def _cap(fields, names):
+    """Cap the named text fields at MAX_TEXT (server validator + browser maxlength)."""
+    for name in names:
+        field = fields.get(name)
+        if field is None:
+            continue
+        field.max_length = MAX_TEXT
+        field.validators.append(MaxLengthValidator(MAX_TEXT))
+        field.widget.attrs["maxlength"] = str(MAX_TEXT)
 
 
 def _style(form):
@@ -20,6 +34,7 @@ class SubjectAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        _cap(self.fields, ("name", "description"))
         _style(self)
 
 
@@ -31,6 +46,7 @@ class ResourceAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        _cap(self.fields, ("title", "description"))
         _style(self)
 
 
@@ -41,6 +57,7 @@ class ExamAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        _cap(self.fields, ("title",))
         _style(self)
 
 
