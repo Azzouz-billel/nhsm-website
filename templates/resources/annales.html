@@ -41,7 +41,7 @@
           </select>
         </div>
 
-        <div class="filter-group">
+        <div class="filter-group" data-speciality-group>
           <label for="filter-speciality">Speciality</label>
           <select id="filter-speciality" class="field" data-filter="speciality">
             <option value="">All specialities</option>
@@ -56,7 +56,7 @@
           <select id="filter-subject" class="field" data-filter="subject">
             <option value="">All modules</option>
             {% for subject in subjects %}
-              <option value="{{ subject.slug }}" data-speciality="{{ subject.speciality }}">S{{ subject.semester }} · {{ subject.name }}</option>
+              <option value="{{ subject.slug }}" data-semester="{{ subject.semester }}" data-speciality="{{ subject.speciality }}">S{{ subject.semester }} · {{ subject.name }}</option>
             {% endfor %}
           </select>
         </div>

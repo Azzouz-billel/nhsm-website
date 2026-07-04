@@ -89,7 +89,33 @@
     }
   }
 
+  // Show only the modules for the chosen semester, and reveal the speciality
+  // filter only for S7–S10 (never S1–S6).
+  function applySemesterScope(sem) {
+    var subjectSelect = document.getElementById("filter-subject");
+    if (subjectSelect) {
+      Array.prototype.forEach.call(subjectSelect.options, function (opt) {
+        if (!opt.dataset.semester) return; // keep the "All modules" option
+        opt.hidden = sem !== "" && opt.dataset.semester !== sem;
+      });
+      var selected = subjectSelect.selectedOptions[0];
+      if (selected && selected.hidden) {
+        subjectSelect.value = "";
+        state.subject = "";
+      }
+    }
+    var specGroup = document.querySelector("[data-speciality-group]");
+    var specSelect = document.getElementById("filter-speciality");
+    var showSpec = sem !== "" && Number(sem) >= 7 && Number(sem) <= 10;
+    if (specGroup) specGroup.hidden = !showSpec;
+    if (!showSpec && specSelect) {
+      specSelect.value = "";
+      state.speciality = "";
+    }
+  }
+
   document.querySelectorAll("[data-filter]").forEach(function (input) {
+    if (input.id === "filter-semester") return;
     var key = input.getAttribute("data-filter");
     var immediate = input.tagName === "SELECT";
     input.addEventListener(immediate ? "change" : "input", function () {
@@ -97,6 +123,15 @@
       scheduleFetch(immediate);
     });
   });
+
+  var semesterSelect = document.getElementById("filter-semester");
+  if (semesterSelect) {
+    semesterSelect.addEventListener("change", function () {
+      state.semester = semesterSelect.value;
+      applySemesterScope(semesterSelect.value);
+      scheduleFetch(true);
+    });
+  }
 
   document.querySelectorAll("[data-filter-check]").forEach(function (check) {
     var key = check.getAttribute("data-filter-check");
@@ -127,9 +162,11 @@
       document.querySelectorAll("[data-filter-chip]").forEach(function (c) {
         c.setAttribute("aria-pressed", c.getAttribute("data-value") === "" ? "true" : "false");
       });
+      applySemesterScope("");
       fetchResults();
     });
   }
 
+  applySemesterScope("");
   fetchResults();
 })();

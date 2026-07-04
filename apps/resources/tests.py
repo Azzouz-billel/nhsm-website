@@ -259,3 +259,52 @@ class HealthCheckTests(TestCase):
     def test_healthz_makes_no_database_queries(self):
         with self.assertNumQueries(0):
             self.client.get("/healthz")
+
+
+class IMMSpecialityTests(TestCase):
+    def test_imm_is_a_valid_advanced_speciality(self):
+        subject = Subject(name="IMM Module", semester=7, speciality=Speciality.IMM)
+        self.assertIsNone(subject.full_clean())
+
+
+class ResourceUploadLimitTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Analyse 1", semester=1)
+
+    def _data(self, **over):
+        data = {
+            "title": "ok title",
+            "subject": self.subject.pk,
+            "resource_type": ResourceType.COURSE,
+            "drive_link": "https://drive.google.com/x",
+            "description": "",
+        }
+        data.update(over)
+        return data
+
+    def test_rejects_title_over_70_chars(self):
+        from apps.resources.forms import ResourceUploadForm
+        form = ResourceUploadForm(data=self._data(title="x" * 71))
+        self.assertFalse(form.is_valid())
+
+    def test_rejects_description_over_70_chars(self):
+        from apps.resources.forms import ResourceUploadForm
+        form = ResourceUploadForm(data=self._data(description="x" * 71))
+        self.assertFalse(form.is_valid())
+
+
+class AnnalesModuleSemesterAttrTests(TestCase):
+    def test_annales_module_options_carry_semester(self):
+        subject = Subject.objects.create(name="Analyse 1", semester=1)
+        ExamPaper.objects.create(
+            title="A1 EMD1", subject=subject, year=2024,
+            exam_type=ExamType.EMD1, drive_link="https://drive.google.com/a",
+        )
+        response = self.client.get(reverse("annales"))
+        self.assertContains(response, 'data-semester="1"')
+
+
+class ContactPageTests(TestCase):
+    def test_contact_page_shows_creator_and_collaborators(self):
+        response = self.client.get(reverse("contact"))
+        self.assertContains(response, "Built with")

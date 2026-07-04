@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact — NHSM Hub{% endblock %}
+{% block description %}Get in touch with the team behind NHSM Hub.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Contact</p>
+      <h2>Reach out.</h2>
+    </div>
+
+    <div class="contact-layout">
+      <div class="auth-card contact-card">
+        <img class="contact-photo" src="{% static 'img/creator.jpg' %}"
+             alt="Photo of Billel Azzouz" width="160" height="160" loading="lazy">
+        <div class="contact-body">
+          <h3>Billel Azzouz</h3>
+          <p class="muted">I created this website for NHSM students. If you need anything —
+            a bug to report, an idea, or a hand — reach out anytime.</p>
+          <div class="contact-links">
+            <a class="btn btn-primary btn-sm" href="mailto:billel.azzouz@nhsm.edu.dz">Email</a>
+            <a class="btn btn-ghost btn-sm" href="https://github.com/Azzouz-billel" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn btn-ghost btn-sm" href="https://www.instagram.com/billel_.azzouz/" target="_blank" rel="noopener">Instagram</a>
+            <a class="btn btn-ghost btn-sm" href="https://t.me/billel_azz" target="_blank" rel="noopener">Telegram</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <h3>Built with</h3>
+        <p class="muted">NHSM Hub was made in collaboration with:</p>
+        <ul class="collab-list">
+          <li>Collaborator 1</li>
+          <li>Collaborator 2</li>
+          <li>Collaborator 3</li>
+          <li>Collaborator 4</li>
+          <li>Collaborator 5</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

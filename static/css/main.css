@@ -1319,3 +1319,38 @@ html.js .reveal { opacity: 0; }
     cursor: text;
   }
 }
+
+/* Contact page */
+.contact-layout {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 760px) {
+  .contact-layout { grid-template-columns: 3fr 2fr; }
+}
+.contact-card {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.contact-photo {
+  border-radius: var(--r-md);
+  object-fit: cover;
+  border: 3px solid var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+.contact-body { flex: 1 1 12rem; }
+.contact-links {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.85rem;
+}
+.collab-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.3rem;
+}

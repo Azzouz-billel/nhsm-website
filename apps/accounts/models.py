@@ -27,6 +27,7 @@ class AcademicGroup(models.TextChoices):
     FOURTH_MODELING = "fourth_modeling", "4th Year — Modeling"
     FOURTH_CRYPTOLOGY = "fourth_cryptology", "4th Year — Cryptology"
     FOURTH_DATA_SCIENCE = "fourth_data_science", "4th Year — Data Science"
+    FOURTH_IMM = "fourth_imm", "4th Year — IMM"
     FIFTH_YEAR = "fifth_year", "Fifth Year"
 
 

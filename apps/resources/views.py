@@ -31,6 +31,11 @@ def home(request):
     return render(request, "home.html", context)
 
 
+def contact(request):
+    """Static contact page — who made the site and how to reach them."""
+    return render(request, "contact.html")
+
+
 def resource_library(request):
     """Filterable catalogue. Results are loaded client-side from the search API."""
     subjects = (

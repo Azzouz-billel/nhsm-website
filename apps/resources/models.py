@@ -15,6 +15,7 @@ class Speciality(models.TextChoices):
     CRYPTOLOGY = "cryptology", "Cryptology"
     MODELING = "modeling", "Modeling"
     DATA_SCIENCE = "data_science", "Data Science"
+    IMM = "imm", "IMM"
 
 
 class Subject(models.Model):

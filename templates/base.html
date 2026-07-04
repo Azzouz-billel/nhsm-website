@@ -46,6 +46,7 @@
         <li><a href="{% url 'timer' %}" {% if request.resolver_match.url_name == 'timer' %}class="active"{% endif %}>Timer</a></li>
         <li><a href="{% url 'leaderboard' %}" {% if request.resolver_match.url_name == 'leaderboard' %}class="active"{% endif %}>Leaderboard</a></li>
         <li><a href="{% url 'request_board' %}" {% if request.resolver_match.url_name == 'request_board' %}class="active"{% endif %}>Requests</a></li>
+        <li><a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a></li>
         {% if user.is_authenticated %}
           <li><a href="{% url 'resource_upload' %}">Upload</a></li>
           {% if user.is_approver %}
@@ -105,6 +106,7 @@
         <a href="{% url 'timer' %}">Timer</a>
         <a href="{% url 'leaderboard' %}">Leaderboard</a>
         <a href="{% url 'request_board' %}">Requests</a>
+        <a href="{% url 'contact' %}">Contact</a>
       </nav>
       <div class="footer-social">
         <a href="https://github.com/Azzouz-billel" target="_blank" rel="noopener">GitHub</a>

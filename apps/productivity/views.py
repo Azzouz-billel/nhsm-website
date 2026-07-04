@@ -29,6 +29,7 @@ _GROUP_SCOPE = {
     AcademicGroup.FOURTH_MODELING: ((7, 8), Speciality.MODELING),
     AcademicGroup.FOURTH_CRYPTOLOGY: ((7, 8), Speciality.CRYPTOLOGY),
     AcademicGroup.FOURTH_DATA_SCIENCE: ((7, 8), Speciality.DATA_SCIENCE),
+    AcademicGroup.FOURTH_IMM: ((7, 8), Speciality.IMM),
     AcademicGroup.FIFTH_YEAR: ((9, 10), ""),
 }
 

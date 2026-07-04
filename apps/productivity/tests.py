@@ -160,3 +160,15 @@ class TimerModuleFilterTests(TestCase):
         self.client.force_login(user)
         count = len(self.client.get("/timer/").context["subjects"])
         self.assertEqual(count, 5)
+
+
+class TimerIMMTests(TestCase):
+    def test_fourth_year_imm_sees_only_imm_modules(self):
+        from apps.accounts.models import AcademicGroup
+        from apps.resources.models import Speciality
+        Subject.objects.create(name="Crypto7", semester=7, speciality=Speciality.CRYPTOLOGY)
+        Subject.objects.create(name="IMM7", semester=7, speciality=Speciality.IMM)
+        user = User.objects.create_user(username="y4imm", password="x", academic_group=AcademicGroup.FOURTH_IMM)
+        self.client.force_login(user)
+        names = [s.name for s in self.client.get("/timer/").context["subjects"]]
+        self.assertEqual(names, ["IMM7"])
