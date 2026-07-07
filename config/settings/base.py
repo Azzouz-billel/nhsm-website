@@ -26,8 +26,12 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 # Invite code that gates approver self-registration (Phase 2).
 APPROVER_INVITE_CODE = env("APPROVER_INVITE_CODE", default="nhsm-approver")
 
-# Donation links (paste your Chargily / RedotPay payment-page URLs).
-CHARGILY_DONATION_URL = env("CHARGILY_DONATION_URL", default="")
+# Donation links (paste your Chargily / RedotPay payment-page URLs). An env var
+# of the same name overrides these defaults if set.
+CHARGILY_DONATION_URL = env(
+    "CHARGILY_DONATION_URL",
+    default="https://pay.chargily.com/payment-links/01kwyrqtjam3xmf3p1s0wpzshm",
+)
 REDOTPAY_DONATION_URL = env("REDOTPAY_DONATION_URL", default="")
 
 INSTALLED_APPS = [

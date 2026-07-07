@@ -308,3 +308,9 @@ class ContactPageTests(TestCase):
     def test_contact_page_shows_creator_and_collaborators(self):
         response = self.client.get(reverse("contact"))
         self.assertContains(response, "Built with")
+
+
+class DonationLinkTests(TestCase):
+    def test_home_links_to_chargily_donation(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "pay.chargily.com/payment-links/01kwyrqtjam3xmf3p1s0wpzshm")
