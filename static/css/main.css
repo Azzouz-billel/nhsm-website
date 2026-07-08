@@ -72,6 +72,29 @@
   --nav-h: 64px;
 }
 
+/* ============================== NIGHT MODE ==============================
+   Opt-in black theme (navbar toggle sets [data-theme="dark"]). Only the
+   background/surface family changes to neutral near-black — neon accents,
+   buttons, and text are inherited unchanged. */
+:root[data-theme="dark"] {
+  --bg: #04040a;
+  --bg-2: #0a0a12;
+  --surface: #0e0e15;
+  --surface-2: #16161f;
+  --surface-3: #20202b;
+  --border: #26262f;
+  --border-strong: #3b3b47;
+}
+:root[data-theme="dark"] body {
+  /* Keep the starfield (great on black); swap the purple gradient for black. */
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.9), transparent 55%),
+    radial-gradient(2px 2px at 130px 90px, rgba(180, 220, 255, 0.85), transparent 55%),
+    radial-gradient(1px 1px at 70px 160px, rgba(255, 255, 255, 0.7), transparent 55%),
+    radial-gradient(1px 1px at 190px 50px, rgba(255, 240, 180, 0.7), transparent 55%),
+    linear-gradient(180deg, #04040a 0%, #0a0a12 55%, #04040a 100%);
+}
+
 /* --------------------------------------------------------------------- base */
 *,
 *::before,

@@ -18,7 +18,7 @@
       var forced = "{{ user_theme }}";
       try {
         var saved = localStorage.getItem("nhsm-theme");
-        var theme = forced || saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        var theme = forced || saved || "light";
         d.setAttribute("data-theme", theme);
       } catch (e) {
         d.setAttribute("data-theme", forced || "light");
