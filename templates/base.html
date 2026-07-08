@@ -42,7 +42,7 @@
       <ul class="nav-links" data-nav-links>
         <li><a href="{% url 'home' %}">Home</a></li>
         <li><a href="{% url 'resource_library' %}" {% if request.resolver_match.url_name == 'resource_library' %}class="active"{% endif %}>Resources</a></li>
-        <li><a href="{% url 'annales' %}" {% if request.resolver_match.url_name == 'annales' %}class="active"{% endif %}>Annales</a></li>
+        <li><a href="{% url 'annales' %}" {% if request.resolver_match.url_name == 'annales' %}class="active"{% endif %}>Exams</a></li>
         <li><a href="{% url 'timer' %}" {% if request.resolver_match.url_name == 'timer' %}class="active"{% endif %}>Timer</a></li>
         <li><a href="{% url 'leaderboard' %}" {% if request.resolver_match.url_name == 'leaderboard' %}class="active"{% endif %}>Leaderboard</a></li>
         <li><a href="{% url 'request_board' %}" {% if request.resolver_match.url_name == 'request_board' %}class="active"{% endif %}>Requests</a></li>
@@ -102,7 +102,7 @@
       </div>
       <nav class="footer-links" aria-label="Footer">
         <a href="{% url 'resource_library' %}">Resources</a>
-        <a href="{% url 'annales' %}">Annales</a>
+        <a href="{% url 'annales' %}">Exams</a>
         <a href="{% url 'timer' %}">Timer</a>
         <a href="{% url 'leaderboard' %}">Leaderboard</a>
         <a href="{% url 'request_board' %}">Requests</a>

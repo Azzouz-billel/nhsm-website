@@ -17,9 +17,9 @@
       <div class="hero-stats reveal">
         <p class="stats-title">Resources Uploaded</p>
         <div class="stats-row">
-          <div class="stat"><div class="num">{{ resource_count }}</div><div class="label">Resources</div></div>
-          <div class="stat"><div class="num">{{ subject_count }}</div><div class="label">Modules</div></div>
-          <div class="stat"><div class="num">{{ semester_count }}</div><div class="label">Semesters</div></div>
+          <div class="stat"><div class="num" data-countup>{{ resource_count }}</div><div class="label">Resources</div></div>
+          <div class="stat"><div class="num" data-countup>{{ subject_count }}</div><div class="label">Modules</div></div>
+          <div class="stat"><div class="num" data-countup>{{ semester_count }}</div><div class="label">Semesters</div></div>
         </div>
       </div>
     </div>
@@ -49,9 +49,9 @@
         </article>
         <article class="feature-card carousel-card">
           <div class="icon">📝</div>
-          <h3>Annales</h3>
+          <h3>Exams</h3>
           <p>A dedicated past-exams archive (EMD &amp; rattrapage) with corrigés flagged when available.</p>
-          <a class="card-link" href="{% url 'annales' %}">Open the annales →</a>
+          <a class="card-link" href="{% url 'annales' %}">Open the exams →</a>
         </article>
         <article class="feature-card carousel-card">
           <div class="icon">⏱️</div>
@@ -113,4 +113,5 @@
 <script defer src="https://cdn.jsdelivr.net/npm/@tsparticles/slim@3/tsparticles.slim.bundle.min.js"></script>
 <script defer src="{% static 'js/sparkles.js' %}"></script>
 <script defer src="{% static 'js/carousel.js' %}"></script>
+<script defer src="{% static 'js/counters.js' %}"></script>
 {% endblock %}

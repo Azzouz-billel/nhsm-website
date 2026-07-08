@@ -22,7 +22,7 @@ def home(request):
     """Landing page with a snapshot of the library."""
     approved = Resource.objects.filter(status=ResourceStatus.APPROVED)
     context = {
-        "resource_count": approved.count(),
+        "resource_count": approved.count() + ExamPaper.objects.count(),
         "subject_count": Subject.objects.count(),
         "semester_count": Subject.objects.values("semester").distinct().count(),
         "chargily_url": settings.CHARGILY_DONATION_URL,

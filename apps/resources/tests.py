@@ -314,3 +314,22 @@ class DonationLinkTests(TestCase):
     def test_home_links_to_chargily_donation(self):
         response = self.client.get(reverse("home"))
         self.assertContains(response, "pay.chargily.com/payment-links/01kwyrqtjam3xmf3p1s0wpzshm")
+
+
+class HomeStatsTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Analyse 1", semester=1)
+        Resource.objects.create(title="R1", subject=self.subject,
+            drive_link="https://drive.google.com/a", status=ResourceStatus.APPROVED)
+        Resource.objects.create(title="R2", subject=self.subject,
+            drive_link="https://drive.google.com/b", status=ResourceStatus.APPROVED)
+        ExamPaper.objects.create(title="E1", subject=self.subject, year=2024,
+            exam_type=ExamType.EMD1, drive_link="https://drive.google.com/c")
+
+    def test_resource_count_includes_exams(self):
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.context["resource_count"], 3)
+
+    def test_home_uses_exams_label_not_annales(self):
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, "Annales")
