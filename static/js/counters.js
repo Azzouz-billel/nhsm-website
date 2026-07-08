@@ -15,7 +15,7 @@
     var target = parseInt((el.textContent || "").replace(/\D/g, ""), 10);
     if (isNaN(target) || target <= 1 || reduceMotion) return; // keep final value
 
-    var DURATION = 900; // ms
+    var DURATION = 1800; // ms — how long the count-up takes. Bigger = slower.
     var start = null;
     el.textContent = "1";
 
