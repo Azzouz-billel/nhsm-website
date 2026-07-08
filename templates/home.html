@@ -12,7 +12,11 @@
         and your year-group leaderboard, all in one retro-coded library.</p>
       <div class="hero-actions reveal">
         <a class="btn btn-primary" href="{% url 'resource_library' %}">Browse Resources</a>
-        <a class="btn btn-ghost" href="{% url 'register' %}">Create Account</a>
+        {% if user.is_authenticated %}
+          <a class="btn btn-ghost" href="{% url 'profile' %}">See my account</a>
+        {% else %}
+          <a class="btn btn-ghost" href="{% url 'register' %}">Create Account</a>
+        {% endif %}
       </div>
       <div class="hero-stats reveal">
         <p class="stats-title">Resources Uploaded</p>

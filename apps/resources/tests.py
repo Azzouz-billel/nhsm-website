@@ -333,3 +333,14 @@ class HomeStatsTests(TestCase):
     def test_home_uses_exams_label_not_annales(self):
         response = self.client.get(reverse("home"))
         self.assertNotContains(response, "Annales")
+
+
+class HomeHeroCtaTests(TestCase):
+    def test_anonymous_sees_create_account(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "Create Account")
+
+    def test_signed_in_sees_my_account(self):
+        self.client.force_login(User.objects.create_user(username="hero", password="x"))
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "See my account")
