@@ -350,3 +350,21 @@ class SecurityHeadersTests(TestCase):
     def test_permissions_policy_header_present(self):
         response = self.client.get(reverse("home"))
         self.assertIn("Permissions-Policy", response)
+
+
+class SeoTests(TestCase):
+    def test_home_has_open_graph_meta(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'property="og:title"')
+
+    def test_home_has_apple_touch_icon(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "apple-touch-icon")
+
+    def test_robots_txt_points_at_sitemap(self):
+        response = self.client.get("/robots.txt")
+        self.assertContains(response, "Sitemap:")
+
+    def test_sitemap_lists_public_pages(self):
+        response = self.client.get("/sitemap.xml")
+        self.assertContains(response, "/resources/")
