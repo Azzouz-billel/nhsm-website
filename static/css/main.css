@@ -1377,3 +1377,12 @@ html.js .reveal { opacity: 0; }
   display: grid;
   gap: 0.3rem;
 }
+
+/* Honeypot anti-spam field — visually hidden but still submitted with the form. */
+.hp-field {
+  position: absolute !important;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

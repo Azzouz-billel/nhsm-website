@@ -19,6 +19,12 @@ def cap_text(fields, names, maximum=MAX_TEXT):
 
 
 class RequestForm(forms.ModelForm):
+    # Honeypot: hidden from humans; bots fill it and get rejected.
+    hp_url = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
+    )
+
     class Meta:
         model = ResourceRequest
         fields = ("title", "subject", "description")
@@ -27,6 +33,11 @@ class RequestForm(forms.ModelForm):
                 attrs={"rows": 3, "placeholder": "What exactly do you need? e.g. TD 3 corrigé for Analyse 2"}
             )
         }
+
+    def clean_hp_url(self):
+        if self.cleaned_data.get("hp_url"):
+            raise forms.ValidationError("Spam detected.")
+        return ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

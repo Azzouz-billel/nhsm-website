@@ -6,6 +6,7 @@ from here and override what differs. Secrets come from the environment / a local
 without one.
 """
 
+import sys
 from pathlib import Path
 
 import environ
@@ -22,9 +23,6 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY", default="dev-insecure-key-change-in-production")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-
-# Invite code that gates approver self-registration (Phase 2).
-APPROVER_INVITE_CODE = env("APPROVER_INVITE_CODE", default="nhsm-approver")
 
 # Donation links (paste your Chargily / RedotPay payment-page URLs). An env var
 # of the same name overrides these defaults if set.
@@ -43,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party
     "rest_framework",
+    "axes",
     # Local
     "apps.accounts",
     "apps.resources",
@@ -61,7 +60,31 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "config.middleware.PermissionsPolicyMiddleware",
+    "axes.middleware.AxesMiddleware",  # must be last
 ]
+
+# --- Security: brute-force lockout (django-axes) + headers --------------------
+# Disable axes under the test runner so unrelated auth tests aren't affected; the
+# lockout test re-enables it explicitly with override_settings.
+TESTING = "test" in sys.argv
+AXES_ENABLED = not TESTING
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 1  # hours locked out after too many failures
+AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
+AXES_RESET_ON_SUCCESS = True
+AXES_HTTP_RESPONSE_CODE = 429
+
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",  # must come first
+    "django.contrib.auth.backends.ModelBackend",
+]
+if TESTING:
+    # A single backend keeps Client.force_login() usable across the suite without
+    # a backend hint; the lockout test re-adds axes explicitly via override_settings.
+    AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 ROOT_URLCONF = "config.urls"
 

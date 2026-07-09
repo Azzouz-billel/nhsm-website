@@ -61,3 +61,31 @@ class UsernameLimitTests(TestCase):
         long_name = "x" * 31
         self.client.post(REGISTER_URL, dict(VALID, username=long_name))
         self.assertFalse(User.objects.filter(username=long_name).exists())
+
+
+from django.test import override_settings
+
+
+class RegistrationHoneypotTests(TestCase):
+    def test_filled_honeypot_is_rejected(self):
+        data = dict(VALID, username="botuser", hp_url="http://spam.example")
+        self.client.post(REGISTER_URL, data)
+        self.assertFalse(User.objects.filter(username="botuser").exists())
+
+
+@override_settings(
+    AXES_ENABLED=True,
+    AUTHENTICATION_BACKENDS=[
+        "axes.backends.AxesStandaloneBackend",
+        "django.contrib.auth.backends.ModelBackend",
+    ],
+)
+class AxesLockoutTests(TestCase):
+    def setUp(self):
+        User.objects.create_user(username="victim", password="rightpass123")
+
+    def test_repeated_bad_logins_are_locked(self):
+        for _ in range(5):
+            self.client.post("/accounts/login/", {"username": "victim", "password": "wrong"})
+        response = self.client.post("/accounts/login/", {"username": "victim", "password": "wrong"})
+        self.assertEqual(response.status_code, 429)

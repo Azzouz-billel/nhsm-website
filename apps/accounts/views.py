@@ -16,7 +16,9 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            # Explicit backend: django-axes adds a second auth backend, so login()
+            # can no longer guess which one to attach to the session.
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             messages.success(request, "Welcome to NHSM Hub! Your account is ready.")
             return redirect("profile")
     else:

@@ -344,3 +344,9 @@ class HomeHeroCtaTests(TestCase):
         self.client.force_login(User.objects.create_user(username="hero", password="x"))
         response = self.client.get(reverse("home"))
         self.assertContains(response, "See my account")
+
+
+class SecurityHeadersTests(TestCase):
+    def test_permissions_policy_header_present(self):
+        response = self.client.get(reverse("home"))
+        self.assertIn("Permissions-Policy", response)

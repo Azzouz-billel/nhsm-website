@@ -120,3 +120,15 @@ class RequestLimitTests(TestCase):
         from apps.requests.forms import RequestForm
         form = RequestForm(data={"title": "ok", "subject": self.subject.pk, "description": "x" * 71})
         self.assertFalse(form.is_valid())
+
+
+class RequestHoneypotTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Analyse 1", semester=1)
+        self.user = User.objects.create_user(username="rq", password="x")
+
+    def test_filled_honeypot_blocks_request(self):
+        self.client.force_login(self.user)
+        self.client.post(BOARD_URL, {"title": "Need X", "subject": self.subject.pk,
+                                     "description": "", "hp_url": "spam"})
+        self.assertFalse(ResourceRequest.objects.filter(title="Need X").exists())

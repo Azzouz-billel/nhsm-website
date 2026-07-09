@@ -22,10 +22,20 @@ class RegistrationForm(UserCreationForm):
         required=True,
     )
     display_name = forms.CharField(max_length=60, required=False)
+    # Honeypot: hidden from humans; bots fill it and get rejected.
+    hp_url = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
+    )
 
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ("username", "email")
+
+    def clean_hp_url(self):
+        if self.cleaned_data.get("hp_url"):
+            raise forms.ValidationError("Spam detected.")
+        return ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

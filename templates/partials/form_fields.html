@@ -4,10 +4,13 @@
   </div>
 {% endif %}
 {% for field in form %}
+  {% if field.name != 'hp_url' %}
   <div class="form-field{% if field.errors %} has-error{% endif %}{% if field.field.widget.input_type == 'checkbox' %} form-field--check{% endif %}">
     {{ field.label_tag }}
     {{ field }}
     {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
     {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
   </div>
+  {% endif %}
 {% endfor %}
+{% if form.hp_url %}<div class="hp-field" aria-hidden="true">{{ form.hp_url }}</div>{% endif %}
