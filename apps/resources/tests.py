@@ -434,3 +434,52 @@ class AnnalesResourcesNoteTests(TestCase):
     def test_annales_note_links_to_resource_library(self):
         response = self.client.get(reverse("annales"))
         self.assertContains(response, 'href="/resources/"')
+
+
+class HomeQuoteTests(TestCase):
+    def test_home_supplies_a_quote_of_the_day(self):
+        response = self.client.get(reverse("home"))
+        self.assertTrue(response.context["quote_text"])
+
+    def test_home_renders_the_quote_band(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "Quote of the day")
+
+
+class HomePlusTests(TestCase):
+    def test_resources_stat_shows_a_plus(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'class="plus"')
+
+
+class AboutSlidesTests(TestCase):
+    def test_about_context_carries_a_slide_list(self):
+        response = self.client.get(reverse("about"))
+        self.assertIsInstance(response.context["about_slides"], list)
+
+
+class ContactDoaaTests(TestCase):
+    def test_contact_shows_doaa_for_collaborators(self):
+        response = self.client.get(reverse("contact"))
+        self.assertContains(response, "جزاهم الله خيرًا")
+
+
+class NavLogoutTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="navuser", password="x")
+
+    def test_profile_page_has_a_logout_button(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("profile"))
+        self.assertContains(response, "Log out")
+
+    def test_nav_no_longer_shows_logout(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("home"))
+        self.assertNotContains(response, "Log out")
+
+
+class UsefulLinksTests(TestCase):
+    def test_library_lists_the_official_school_site(self):
+        response = self.client.get(reverse("resource_library"))
+        self.assertContains(response, "nhsm.edu.dz")

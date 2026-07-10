@@ -58,6 +58,9 @@
           <button class="btn btn-ghost" data-skip>Skip</button>
           <button class="btn btn-ghost" data-reset>Reset</button>
         </div>
+        {% if user.is_authenticated %}
+          <button class="btn btn-ghost btn-sm timer-save" data-submit>Save studied time now</button>
+        {% endif %}
 
         <p class="timer-hint" data-hint></p>
       </div>

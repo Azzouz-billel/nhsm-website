@@ -62,13 +62,13 @@
         <li><a href="{% url 'annales' %}" {% if request.resolver_match.url_name == 'annales' %}class="active"{% endif %}>Exams</a></li>
         <li><a href="{% url 'timer' %}" {% if request.resolver_match.url_name == 'timer' %}class="active"{% endif %}>Timer</a></li>
         <li><a href="{% url 'leaderboard' %}" {% if request.resolver_match.url_name == 'leaderboard' %}class="active"{% endif %}>Leaderboard</a></li>
+        <li><a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}>About</a></li>
 
         <li class="nav-dropdown" data-dropdown>
           <button type="button" class="nav-dropdown-toggle" data-dropdown-toggle
                   aria-haspopup="true" aria-expanded="false">More <span class="caret" aria-hidden="true">▾</span></button>
           <ul class="nav-dropdown-menu" data-dropdown-menu>
             <li><a href="{% url 'request_board' %}" {% if request.resolver_match.url_name == 'request_board' %}class="active"{% endif %}>Requests</a></li>
-            <li><a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}>About</a></li>
             <li><a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a></li>
             {% if user.is_authenticated %}
               <li><a href="{% url 'resource_upload' %}" {% if request.resolver_match.url_name == 'resource_upload' %}class="active"{% endif %}>Upload</a></li>
@@ -84,12 +84,6 @@
 
         {% if user.is_authenticated %}
           <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>{{ user.board_name }}</a></li>
-          <li>
-            <form method="post" action="{% url 'logout' %}" class="logout-form">
-              {% csrf_token %}
-              <button type="submit" class="nav-linkish">Log out</button>
-            </form>
-          </li>
         {% else %}
           <li><a href="{% url 'login' %}">Log in</a></li>
           <li><a class="btn btn-primary btn-sm nav-cta" href="{% url 'register' %}">Sign up</a></li>

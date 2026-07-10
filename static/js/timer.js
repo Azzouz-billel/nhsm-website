@@ -14,6 +14,7 @@
     start: root.querySelector("[data-start]"),
     skip: root.querySelector("[data-skip]"),
     reset: root.querySelector("[data-reset]"),
+    submit: root.querySelector("[data-submit]"),
     subject: root.querySelector("[data-subject]"),
     focus: root.querySelector("[data-focus]"),
     brk: root.querySelector("[data-break]"),
@@ -161,6 +162,32 @@
     setPhase("focus");
   }
 
+  // Log the focus minutes elapsed so far without finishing the block, then
+  // restart the block so the same minutes aren't counted again on completion.
+  function submitPartial() {
+    if (!auth) {
+      els.hint.textContent = "Sign in to save your study time.";
+      return;
+    }
+    if (!els.subject.value) {
+      els.hint.textContent = "Pick a module so your time gets logged.";
+      return;
+    }
+    if (state.phase !== "focus") {
+      els.hint.textContent = "Only focus time is saved — switch to a focus block.";
+      return;
+    }
+    var minutes = Math.round((state.total - state.remaining) / 60);
+    if (minutes < 1) {
+      els.hint.textContent = "Study at least a minute before saving.";
+      return;
+    }
+    logBlock(minutes);
+    els.hint.textContent = "Saved " + minutes + " min ✓";
+    pause();
+    setPhase("focus");
+  }
+
   function logBlock(minutes) {
     if (!auth || !els.subject.value) return;
     var meta = document.querySelector('meta[name="csrf-token"]');
@@ -290,6 +317,7 @@
   els.start.addEventListener("click", toggle);
   els.skip.addEventListener("click", skip);
   els.reset.addEventListener("click", reset);
+  if (els.submit) els.submit.addEventListener("click", submitPartial);
   els.subject.addEventListener("change", persist);
 
   // Editing durations re-arms the current phase when paused, and is saved

@@ -21,7 +21,7 @@
       <div class="hero-stats reveal">
         <p class="stats-title">Resources Uploaded</p>
         <div class="stats-row">
-          <div class="stat"><div class="num" data-countup>{{ resource_count }}</div><div class="label">Resources</div></div>
+          <div class="stat"><div class="num"><span data-countup>{{ resource_count }}</span><span class="plus" aria-hidden="true">+</span></div><div class="label">Resources</div></div>
           <div class="stat"><div class="num" data-countup>{{ subject_count }}</div><div class="label">Modules</div></div>
           <div class="stat"><div class="num" data-countup>{{ semester_count }}</div><div class="label">Semesters</div></div>
         </div>
@@ -31,6 +31,14 @@
       <img class="hero-book" src="{% static 'img/2.png' %}" alt="Stack of study books"
            width="1080" height="1080" loading="eager">
     </div>
+  </div>
+</section>
+
+<section class="quote-band reveal" aria-label="Quote of the day">
+  <div class="container">
+    <p class="quote-eyebrow">Quote of the day</p>
+    <blockquote class="quote-text">“{{ quote_text }}”</blockquote>
+    <p class="quote-author">— {{ quote_author }}</p>
   </div>
 </section>
 

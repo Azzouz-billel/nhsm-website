@@ -8,7 +8,7 @@
 
 {% block content %}
 <section class="section">
-  <div class="container">
+  <div class="container about-hero">
     <div class="section-head">
       <p class="eyebrow">About the school</p>
       <h2>The National Higher School of Mathematics.</h2>
@@ -23,6 +23,14 @@
         <span class="fact"><img src="{% static 'img/engineer.png' %}" alt="" width="256" height="384">Engineering in mathematics</span>
       </div>
     </div>
+    {% if about_slides %}
+      <div class="about-slideshow" data-slideshow>
+        {% for slide in about_slides %}
+          <img class="about-slide{% if forloop.first %} is-active{% endif %}"
+               src="{% static slide %}" alt="NHSM campus" loading="lazy">
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 </section>
 
@@ -143,4 +151,8 @@
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/about.js' %}"></script>
 {% endblock %}

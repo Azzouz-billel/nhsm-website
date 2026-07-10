@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from rest_framework.generics import ListAPIView
 
 from .forms import ResourceUploadForm
@@ -18,22 +19,66 @@ from .models import (
 from .serializers import ExamPaperSerializer, ResourceSerializer
 
 
+# One rotates onto the home page each day (indexed by day-of-year), so the
+# whole cohort sees the same "quote of the day".
+STUDY_QUOTES = [
+    ("Pure mathematics is, in its way, the poetry of logical ideas.", "Albert Einstein"),
+    ("Mathematics is the music of reason.", "James Joseph Sylvester"),
+    ("The essence of mathematics lies in its freedom.", "Georg Cantor"),
+    ("Do not worry about your difficulties in mathematics. I can assure you mine are still greater.", "Albert Einstein"),
+    ("It is not knowledge, but the act of learning, that grants the greatest enjoyment.", "Carl Friedrich Gauss"),
+    ("Mathematics is not about numbers, but about understanding.", "William Paul Thurston"),
+    ("A mathematician who is not also something of a poet will never be a complete mathematician.", "Karl Weierstrass"),
+    ("Nature is written in the language of mathematics.", "Galileo Galilei"),
+    ("Mathematics knows no races or geographic boundaries.", "David Hilbert"),
+    ("Logic is the anatomy of thought.", "John Locke"),
+    ("Genius is one percent inspiration and ninety-nine percent perspiration.", "Thomas Edison"),
+    ("The only way to learn mathematics is to do mathematics.", "Paul Halmos"),
+    ("Small is the number of people who see with their eyes and think with their minds.", "Albert Einstein"),
+    ("An equation for me has no meaning unless it expresses a thought of God.", "Srinivasa Ramanujan"),
+    ("Somewhere, something incredible is waiting to be known.", "Carl Sagan"),
+    ("What we know is a drop, what we don't know is an ocean.", "Isaac Newton"),
+    ("The moving power of mathematical invention is not reasoning but imagination.", "Augustus De Morgan"),
+    ("Obvious is the most dangerous word in mathematics.", "E. T. Bell"),
+    ("Mathematics is the queen of the sciences.", "Carl Friedrich Gauss"),
+    ("If people do not believe that mathematics is simple, it is only because they do not realize how complicated life is.", "John von Neumann"),
+    ("Perseverance is not a long race; it is many short races one after the other.", "Walter Elliot"),
+    ("Success is the sum of small efforts repeated day in and day out.", "Robert Collier"),
+    ("The more I study, the more insatiable do I feel my genius for it to be.", "Ada Lovelace"),
+    ("Errors, like straws, upon the surface flow; who would search for pearls must dive below.", "John Dryden"),
+]
+
+
 def home(request):
     """Landing page with a snapshot of the library."""
     approved = Resource.objects.filter(status=ResourceStatus.APPROVED)
+    day = timezone.localdate().timetuple().tm_yday
+    text, author = STUDY_QUOTES[day % len(STUDY_QUOTES)]
     context = {
         "resource_count": approved.count() + ExamPaper.objects.count(),
         "subject_count": Subject.objects.count(),
         "semester_count": Subject.objects.values("semester").distinct().count(),
         "chargily_url": settings.CHARGILY_DONATION_URL,
         "redotpay_url": settings.REDOTPAY_DONATION_URL,
+        "quote_text": text,
+        "quote_author": author,
     }
     return render(request, "home.html", context)
 
 
 def about(request):
     """Intro to NHSM for newcomers: fields, faculty, campus life, student reps."""
-    return render(request, "about.html", {"specialities": Speciality.choices})
+    # Auto-discover the rotating campus photos so the owner can add/remove any
+    # number by dropping `nhsm-slide-*` files into static/img.
+    slide_dir = settings.STATICFILES_DIRS[0] / "img"
+    about_slides = [
+        f"img/{path.name}" for path in sorted(slide_dir.glob("nhsm-slide-*"))
+    ]
+    return render(
+        request,
+        "about.html",
+        {"specialities": Speciality.choices, "about_slides": about_slides},
+    )
 
 
 def contact(request):

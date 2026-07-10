@@ -117,14 +117,18 @@
     }
   }
 
-  // Show only the modules for the chosen semester, and reveal the speciality
-  // filter only for S7–S10 (never S1–S6).
+  // Narrow the module list to the chosen semester AND speciality (each track
+  // shows only its own modules), and reveal the speciality filter only for
+  // S7–S10 (never S1–S6).
   function applySemesterScope(sem) {
     var subjectSelect = document.getElementById("filter-subject");
     if (subjectSelect) {
       Array.prototype.forEach.call(subjectSelect.options, function (opt) {
         if (!opt.dataset.semester) return; // keep the "All modules" option
-        opt.hidden = sem !== "" && opt.dataset.semester !== sem;
+        var wrongSemester = sem !== "" && opt.dataset.semester !== sem;
+        var wrongSpeciality =
+          state.speciality !== "" && opt.dataset.speciality !== state.speciality;
+        opt.hidden = wrongSemester || wrongSpeciality;
       });
       var selected = subjectSelect.selectedOptions[0];
       if (selected && selected.hidden) {
@@ -142,9 +146,10 @@
     }
   }
 
-  // Select / search inputs (the semester select is handled separately below).
+  // Select / search inputs (semester + speciality are handled separately below,
+  // since both re-scope the module dropdown).
   document.querySelectorAll("[data-filter]").forEach(function (input) {
-    if (input.id === "filter-semester") return;
+    if (input.id === "filter-semester" || input.id === "filter-speciality") return;
     var key = input.getAttribute("data-filter");
     var immediate = input.tagName === "SELECT";
     input.addEventListener(immediate ? "change" : "input", function () {
@@ -158,6 +163,15 @@
     semesterSelect.addEventListener("change", function () {
       state.semester = semesterSelect.value;
       applySemesterScope(semesterSelect.value);
+      scheduleFetch(true);
+    });
+  }
+
+  var specialitySelect = document.getElementById("filter-speciality");
+  if (specialitySelect) {
+    specialitySelect.addEventListener("change", function () {
+      state.speciality = specialitySelect.value;
+      applySemesterScope(state.semester);
       scheduleFetch(true);
     });
   }
