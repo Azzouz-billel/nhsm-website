@@ -406,3 +406,31 @@ class SkipLinkTests(TestCase):
     def test_home_page_has_skip_to_content_link(self):
         response = self.client.get(reverse("home"))
         self.assertContains(response, 'href="#main"')
+
+
+class AboutPageTests(TestCase):
+    def test_about_page_renders_with_specialities(self):
+        response = self.client.get(reverse("about"))
+        self.assertContains(response, "Data Science")
+
+    def test_about_page_has_about_eyebrow(self):
+        response = self.client.get(reverse("about"))
+        self.assertContains(response, "About the school")
+
+    def test_nav_links_to_about(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'href="/about/"')
+
+    def test_about_is_in_sitemap(self):
+        response = self.client.get("/sitemap.xml")
+        self.assertContains(response, "/about/")
+
+
+class AnnalesResourcesNoteTests(TestCase):
+    def test_annales_page_points_to_resources_library(self):
+        response = self.client.get(reverse("annales"))
+        self.assertContains(response, "filed in the")
+
+    def test_annales_note_links_to_resource_library(self):
+        response = self.client.get(reverse("annales"))
+        self.assertContains(response, 'href="/resources/"')

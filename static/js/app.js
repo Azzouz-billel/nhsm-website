@@ -12,6 +12,29 @@
     });
   }
 
+  // "More" nav dropdown: click to open, close on outside click or Escape.
+  var dropdown = document.querySelector("[data-dropdown]");
+  var dropdownToggle = document.querySelector("[data-dropdown-toggle]");
+  if (dropdown && dropdownToggle) {
+    var setDropdown = function (open) {
+      dropdown.classList.toggle("open", open);
+      dropdownToggle.setAttribute("aria-expanded", String(open));
+    };
+    dropdownToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setDropdown(!dropdown.classList.contains("open"));
+    });
+    document.addEventListener("click", function (e) {
+      if (!dropdown.contains(e.target)) setDropdown(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && dropdown.classList.contains("open")) {
+        setDropdown(false);
+        dropdownToggle.focus();
+      }
+    });
+  }
+
   // Scroll reveals. CSS hides .reveal only when JS is present, so content
   // stays visible if this script (or GSAP) fails to load.
   function initReveals() {

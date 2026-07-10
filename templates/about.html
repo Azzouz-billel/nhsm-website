@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{# TODO(owner): replace every [bracketed] placeholder below with real content —
+   founding year, professor names, event titles/dates, student reps, and the
+   podcast video embed URL. Nothing here is real data yet. #}
+
+{% block title %}About the School — NHSM Hub{% endblock %}
+{% block description %}An introduction to the National Higher School of Mathematics (NHSM), Algiers — its fields, faculty, campus life and student community.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">About the school</p>
+      <h2>The National Higher School of Mathematics.</h2>
+      <p class="muted">NHSM is a grande école in Algiers dedicated to pure and applied
+        mathematics. Students spend their first years on a shared mathematical core,
+        then specialise in an advanced track. This page is a quick introduction for
+        newcomers — the fields, the people, and life on campus.</p>
+      <div class="about-facts">
+        <span class="badge">📅 Founded [year]</span>
+        <span class="badge">📍 Algiers, Algeria</span>
+        <span class="badge">🎓 Grande école · mathematics</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="fields">
+  <div class="container">
+    <div class="section-head">
+      <h2>Fields &amp; specialities.</h2>
+      <p class="muted">The first cycle (S1–S6) is a common mathematical core.
+        Specialities open in the advanced years:</p>
+    </div>
+    <div class="feature-grid">
+      {% for value, label in specialities %}
+        <article class="feature-card">
+          <div class="icon" aria-hidden="true">
+            {% if value == 'cryptology' %}🔐{% elif value == 'modeling' %}📐{% elif value == 'data_science' %}📊{% elif value == 'imm' %}🌍{% else %}✳️{% endif %}
+          </div>
+          <h3>{{ label }}</h3>
+          <p>
+            {% if value == 'cryptology' %}Codes, ciphers and the number theory that secures modern communication.
+            {% elif value == 'modeling' %}Mathematical modelling of real-world systems — from physics to finance.
+            {% elif value == 'data_science' %}Statistics, machine learning and the mathematics behind data at scale.
+            {% elif value == 'imm' %}International Mathematics Master — an English-taught, research-oriented track.
+            {% else %}[Short description of the {{ label }} track.]{% endif %}
+          </p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faculty">
+  <div class="container">
+    <div class="section-head">
+      <h2>Professors you'll learn from.</h2>
+      <p class="muted">A few of the people who make the school what it is.</p>
+    </div>
+    <div class="feature-grid">
+      <article class="feature-card">
+        <div class="icon" aria-hidden="true">👨‍🏫</div>
+        <h3>[Professor name]</h3>
+        <p>[Module or field they teach — a one-line note.]</p>
+      </article>
+      <article class="feature-card">
+        <div class="icon" aria-hidden="true">👩‍🏫</div>
+        <h3>[Professor name]</h3>
+        <p>[Module or field they teach — a one-line note.]</p>
+      </article>
+      <article class="feature-card">
+        <div class="icon" aria-hidden="true">👨‍🏫</div>
+        <h3>[Professor name]</h3>
+        <p>[Module or field they teach — a one-line note.]</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="podcast">
+  <div class="container">
+    <div class="section-head">
+      <h2>Hear about NHSM.</h2>
+      <p class="muted">A short podcast / video introducing the school and student life.</p>
+    </div>
+    <div class="video-embed">
+      {# Paste the YouTube embed here, e.g.
+         <iframe src="https://www.youtube.com/embed/VIDEO_ID" title="About NHSM"
+                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                 allowfullscreen loading="lazy"></iframe> #}
+      <p>🎬 Video coming soon — [paste your YouTube embed here].</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="events">
+  <div class="container">
+    <div class="section-head">
+      <h2>Campus life &amp; events.</h2>
+      <p class="muted">Competitions, talks and student gatherings across the year.</p>
+    </div>
+    <div class="event-list">
+      <div class="event-item">
+        <span class="when">[Date]</span>
+        <div>
+          <h3>[Event title]</h3>
+          <p>[One line about the event.]</p>
+        </div>
+      </div>
+      <div class="event-item">
+        <span class="when">[Date]</span>
+        <div>
+          <h3>[Event title]</h3>
+          <p>[One line about the event.]</p>
+        </div>
+      </div>
+      <div class="event-item">
+        <span class="when">[Date]</span>
+        <div>
+          <h3>[Event title]</h3>
+          <p>[One line about the event.]</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="students">
+  <div class="container">
+    <div class="section-head">
+      <h2>Talk to a student.</h2>
+      <p class="muted">Student reps happy to answer questions about the school. (Looking
+        for the people who built this site? That's the <a href="{% url 'contact' %}">Contact</a> page.)</p>
+    </div>
+    <div class="feature-grid">
+      <article class="feature-card">
+        <div class="icon" aria-hidden="true">🎓</div>
+        <h3>[Student name]</h3>
+        <p>[Year / track]</p>
+        <a class="card-link" href="[https://... or mailto:...]">[@handle] →</a>
+      </article>
+      <article class="feature-card">
+        <div class="icon" aria-hidden="true">🎓</div>
+        <h3>[Student name]</h3>
+        <p>[Year / track]</p>
+        <a class="card-link" href="[https://... or mailto:...]">[@handle] →</a>
+      </article>
+      <article class="feature-card">
+        <div class="icon" aria-hidden="true">🎓</div>
+        <h3>[Student name]</h3>
+        <p>[Year / track]</p>
+        <a class="card-link" href="[https://... or mailto:...]">[@handle] →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <h2>Ready to dive in?</h2>
+      <p class="muted">Everything you need to study, in one place.</p>
+    </div>
+    <div class="hero-actions" style="justify-content:center;">
+      <a class="btn btn-primary" href="{% url 'resource_library' %}">Browse Resources</a>
+      {% if not user.is_authenticated %}
+        <a class="btn btn-ghost" href="{% url 'register' %}">Create Account</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

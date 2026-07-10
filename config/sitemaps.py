@@ -11,6 +11,7 @@ class StaticViewSitemap(sitemaps.Sitemap):
     def items(self):
         return [
             "home",
+            "about",
             "resource_library",
             "annales",
             "timer",

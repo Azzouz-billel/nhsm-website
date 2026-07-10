@@ -31,6 +31,11 @@ def home(request):
     return render(request, "home.html", context)
 
 
+def about(request):
+    """Intro to NHSM for newcomers: fields, faculty, campus life, student reps."""
+    return render(request, "about.html", {"specialities": Speciality.choices})
+
+
 def contact(request):
     """Static contact page — who made the site and how to reach them."""
     return render(request, "contact.html")
