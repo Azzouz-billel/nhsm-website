@@ -404,11 +404,30 @@ img { max-width: 100%; display: block; }
 
 /* Quote of the day — a slim band under the hero. */
 .quote-band {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: var(--space-6) 0;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 140% at 50% 0%, var(--brand-soft), transparent 70%),
+    var(--surface);
+  border-top: 2px solid var(--border-strong);
+  border-bottom: 2px solid var(--border-strong);
+  padding: var(--space-7) 0;
   text-align: center;
+}
+.quote-band .container { position: relative; max-width: 60ch; }
+/* Oversized pixel quotation mark behind the text. */
+.quote-band .container::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.55em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--brand);
+  opacity: 0.35;
+  pointer-events: none;
 }
 .quote-eyebrow {
   font-family: var(--font-display);
@@ -416,16 +435,23 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--accent);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 .quote-text {
-  font-size: 1.35rem;
-  line-height: 1.5;
-  max-width: 46ch;
-  margin: 0 auto var(--space-3);
+  position: relative;
+  font-size: clamp(1.2rem, 3.2vw, 1.9rem);
+  line-height: 1.6;
+  margin: 0 auto var(--space-4);
   color: var(--text);
+  text-wrap: balance;
 }
-.quote-author { color: var(--text-muted); font-size: 0.95rem; }
+.quote-author {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
 
 /* Sparkles particle layer (tsParticles), masked so it fades behind the text. */
 .hero-sparkles {
@@ -757,10 +783,11 @@ img { max-width: 100%; display: block; }
 }
 .about-slideshow {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
+  width: 100%;
   overflow: hidden;
   background: var(--surface);
-  border: 1px solid var(--border-strong);
+  border: 2px solid var(--border-strong);
   box-shadow: var(--shadow-md);
 }
 .about-slide {
@@ -1618,8 +1645,9 @@ html.js .reveal { opacity: 0; }
 }
 .doaa {
   margin: var(--space-4) 0 0;
-  font-size: 1.4rem;
-  color: var(--gold);
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
   text-align: right;
 }
 

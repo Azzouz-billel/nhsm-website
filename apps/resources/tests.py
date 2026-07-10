@@ -480,6 +480,6 @@ class NavLogoutTests(TestCase):
 
 
 class UsefulLinksTests(TestCase):
-    def test_library_lists_the_official_school_site(self):
+    def test_library_lists_external_study_sites(self):
         response = self.client.get(reverse("resource_library"))
-        self.assertContains(response, "nhsm.edu.dz")
+        self.assertContains(response, "farhi.bakir.free.fr")

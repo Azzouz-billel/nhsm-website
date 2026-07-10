@@ -69,10 +69,11 @@ def home(request):
 def about(request):
     """Intro to NHSM for newcomers: fields, faculty, campus life, student reps."""
     # Auto-discover the rotating campus photos so the owner can add/remove any
-    # number by dropping `nhsm-slide-*` files into static/img.
+    # number by dropping `n1`, `n2`, … files into static/img.
     slide_dir = settings.STATICFILES_DIRS[0] / "img"
     about_slides = [
-        f"img/{path.name}" for path in sorted(slide_dir.glob("nhsm-slide-*"))
+        f"img/{path.name}"
+        for path in sorted(slide_dir.glob("n[0-9]*"), key=lambda p: int("".join(filter(str.isdigit, p.stem)) or 0))
     ]
     return render(
         request,
