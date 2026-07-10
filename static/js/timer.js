@@ -163,30 +163,26 @@
   }
 
   // Like Skip, but it banks the focus minutes studied so far before moving on
-  // to the break (Skip discards them). Counts as a completed cycle.
+  // to the break (Skip discards them). Always advances; saves when it can.
   function submitPartial() {
-    if (!auth) {
-      els.hint.textContent = "Sign in to save your study time.";
-      return;
-    }
-    if (!els.subject.value) {
-      els.hint.textContent = "Pick a module so your time gets logged.";
-      return;
-    }
     if (state.phase !== "focus") {
-      els.hint.textContent = "Only focus time is saved — switch to a focus block.";
+      els.hint.textContent = "You're on a break already.";
       return;
     }
     var minutes = Math.round((state.total - state.remaining) / 60);
-    if (minutes < 1) {
-      els.hint.textContent = "Study at least a minute before saving.";
-      return;
+    var saved = minutes >= 1 && !!els.subject.value;
+    if (saved) {
+      logBlock(minutes);
+      state.completedFocus += 1;
+      els.hint.textContent = "Saved " + minutes + " min ✓ — break time.";
+    } else if (!els.subject.value) {
+      els.hint.textContent = "Pick a module to log your time — taking a break.";
+    } else {
+      els.hint.textContent = "Studied under a minute — taking a break.";
     }
-    logBlock(minutes);
-    els.hint.textContent = "Saved " + minutes + " min ✓ — break time.";
     pause();
-    state.completedFocus += 1;
-    setPhase(state.completedFocus % CYCLES === 0 ? "long" : "break");
+    var longBreak = saved && state.completedFocus % CYCLES === 0;
+    setPhase(longBreak ? "long" : "break");
   }
 
   function logBlock(minutes) {

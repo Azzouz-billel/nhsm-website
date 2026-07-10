@@ -403,37 +403,38 @@ img { max-width: 100%; display: block; }
 .stat .num .plus { color: var(--brand); margin-left: 0.05em; }
 
 /* Quote of the day — a slim band under the hero. */
+/* Closing "quote of the day" — an airy block on the page background. */
 .quote-band {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(90% 140% at 50% 0%, var(--brand-soft), transparent 70%),
-    var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: var(--space-4) 0;
+  padding: var(--space-7) 0 var(--space-9);
   text-align: center;
 }
-.quote-band .container { position: relative; max-width: 50ch; }
+.quote-band .container { max-width: 54ch; }
+.quote-rule {
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: 0 auto var(--space-4);
+  background: var(--brand);
+  box-shadow: var(--glow-pink);
+}
 .quote-eyebrow {
   font-family: var(--font-display);
-  font-size: 0.5rem;
+  font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--accent);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 .quote-text {
-  position: relative;
-  font-size: clamp(0.98rem, 1.6vw, 1.15rem);
-  line-height: 1.5;
-  margin: 0 auto var(--space-2);
+  font-size: clamp(1.05rem, 1.9vw, 1.3rem);
+  line-height: 1.55;
+  margin: 0 auto var(--space-3);
   color: var(--text);
   text-wrap: balance;
 }
 .quote-author {
   font-family: var(--font-display);
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
