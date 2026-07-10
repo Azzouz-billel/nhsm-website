@@ -162,8 +162,8 @@
     setPhase("focus");
   }
 
-  // Log the focus minutes elapsed so far without finishing the block, then
-  // restart the block so the same minutes aren't counted again on completion.
+  // Like Skip, but it banks the focus minutes studied so far before moving on
+  // to the break (Skip discards them). Counts as a completed cycle.
   function submitPartial() {
     if (!auth) {
       els.hint.textContent = "Sign in to save your study time.";
@@ -183,9 +183,10 @@
       return;
     }
     logBlock(minutes);
-    els.hint.textContent = "Saved " + minutes + " min ✓";
+    els.hint.textContent = "Saved " + minutes + " min ✓ — break time.";
     pause();
-    setPhase("focus");
+    state.completedFocus += 1;
+    setPhase(state.completedFocus % CYCLES === 0 ? "long" : "break");
   }
 
   function logBlock(minutes) {
