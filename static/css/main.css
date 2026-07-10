@@ -411,19 +411,19 @@ img { max-width: 100%; display: block; }
     var(--surface);
   border-top: 2px solid var(--border-strong);
   border-bottom: 2px solid var(--border-strong);
-  padding: var(--space-7) 0;
+  padding: var(--space-5) 0;
   text-align: center;
 }
-.quote-band .container { position: relative; max-width: 60ch; }
-/* Oversized pixel quotation mark behind the text. */
+.quote-band .container { position: relative; max-width: 52ch; }
+/* Pixel quotation mark behind the text. */
 .quote-band .container::before {
   content: "\201C";
   position: absolute;
-  top: -0.55em;
+  top: -0.3em;
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-display);
-  font-size: 4rem;
+  font-size: 2.4rem;
   line-height: 1;
   color: var(--brand);
   opacity: 0.35;
@@ -431,23 +431,23 @@ img { max-width: 100%; display: block; }
 }
 .quote-eyebrow {
   font-family: var(--font-display);
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--accent);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 .quote-text {
   position: relative;
-  font-size: clamp(1.2rem, 3.2vw, 1.9rem);
-  line-height: 1.6;
-  margin: 0 auto var(--space-4);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  line-height: 1.5;
+  margin: 0 auto var(--space-3);
   color: var(--text);
   text-wrap: balance;
 }
 .quote-author {
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
@@ -1067,7 +1067,7 @@ select.field { appearance: auto; }
   display: grid;
   place-items: center;
   font-family: var(--font-display);
-  font-size: 3.2rem;
+  font-size: clamp(1.5rem, 7vw, 2.1rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
