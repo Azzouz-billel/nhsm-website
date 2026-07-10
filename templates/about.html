@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {# TODO(owner): one placeholder remains — the second student rep
    ("[to be determined]"). Fill in their name, year/track and a contact link. #}
 
@@ -17,9 +18,9 @@
         complete a preparatory cycle on a shared mathematical core, then specialise in an
         advanced track. This page is a quick introduction for newcomers.</p>
       <div class="about-facts">
-        <span class="badge">📅 Founded 2021</span>
-        <span class="badge">📍 Sidi Abdellah, Algiers</span>
-        <span class="badge">🎓 Engineering in mathematics</span>
+        <span class="fact"><img src="{% static 'img/date.png' %}" alt="" width="420" height="409">Founded 2021</span>
+        <span class="fact"><img src="{% static 'img/localisation.png' %}" alt="" width="612" height="612">Sidi Abdellah, Algiers</span>
+        <span class="fact"><img src="{% static 'img/engineer.png' %}" alt="" width="256" height="384">Engineering in mathematics</span>
       </div>
     </div>
   </div>
@@ -35,9 +36,8 @@
     <div class="feature-grid">
       {% for value, label in specialities %}
         <article class="feature-card">
-          <div class="icon" aria-hidden="true">
-            {% if value == 'cryptology' %}🔐{% elif value == 'modeling' %}📐{% elif value == 'data_science' %}📊{% elif value == 'imm' %}🌍{% else %}✳️{% endif %}
-          </div>
+          <img class="card-icon" aria-hidden="true" alt="" loading="lazy"
+               src="{% if value == 'cryptology' %}{% static 'img/crypto.png' %}{% elif value == 'modeling' %}{% static 'img/modeling.png' %}{% elif value == 'data_science' %}{% static 'img/data-science.png' %}{% elif value == 'imm' %}{% static 'img/maths.png' %}{% else %}{% static 'img/book.png' %}{% endif %}">
           <h3>{{ label }}</h3>
           <p>
             {% if value == 'cryptology' %}Codes, ciphers and the number theory that secures modern communication.
@@ -60,13 +60,13 @@
     </div>
     <div class="feature-grid">
       <article class="feature-card">
-        <div class="icon" aria-hidden="true">👨‍🏫</div>
+        <img class="avatar" aria-hidden="true" alt="" loading="lazy" src="{% static 'img/professor1.png' %}" width="980" height="980">
         <h3>Dr. Mohamed Amine Zemirni</h3>
         <p>Complex analysis &amp; complex differential equations.</p>
         <a class="card-link" href="https://scholar.google.com/citations?user=KAcO8-oAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar →</a>
       </article>
       <article class="feature-card">
-        <div class="icon" aria-hidden="true">👨‍🏫</div>
+        <img class="avatar" aria-hidden="true" alt="" loading="lazy" src="{% static 'img/professor2.png' %}" width="260" height="280">
         <h3>Dr. Toufik Zaimi</h3>
         <p>Number theory — Pisot &amp; Salem numbers.</p>
         <a class="card-link" href="https://scholar.google.com/citations?user=GYTGrJcAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar →</a>
@@ -113,13 +113,13 @@
     </div>
     <div class="feature-grid">
       <article class="feature-card">
-        <div class="icon" aria-hidden="true">🎓</div>
+        <img class="avatar" aria-hidden="true" alt="" loading="lazy" src="{% static 'img/student1.png' %}" width="360" height="360">
         <h3>Billel Azzouz</h3>
         <p>NHSM student &amp; creator of this site.</p>
         <a class="card-link" href="https://t.me/billel_azz" target="_blank" rel="noopener">Telegram →</a>
       </article>
       <article class="feature-card">
-        <div class="icon" aria-hidden="true">🎓</div>
+        <img class="avatar" aria-hidden="true" alt="" loading="lazy" src="{% static 'img/student2.png' %}" width="740" height="740">
         <h3>[Student name — to be determined]</h3>
         <p>[Year / track]</p>
       </article>
@@ -130,6 +130,7 @@
 <section class="section">
   <div class="container">
     <div class="section-head section-head--center">
+      <img class="cta-illus" aria-hidden="true" alt="" loading="lazy" src="{% static 'img/book.png' %}" width="740" height="740">
       <h2>Ready to dive in?</h2>
       <p class="muted">Everything you need to study, in one place.</p>
     </div>
