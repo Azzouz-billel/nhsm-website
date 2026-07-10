@@ -747,26 +747,6 @@ img { max-width: 100%; display: block; }
   border: 0;
 }
 
-.event-list { display: flex; flex-direction: column; gap: var(--space-3); }
-.event-item {
-  display: flex;
-  gap: var(--space-4);
-  align-items: baseline;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--brand);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-sm);
-}
-.event-item .when {
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-  color: var(--accent);
-  white-space: nowrap;
-}
-.event-item h3 { margin: 0 0 var(--space-1); font-size: 1rem; }
-.event-item p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
-
 /* ------------------------------------------------------------------ messages */
 .messages { margin-bottom: var(--space-5); }
 .message {
