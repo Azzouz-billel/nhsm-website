@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Page not found — NHSM Hub{% endblock %}
+{% block description %}This page wandered off the map. Head back to the NHSM Hub library.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container error-page">
+    <p class="error-code" aria-hidden="true">404</p>
+    <h1>This page wandered off the map.</h1>
+    <p>The link may be broken, or the page has moved. Let's get you back to your study base.</p>
+    <div class="error-actions">
+      <a class="btn btn-primary" href="{% url 'home' %}">Back to home</a>
+      <a class="btn btn-ghost" href="{% url 'resource_library' %}">Browse resources</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

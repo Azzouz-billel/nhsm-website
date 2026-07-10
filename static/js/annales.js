@@ -1,14 +1,18 @@
 // Annales archive: read filters, query the exam search API, render exam cards.
+// Paginated: a "Load more" button fetches subsequent pages and appends them.
 (function () {
   "use strict";
 
   var grid = document.querySelector("[data-results]");
   var countEl = document.querySelector("[data-results-count]");
   var emptyEl = document.querySelector("[data-empty]");
+  var loadMoreBtn = document.querySelector("[data-load-more]");
   if (!grid) return;
 
   var state = { q: "", year: "", semester: "", speciality: "", subject: "", type: "", solution: "" };
   var debounceTimer = null;
+  var page = 1;
+  var loading = false;
 
   function escapeHtml(value) {
     var div = document.createElement("div");
@@ -47,9 +51,19 @@
     );
   }
 
-  function render(results, total) {
+  function skeletonMarkup(n) {
+    var out = "";
+    for (var i = 0; i < n; i++) out += '<div class="skeleton-card" aria-hidden="true"></div>';
+    return out;
+  }
+
+  function render(results, total, append) {
     if (total == null) total = results.length;
     countEl.textContent = total + (total === 1 ? " paper" : " papers");
+    if (append) {
+      grid.insertAdjacentHTML("beforeend", results.map(cardHtml).join(""));
+      return;
+    }
     if (!results.length) {
       grid.innerHTML = "";
       emptyEl.hidden = false;
@@ -59,33 +73,60 @@
     grid.innerHTML = results.map(cardHtml).join("");
   }
 
-  function fetchResults() {
+  function setLoadMore(hasNext) {
+    if (!loadMoreBtn) return;
+    loadMoreBtn.hidden = !hasNext;
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = "Load more";
+  }
+
+  function fetchPage(append) {
+    if (loading) return;
+    loading = true;
+    if (append && loadMoreBtn) {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.textContent = "Loading…";
+    } else {
+      grid.setAttribute("aria-busy", "true");
+      if (!grid.children.length) grid.innerHTML = skeletonMarkup(6);
+    }
+
     var params = new URLSearchParams();
     Object.keys(state).forEach(function (key) {
       if (state[key]) params.set(key, state[key]);
     });
-    fetch("/api/exams/search?" + params.toString(), {
-      headers: { Accept: "application/json" },
-    })
+    if (page > 1) params.set("page", page);
+
+    fetch("/api/exams/search?" + params.toString(), { headers: { Accept: "application/json" } })
       .then(function (res) {
         if (!res.ok) throw new Error("Search failed");
         return res.json();
       })
       .then(function (data) {
-        var results = data.results || data;
-        render(results, data.count);
+        render(data.results || data, data.count, append);
+        setLoadMore(!!data.next);
+        grid.removeAttribute("aria-busy");
+        loading = false;
       })
       .catch(function () {
         countEl.textContent = "Could not load exam papers.";
+        setLoadMore(false);
+        grid.removeAttribute("aria-busy");
+        loading = false;
       });
+  }
+
+  function runSearch() {
+    page = 1;
+    fetchPage(false);
   }
 
   function scheduleFetch(immediate) {
     clearTimeout(debounceTimer);
     if (immediate) {
-      fetchResults();
+      runSearch();
     } else {
-      debounceTimer = setTimeout(fetchResults, 250);
+      debounceTimer = setTimeout(runSearch, 250);
     }
   }
 
@@ -153,6 +194,13 @@
     });
   });
 
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", function () {
+      page += 1;
+      fetchPage(true);
+    });
+  }
+
   var reset = document.querySelector("[data-filter-reset]");
   if (reset) {
     reset.addEventListener("click", function () {
@@ -163,10 +211,10 @@
         c.setAttribute("aria-pressed", c.getAttribute("data-value") === "" ? "true" : "false");
       });
       applySemesterScope("");
-      fetchResults();
+      runSearch();
     });
   }
 
   applySemesterScope("");
-  fetchResults();
+  runSearch();
 })();

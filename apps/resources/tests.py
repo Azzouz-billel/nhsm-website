@@ -368,3 +368,41 @@ class SeoTests(TestCase):
     def test_sitemap_lists_public_pages(self):
         response = self.client.get("/sitemap.xml")
         self.assertContains(response, "/resources/")
+
+
+class SearchPaginationTests(TestCase):
+    """The 'Load more' button relies on the API paging results, not returning
+    them all at once. PAGE_SIZE is 24."""
+
+    def setUp(self):
+        subject = Subject.objects.create(name="Analyse 1", semester=1)
+        for i in range(25):
+            Resource.objects.create(
+                title=f"Note {i}",
+                subject=subject,
+                resource_type=ResourceType.COURSE,
+                drive_link=f"https://drive.google.com/{i}",
+                status=ResourceStatus.APPROVED,
+            )
+
+    def test_first_page_caps_results_and_offers_next(self):
+        response = self.client.get(SEARCH_URL).json()
+        self.assertEqual(len(response["results"]), 24)
+        self.assertIsNotNone(response["next"])
+
+    def test_second_page_returns_the_remainder(self):
+        response = self.client.get(SEARCH_URL, {"page": 2}).json()
+        self.assertEqual(len(response["results"]), 1)
+
+
+class ErrorPageTests(TestCase):
+    def test_custom_404_page_is_branded(self):
+        with self.settings(DEBUG=False, ALLOWED_HOSTS=["testserver"]):
+            response = self.client.get("/no-such-page/")
+        self.assertContains(response, "wandered off the map", status_code=404)
+
+
+class SkipLinkTests(TestCase):
+    def test_home_page_has_skip_to_content_link(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'href="#main"')

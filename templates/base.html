@@ -49,6 +49,7 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <nav class="site-nav">
     <div class="container">
       <a class="brand" href="{% url 'home' %}">
@@ -106,7 +107,7 @@
     </div>
   {% endif %}
 
-  <main>
+  <main id="main" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
 
