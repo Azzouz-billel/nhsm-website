@@ -147,8 +147,8 @@
     <div class="container footer-bottom">© {% now "Y" %} NHSM Hub · Made by students, for students.</div>
   </footer>
 
-  {# GSAP powers .reveal scroll animations — loaded only by pages that use them.
-     Must stay before app.js so window.gsap exists when initReveals() runs. #}
+  <!-- GSAP powers .reveal scroll animations — loaded only by pages that use them.
+       Must stay before app.js so window.gsap exists when initReveals() runs. -->
   {% block reveal_js %}{% endblock %}
   <script defer src="{% static 'js/theme.js' %}"></script>
   <script defer src="{% static 'js/app.js' %}"></script>
