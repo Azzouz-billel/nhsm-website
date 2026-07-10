@@ -53,7 +53,7 @@
   <nav class="site-nav">
     <div class="container">
       <a class="brand" href="{% url 'home' %}">
-        <img class="brand-logo" src="{% static 'img/logo-nhsm.png' %}" alt="" aria-hidden="true" style="transform: scale(1.3); transform-origin: left center;">
+        <img class="brand-logo" src="{% static 'img/logo-nhsm.png' %}" alt="" aria-hidden="true" width="512" height="399" style="transform: scale(1.3); transform-origin: left center;">
 
       </a>
       <ul class="nav-links" data-nav-links>
@@ -135,8 +135,9 @@
     <div class="container footer-bottom">© {% now "Y" %} NHSM Hub · Made by students, for students.</div>
   </footer>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  {# GSAP powers .reveal scroll animations — loaded only by pages that use them.
+     Must stay before app.js so window.gsap exists when initReveals() runs. #}
+  {% block reveal_js %}{% endblock %}
   <script defer src="{% static 'js/theme.js' %}"></script>
   <script defer src="{% static 'js/app.js' %}"></script>
   {% block extra_js %}{% endblock %}

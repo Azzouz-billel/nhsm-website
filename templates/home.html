@@ -113,6 +113,11 @@
 
 {% endblock %}
 
+{% block reveal_js %}
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+{% endblock %}
+
 {% block extra_js %}
 <script defer src="https://cdn.jsdelivr.net/npm/@tsparticles/slim@3/tsparticles.slim.bundle.min.js"></script>
 <script defer src="{% static 'js/sparkles.js' %}"></script>

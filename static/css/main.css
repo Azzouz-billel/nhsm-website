@@ -195,7 +195,8 @@ img { max-width: 100%; display: block; }
     color 0.15s ease;
   white-space: nowrap;
 }
-.btn:active { transform: translate(2px, 2px); }
+/* Sink the button into its own pixel drop-shadow — a tactile key-press. */
+.btn:active { transform: translate(3px, 3px); box-shadow: none; }
 
 .btn-primary {
   background: var(--pink);
