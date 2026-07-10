@@ -302,7 +302,7 @@ img { max-width: 100%; display: block; }
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   right: 0;
   min-width: 180px;
   flex-direction: column;
@@ -317,6 +317,12 @@ img { max-width: 100%; display: block; }
 }
 .nav-dropdown.open .nav-dropdown-menu { display: flex; }
 .nav-dropdown-menu a { display: block; }
+
+/* Desktop pointer users also get hover-to-open, so the menu works without JS. */
+@media (hover: hover) and (pointer: fine) {
+  .nav-dropdown:hover .nav-dropdown-menu { display: flex; }
+  .nav-dropdown:hover .nav-dropdown-toggle .caret { transform: rotate(180deg); }
+}
 
 .nav-actions {
   display: flex;
