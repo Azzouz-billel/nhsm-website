@@ -426,7 +426,7 @@ img { max-width: 100%; display: block; }
   margin-bottom: var(--space-3);
 }
 .quote-text {
-  font-size: clamp(1.05rem, 1.9vw, 1.3rem);
+  font-size: clamp(1.2rem, 2.3vw, 1.55rem);
   line-height: 1.55;
   margin: 0 auto var(--space-3);
   color: var(--text);
