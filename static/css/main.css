@@ -837,23 +837,30 @@ img { max-width: 100%; display: block; }
 }
 
 /* ------------------------------------------------------- rate my professor */
-.prof-card { text-align: center; color: var(--text); }
-.prof-card:hover { color: var(--text); }
-.prof-photo {
-  width: 88px; height: 88px; object-fit: cover;
-  border: 2px solid var(--border-strong);
-  margin: 0 auto var(--space-3);
-}
-.prof-photo--blank {
-  display: grid; place-items: center;
-  background: var(--surface-2); font-size: 2rem;
-}
-.prof-rating { margin: var(--space-2) 0 0; display: flex; flex-direction: column; gap: 2px; align-items: center; }
 .stars { color: var(--gold); letter-spacing: 2px; }
+.prof-photo--blank { display: grid; place-items: center; background: var(--surface-2); font-size: 2.4rem; }
 
+/* List: search + horizontal rows (bigger photo left, text right). */
+.prof-search { max-width: 420px; margin-bottom: var(--space-5); }
+.prof-list { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+@media (min-width: 760px) { .prof-list { grid-template-columns: 1fr 1fr; } }
+.prof-row {
+  display: flex; gap: var(--space-4); align-items: center;
+  text-align: left; color: var(--text);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: var(--space-4);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.prof-row:hover { color: var(--text); transform: translateY(-2px); border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+.prof-row-photo { width: 120px; height: 120px; object-fit: cover; border: 2px solid var(--border-strong); flex-shrink: 0; }
+.prof-row-body { min-width: 0; }
+.prof-row-body h3 { margin: 0 0 var(--space-1); }
+.prof-rating { margin: var(--space-2) 0 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* Detail header: big photo on the left, text on the right. */
 .prof-header { display: flex; gap: var(--space-5); align-items: center; margin-bottom: var(--space-6); flex-wrap: wrap; }
 .prof-photo-lg {
-  width: 120px; height: 120px; object-fit: cover;
+  width: 180px; height: 180px; object-fit: cover;
   border: 2px solid var(--border-strong); flex-shrink: 0;
 }
 .prof-avg { margin: var(--space-3) 0 0; display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
@@ -865,18 +872,9 @@ img { max-width: 100%; display: block; }
 .rating-label, .rating-note { font-size: 0.9rem; }
 .rating-label { display: block; margin-bottom: var(--space-2); color: var(--text-muted); }
 .rating-note { margin-top: var(--space-3); }
-/* Score radios rendered as number chips (0–5). */
-.star-input ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-4); padding: 0; }
-.star-input label {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 42px; min-height: 42px; padding: 0 0.6rem;
-  border: 2px solid var(--border-strong); cursor: pointer;
-  font-family: var(--font-display); font-size: 0.7rem; color: var(--text);
-}
-.star-input input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.star-input label:hover { border-color: var(--gold); }
-.star-input li:has(input:checked) label { background: var(--gold); color: var(--brand-contrast); border-color: var(--gold); }
-.star-input li:has(input:focus-visible) label { outline: 2px solid var(--brand); outline-offset: 2px; }
+/* Typed score field (0–5). */
+.score-input { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); }
+.score-field { width: 5rem; text-align: center; font-family: var(--font-display); }
 
 .prof-comment { border: 1px solid var(--border); background: var(--surface); padding: var(--space-4); margin-bottom: var(--space-3); }
 .prof-comment--hidden { opacity: 0.55; border-style: dashed; }

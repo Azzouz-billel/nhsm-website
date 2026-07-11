@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load professor_extras %}
+{% load static professor_extras %}
 
 {% block title %}Rate your professors — NHSM Hub{% endblock %}
 {% block description %}Rate NHSM professors out of 5 with a short comment. Ratings are anonymous.{% endblock %}
@@ -13,29 +13,41 @@
       <p class="muted">Give a score out of 5 and a short "why". Your rating is shown anonymously.</p>
     </div>
 
-    <div class="feature-grid">
+    <div class="prof-search">
+      <input type="search" class="field" placeholder="Search a professor by name…"
+             aria-label="Search professors" autocomplete="off" data-prof-search>
+    </div>
+
+    <div class="prof-list" data-prof-list>
       {% for p in professors %}
-        <a class="feature-card prof-card" href="{% url 'professor_detail' p.pk %}">
+        <a class="prof-row" href="{% url 'professor_detail' p.pk %}" data-name="{{ p.name|lower }}">
           {% if p.photo %}
-            <img class="prof-photo" src="{{ p.photo.url }}" alt="" width="88" height="88" loading="lazy">
+            <img class="prof-row-photo" src="{{ p.photo.url }}" alt="" width="120" height="120" loading="lazy">
           {% else %}
-            <div class="prof-photo prof-photo--blank" aria-hidden="true">👤</div>
+            <div class="prof-row-photo prof-photo--blank" aria-hidden="true">👤</div>
           {% endif %}
-          <h3>{{ p.name }}</h3>
-          {% if p.title %}<p class="muted">{{ p.title }}</p>{% endif %}
-          <p class="prof-rating">
-            <span class="stars" aria-hidden="true">{{ p.avg|stars }}</span>
-            {% if p.count %}
-              <span class="muted">{{ p.avg|floatformat:1 }} · {{ p.count }} rating{{ p.count|pluralize }}</span>
-            {% else %}
-              <span class="muted">No ratings yet</span>
-            {% endif %}
-          </p>
+          <div class="prof-row-body">
+            <h3>{{ p.name }}</h3>
+            {% if p.title %}<p class="muted">{{ p.title }}</p>{% endif %}
+            <p class="prof-rating">
+              <span class="stars" aria-hidden="true">{{ p.avg|stars }}</span>
+              {% if p.count %}
+                <span class="muted">{{ p.avg|floatformat:1 }} · {{ p.count }} rating{{ p.count|pluralize }}</span>
+              {% else %}
+                <span class="muted">No ratings yet</span>
+              {% endif %}
+            </p>
+          </div>
         </a>
       {% empty %}
         <div class="empty-state">No professors listed yet — check back soon.</div>
       {% endfor %}
     </div>
+    <div class="empty-state" data-prof-empty hidden>No professor matches your search.</div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'js/professors.js' %}"></script>
 {% endblock %}

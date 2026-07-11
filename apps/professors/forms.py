@@ -2,8 +2,6 @@ from django import forms
 
 from .models import ProfessorRating
 
-SCORE_CHOICES = [(i, str(i)) for i in range(0, 6)]
-
 
 class RatingForm(forms.ModelForm):
     # Honeypot: hidden from humans; bots fill it and get rejected.
@@ -11,11 +9,12 @@ class RatingForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
     )
-    score = forms.TypedChoiceField(
-        choices=SCORE_CHOICES,
-        coerce=int,
-        widget=forms.RadioSelect,
-        label="Your rating",
+    # The user types the score (0–5) rather than picking from stars.
+    score = forms.IntegerField(
+        min_value=0,
+        max_value=5,
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5, "step": 1, "placeholder": "0–5"}),
+        label="Your score (0–5)",
     )
 
     class Meta:
@@ -39,5 +38,5 @@ class RatingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["comment"].required = False
-        # The score renders as a custom star widget, so keep it class-free.
+        self.fields["score"].widget.attrs["class"] = "field score-field"
         self.fields["comment"].widget.attrs["class"] = "field"

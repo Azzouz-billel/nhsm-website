@@ -30,8 +30,8 @@
         {% if user.is_authenticated %}
           <form method="post" action="{% url 'professor_rate' professor.pk %}" class="form" novalidate>
             {% csrf_token %}
-            <label class="rating-label">Score (0–5)</label>
-            <div class="star-input">{{ form.score }}</div>
+            <label class="rating-label" for="{{ form.score.id_for_label }}">Score (0–5)</label>
+            <div class="score-input">{{ form.score }}<span class="muted">/ 5</span></div>
             {{ form.comment }}
             {% if form.hp_url %}<div class="hp-field" aria-hidden="true">{{ form.hp_url }}</div>{% endif %}
             <button class="btn btn-primary" type="submit">{% if my_rating %}Save changes{% else %}Submit rating{% endif %}</button>
