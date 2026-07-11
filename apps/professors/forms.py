@@ -10,10 +10,12 @@ class RatingForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
     )
     # The user types the score (0–5) rather than picking from stars.
-    score = forms.IntegerField(
+    score = forms.DecimalField(
         min_value=0,
         max_value=5,
-        widget=forms.NumberInput(attrs={"min": 0, "max": 5, "step": 1, "placeholder": "0–5"}),
+        decimal_places=1,
+        max_digits=3,
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5, "step": "0.1", "placeholder": "0–5 (e.g. 3.5)"}),
         label="Your score (0–5)",
     )
 

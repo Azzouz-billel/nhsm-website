@@ -36,8 +36,11 @@ class ProfessorRating(models.Model):
         on_delete=models.CASCADE,
         related_name="professor_ratings",
     )
-    score = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(5)]
+    score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+        help_text="Any value from 0 to 5 (e.g. 3.5).",
     )
     comment = models.CharField(max_length=280, blank=True)
     is_approved = models.BooleanField(
