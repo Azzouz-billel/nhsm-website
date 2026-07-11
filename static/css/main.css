@@ -894,12 +894,12 @@ img { max-width: 100%; display: block; }
 .news-msg.is-active[data-dir="ltr"] { animation: news-ltr 12s linear; }
 .news-msg.is-active[data-dir="rtl"] { animation: news-rtl 12s linear; }
 @keyframes news-ltr {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(100cqw); }
-}
-@keyframes news-rtl {
   from { transform: translateX(100cqw); }
   to   { transform: translateX(-100%); }
+}
+@keyframes news-rtl {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100cqw); }
 }
 .news-msg a { color: var(--brand-strong); }
 .news-msg a:hover { color: var(--brand); text-decoration: underline; }
