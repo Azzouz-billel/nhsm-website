@@ -6,7 +6,7 @@ from apps.accounts.models import Role, User
 from apps.requests.models import ResourceRequest
 from apps.resources.models import ExamPaper, Resource, ResourceStatus, Subject
 
-from apps.professors.models import Professor
+from apps.professors.models import Professor, ProfessorRating
 
 from .decorators import admin_required
 from .forms import (
@@ -32,6 +32,7 @@ def dashboard(request):
         "request_total": ResourceRequest.objects.count(),
         "user_total": User.objects.count(),
         "admin_total": User.objects.filter(role=Role.ADMIN).count(),
+        "pending_reviews": ProfessorRating.objects.filter(is_approved=False).count(),
     }
     return render(request, "manage/dashboard.html", context)
 
@@ -274,3 +275,12 @@ def professor_delete(request, pk):
     get_object_or_404(Professor, pk=pk).delete()
     messages.success(request, "Professor deleted.")
     return redirect("manage_professors")
+
+
+@admin_required
+def review_queue(request):
+    """Pending professor ratings awaiting an admin's approval (pre-moderation)."""
+    pending = ProfessorRating.objects.filter(is_approved=False).select_related(
+        "professor", "user"
+    )
+    return render(request, "manage/reviews.html", {"pending": pending})

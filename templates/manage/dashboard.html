@@ -9,9 +9,13 @@
   <div class="stat-card"><div class="num">{{ subject_total }}</div><div class="label">Subjects</div></div>
   <div class="stat-card"><div class="num">{{ request_total }}</div><div class="label">Requests</div></div>
   <div class="stat-card"><div class="num">{{ user_total }}</div><div class="label">Users · {{ admin_total }} admin</div></div>
+  <a class="stat-card {% if pending_reviews %}stat-card--alert{% endif %}" href="{% url 'manage_reviews' %}" style="text-decoration:none;color:inherit;">
+    <div class="num">{{ pending_reviews }}</div><div class="label">Reviews to approve</div>
+  </a>
 </div>
 
 <div class="manage-actions">
+  {% if pending_reviews %}<a class="btn btn-primary" href="{% url 'manage_reviews' %}">Review {{ pending_reviews }} pending comment{{ pending_reviews|pluralize }}</a>{% endif %}
   <a class="btn btn-primary" href="{% url 'manage_resource_create' %}">+ Add resource</a>
   <a class="btn btn-ghost" href="{% url 'manage_exam_create' %}">+ Add exam paper</a>
   <a class="btn btn-ghost" href="{% url 'manage_subject_create' %}">+ Add subject</a>

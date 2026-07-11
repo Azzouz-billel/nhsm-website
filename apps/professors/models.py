@@ -40,11 +40,19 @@ class ProfessorRating(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(5)]
     )
     comment = models.CharField(max_length=280, blank=True)
+    is_approved = models.BooleanField(
+        default=False,
+        help_text="Shown publicly only after an admin approves it (pre-moderation).",
+    )
     is_hidden = models.BooleanField(
         default=False, help_text="Hidden by an admin — excluded from the page and average."
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_public(self):
+        return self.is_approved and not self.is_hidden
 
     class Meta:
         ordering = ["-created_at"]

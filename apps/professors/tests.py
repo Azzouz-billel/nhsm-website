@@ -9,15 +9,21 @@ from .models import Professor, ProfessorRating
 User = get_user_model()
 
 
+def _rating(prof, user, score=4, comment="", approved=True):
+    return ProfessorRating.objects.create(
+        professor=prof, user=user, score=score, comment=comment, is_approved=approved
+    )
+
+
 class RatingModelTests(TestCase):
     def setUp(self):
         self.prof = Professor.objects.create(name="Dr. Zemirni")
         self.user = User.objects.create_user("alice", password="x")
 
     def test_one_rating_per_user_per_professor(self):
-        ProfessorRating.objects.create(professor=self.prof, user=self.user, score=3)
+        _rating(self.prof, self.user)
         with self.assertRaises(IntegrityError), transaction.atomic():
-            ProfessorRating.objects.create(professor=self.prof, user=self.user, score=4)
+            _rating(self.prof, self.user, score=2)
 
 
 class RateViewTests(TestCase):
@@ -25,31 +31,44 @@ class RateViewTests(TestCase):
         self.prof = Professor.objects.create(name="Dr. Zemirni")
         self.student = User.objects.create_user("alice", password="x")
 
-    def _post(self, score, comment=""):
+    def _post(self, score, comment="", **kwargs):
         return self.client.post(
             f"/professors/{self.prof.pk}/rate/",
             {"score": score, "comment": comment, "hp_url": ""},
+            **kwargs,
         )
 
     def test_rating_requires_login(self):
-        response = self._post(4)
-        self.assertEqual(response.status_code, 302)
+        self._post(4)
         self.assertEqual(ProfessorRating.objects.count(), 0)
 
-    def test_student_can_rate(self):
+    def test_submitted_rating_is_pending(self):
         self.client.force_login(self.student)
         self._post(4, "very clear")
         rating = ProfessorRating.objects.get(professor=self.prof, user=self.student)
-        self.assertEqual(rating.score, 4)
+        self.assertFalse(rating.is_approved)
 
-    def test_second_rating_updates_not_duplicates(self):
+    def test_submit_shows_thank_you(self):
         self.client.force_login(self.student)
-        self._post(4)
+        response = self._post(4, follow=True)
+        self.assertContains(response, "submitted")
+
+    def test_pending_rating_not_shown_to_other_students(self):
+        self.client.force_login(self.student)
+        self._post(3, "hidden until approved")
+        bob = User.objects.create_user("bob", password="x")
+        self.client.force_login(bob)
+        response = self.client.get(f"/professors/{self.prof.pk}/")
+        self.assertNotContains(response, "hidden until approved")
+        self.assertContains(response, "No ratings yet")
+
+    def test_edit_updates_and_returns_to_pending(self):
+        self.client.force_login(self.student)
+        rating = _rating(self.prof, self.student, score=5, approved=True)
         self._post(2)
-        self.assertEqual(ProfessorRating.objects.filter(professor=self.prof).count(), 1)
-        self.assertEqual(
-            ProfessorRating.objects.get(professor=self.prof, user=self.student).score, 2
-        )
+        rating.refresh_from_db()
+        self.assertEqual(rating.score, 2)
+        self.assertFalse(rating.is_approved)
 
     def test_honeypot_blocks_rating(self):
         self.client.force_login(self.student)
@@ -60,15 +79,31 @@ class RateViewTests(TestCase):
         self.assertEqual(ProfessorRating.objects.count(), 0)
 
 
+class VisibilityTests(TestCase):
+    def setUp(self):
+        self.prof = Professor.objects.create(name="Dr. Zemirni")
+        self.alice = User.objects.create_user("alice", password="x")
+        self.bob = User.objects.create_user("bob", password="x")
+
+    def test_approved_rating_shows_and_counts(self):
+        _rating(self.prof, self.alice, score=5, comment="great teacher", approved=True)
+        self.client.force_login(self.bob)
+        response = self.client.get(f"/professors/{self.prof.pk}/")
+        self.assertContains(response, "great teacher")
+
+    def test_pending_excluded_from_average(self):
+        _rating(self.prof, self.alice, score=5, approved=False)
+        response = self.client.get(f"/professors/{self.prof.pk}/")
+        self.assertContains(response, "No ratings yet")
+
+
 class AnonymityTests(TestCase):
     def setUp(self):
         self.prof = Professor.objects.create(name="Dr. Zemirni")
         self.alice = User.objects.create_user("alice", password="x")
         self.bob = User.objects.create_user("bob", password="x")
         self.admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
-        ProfessorRating.objects.create(
-            professor=self.prof, user=self.alice, score=5, comment="great teacher"
-        )
+        _rating(self.prof, self.alice, score=5, comment="great", approved=True)
 
     def test_normal_viewer_sees_anonymous_not_username(self):
         self.client.force_login(self.bob)
@@ -87,34 +122,57 @@ class ModerationTests(TestCase):
         self.prof = Professor.objects.create(name="Dr. Zemirni")
         self.alice = User.objects.create_user("alice", password="x")
         self.admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
-        self.rating = ProfessorRating.objects.create(
-            professor=self.prof, user=self.alice, score=1, comment="hidden me"
-        )
 
-    def test_hidden_rating_excluded_from_average_and_page(self):
-        self.rating.is_hidden = True
-        self.rating.save()
+    def test_admin_can_approve(self):
+        rating = _rating(self.prof, self.alice, approved=False)
+        self.client.force_login(self.admin)
+        self.client.post(f"/professors/ratings/{rating.pk}/approve/")
+        rating.refresh_from_db()
+        self.assertTrue(rating.is_approved)
+
+    def test_admin_can_hide_approved(self):
+        rating = _rating(self.prof, self.alice, approved=True)
+        self.client.force_login(self.admin)
+        self.client.post(f"/professors/ratings/{rating.pk}/hide/")
+        rating.refresh_from_db()
+        self.assertTrue(rating.is_hidden)
+
+    def test_hidden_rating_excluded_from_page(self):
+        rating = _rating(self.prof, self.alice, comment="hidden me", approved=True)
+        rating.is_hidden = True
+        rating.save()
         response = self.client.get(f"/professors/{self.prof.pk}/")
         self.assertNotContains(response, "hidden me")
-        self.assertContains(response, "No ratings yet")
-
-    def test_admin_can_hide(self):
-        self.client.force_login(self.admin)
-        self.client.post(f"/professors/ratings/{self.rating.pk}/hide/")
-        self.rating.refresh_from_db()
-        self.assertTrue(self.rating.is_hidden)
 
     def test_author_can_delete_own_rating(self):
+        rating = _rating(self.prof, self.alice, approved=False)
         self.client.force_login(self.alice)
-        self.client.post(f"/professors/ratings/{self.rating.pk}/delete/")
-        self.assertFalse(ProfessorRating.objects.filter(pk=self.rating.pk).exists())
+        self.client.post(f"/professors/ratings/{rating.pk}/delete/")
+        self.assertFalse(ProfessorRating.objects.filter(pk=rating.pk).exists())
 
     def test_other_student_cannot_delete(self):
+        rating = _rating(self.prof, self.alice, approved=True)
         bob = User.objects.create_user("bob", password="x")
         self.client.force_login(bob)
-        response = self.client.post(f"/professors/ratings/{self.rating.pk}/delete/")
+        response = self.client.post(f"/professors/ratings/{rating.pk}/delete/")
         self.assertEqual(response.status_code, 403)
-        self.assertTrue(ProfessorRating.objects.filter(pk=self.rating.pk).exists())
+
+
+class ReviewQueueTests(TestCase):
+    def setUp(self):
+        self.prof = Professor.objects.create(name="Dr. Zemirni")
+        self.alice = User.objects.create_user("alice", password="x")
+        self.admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
+
+    def test_admin_sees_pending_in_queue(self):
+        _rating(self.prof, self.alice, comment="please review me", approved=False)
+        self.client.force_login(self.admin)
+        response = self.client.get("/manage/reviews/")
+        self.assertContains(response, "please review me")
+
+    def test_non_admin_blocked_from_queue(self):
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.get("/manage/reviews/").status_code, 302)
 
 
 class AdminProfessorTests(TestCase):

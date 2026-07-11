@@ -32,4 +32,6 @@ urlpatterns = [
     path("professors/new/", views.professor_form, name="manage_professor_create"),
     path("professors/<int:pk>/", views.professor_form, name="manage_professor_edit"),
     path("professors/<int:pk>/delete/", views.professor_delete, name="manage_professor_delete"),
+
+    path("reviews/", views.review_queue, name="manage_reviews"),
 ]

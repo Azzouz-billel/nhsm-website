@@ -45,18 +45,24 @@
       <div class="prof-comments">
         <h3>What students say</h3>
         {% for r in ratings %}
-          <article class="prof-comment{% if r.is_hidden %} prof-comment--hidden{% endif %}">
+          <article class="prof-comment{% if not r.is_approved %} prof-comment--pending{% elif r.is_hidden %} prof-comment--hidden{% endif %}">
             <div class="prof-comment-head">
               <span class="stars" aria-hidden="true">{{ r.score|stars }}</span>
-              <span class="muted">{{ r.score }}/5 · {% if user.is_admin %}{{ r.user.username }}{% else %}Anonymous{% endif %} · {{ r.created_at|date:"M j, Y" }}{% if r.is_hidden %} · hidden{% endif %}</span>
+              <span class="muted">{{ r.score }}/5 · {% if user.is_admin %}{{ r.user.username }}{% else %}Anonymous{% endif %} · {{ r.created_at|date:"M j, Y" }}{% if not r.is_approved %} · <strong>pending review</strong>{% elif r.is_hidden %} · hidden{% endif %}</span>
             </div>
             {% if r.comment %}<p>{{ r.comment }}</p>{% endif %}
             {% if user.is_admin or user == r.user %}
               <div class="prof-comment-actions">
                 {% if user.is_admin %}
-                  <form method="post" action="{% url 'professor_rating_hide' r.pk %}">
-                    {% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">{% if r.is_hidden %}Unhide{% else %}Hide{% endif %}</button>
-                  </form>
+                  {% if not r.is_approved %}
+                    <form method="post" action="{% url 'professor_rating_approve' r.pk %}">
+                      {% csrf_token %}<button class="btn btn-primary btn-sm" type="submit">Approve</button>
+                    </form>
+                  {% else %}
+                    <form method="post" action="{% url 'professor_rating_hide' r.pk %}">
+                      {% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">{% if r.is_hidden %}Unhide{% else %}Hide{% endif %}</button>
+                    </form>
+                  {% endif %}
                 {% endif %}
                 <form method="post" action="{% url 'professor_rating_delete' r.pk %}" onsubmit="return confirm('Delete this rating?');">
                   {% csrf_token %}<button class="btn btn-ghost btn-sm danger" type="submit">Delete</button>
