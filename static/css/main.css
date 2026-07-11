@@ -849,54 +849,63 @@ img { max-width: 100%; display: block; }
 .message.error { border-color: var(--danger); }
 
 /* ------------------------------------------------------------------- footer */
-/* ------------------------------------------------------ news ticker (footer) */
-.news-ticker {
+/* -------------------------------------------------- news bar (top of page) */
+.news-bar {
   display: flex;
   align-items: stretch;
-  margin-top: var(--space-8);
-  background: var(--surface);
-  border-top: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
+  background: linear-gradient(90deg, var(--surface-2), var(--surface));
+  border-bottom: 2px solid var(--border-strong);
 }
-.news-ticker__label {
+.news-bar__label {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 0.4em;
-  padding: 0.5rem var(--space-4);
+  padding: 0 var(--space-4);
   background: var(--brand);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 1rem;
 }
-.news-ticker__viewport { flex: 1; overflow: hidden; }
-.news-ticker__track {
-  display: inline-flex;
+.news-bar__stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  overflow: hidden;
+}
+.news-bar__list { list-style: none; margin: 0; padding: 0; }
+.news-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
   align-items: center;
-  white-space: nowrap;
-  padding-block: 0.45rem;
-  animation: news-scroll 30s linear infinite;
-  will-change: transform;
+  gap: 0.5em;
+  padding-inline: var(--space-4);
+  font-size: 1.1rem;
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
-.news-ticker:hover .news-ticker__track { animation-play-state: paused; }
-.news-item { display: inline-flex; align-items: center; gap: 0.5em; padding-inline: var(--space-4); font-size: 1.05rem; color: var(--text); }
-.news-item a { color: var(--text); }
-.news-item a:hover { color: var(--brand-strong); }
-.news-item__sep { color: var(--text-muted); }
-.news-item__divider { color: var(--brand); font-size: 0.7em; }
-@keyframes news-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.news-msg[data-dir="ltr"] { justify-content: flex-start; text-align: left; transform: translateX(-22px); }
+.news-msg[data-dir="rtl"] { justify-content: flex-end; text-align: right; transform: translateX(22px); }
+.news-msg.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+.news-msg a { color: var(--brand-strong); }
+.news-msg a:hover { color: var(--brand); text-decoration: underline; }
+.news-bar__close {
+  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
 }
+.news-bar__close:hover { color: var(--text); background: var(--surface-3); }
+.news-bar--closing { opacity: 0; transition: opacity 0.25s ease; }
 @media (prefers-reduced-motion: reduce) {
-  .news-ticker__track { animation: none; }
-  .news-ticker__viewport { overflow-x: auto; }
+  .news-msg { transition: opacity 0.2s ease; transform: none; }
+  .news-msg[data-dir="ltr"], .news-msg[data-dir="rtl"] { transform: none; }
 }
-/* The ticker already carries the gap above the footer, so drop the footer's. */
-.news-ticker + .site-footer { margin-top: 0; }
 
 .site-footer {
   margin-top: var(--space-8);

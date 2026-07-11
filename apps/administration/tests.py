@@ -125,7 +125,7 @@ class BulletinModelTests(TestCase):
 
 
 class BulletinTickerTests(TestCase):
-    def test_active_bulletin_shows_in_footer(self):
+    def test_active_bulletin_shows_in_bar(self):
         Bulletin.objects.create(text_en="Exams start June 1", is_active=True)
         response = self.client.get("/")
         self.assertContains(response, "Exams start June 1")

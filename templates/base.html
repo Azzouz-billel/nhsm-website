@@ -50,6 +50,41 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+
+  {% if site_bulletins %}
+  <div class="news-bar" data-news-bar data-news-sig="{{ news_signature }}" role="region" aria-label="News">
+    <span class="news-bar__label" aria-hidden="true">📢</span>
+    <div class="news-bar__stage">
+      <ul class="news-bar__list" data-news-list>
+        {% for b in site_bulletins %}
+          {% if b.text_en %}
+            <li class="news-msg" data-dir="ltr" dir="ltr">
+              {% if b.link %}<a href="{{ b.link }}" target="_blank" rel="noopener">{{ b.text_en }}</a>{% else %}{{ b.text_en }}{% endif %}
+            </li>
+          {% endif %}
+          {% if b.text_ar %}
+            <li class="news-msg" data-dir="rtl" dir="rtl" lang="ar">
+              {% if b.link %}<a href="{{ b.link }}" target="_blank" rel="noopener">{{ b.text_ar }}</a>{% else %}{{ b.text_ar }}{% endif %}
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+    <button type="button" class="news-bar__close" data-news-close aria-label="Hide news">✕</button>
+  </div>
+  <script>
+    // Hide synchronously (no flash / layout shift) if this exact news was dismissed.
+    (function () {
+      var b = document.currentScript.previousElementSibling;
+      try {
+        if (b && localStorage.getItem("nhsm-news-hidden") === b.getAttribute("data-news-sig")) {
+          b.style.display = "none";
+        }
+      } catch (e) {}
+    })();
+  </script>
+  {% endif %}
+
   <nav class="site-nav">
     <div class="container">
       <a class="brand" href="{% url 'home' %}">
@@ -116,18 +151,6 @@
     {% block content %}{% endblock %}
   </main>
 
-  {% if site_bulletins %}
-  <div class="news-ticker" aria-label="News bulletin">
-    <span class="news-ticker__label" aria-hidden="true">📢 News</span>
-    <div class="news-ticker__viewport">
-      <div class="news-ticker__track">
-        {% for b in site_bulletins %}{% include "partials/news_item.html" %}{% endfor %}
-        <span aria-hidden="true">{% for b in site_bulletins %}{% include "partials/news_item.html" %}{% endfor %}</span>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
   <footer class="site-footer">
     <div class="container site-footer-inner">
       <div class="footer-brand">
@@ -158,6 +181,7 @@
   {% block reveal_js %}{% endblock %}
   <script defer src="{% static 'js/theme.js' %}"></script>
   <script defer src="{% static 'js/app.js' %}"></script>
+  <script defer src="{% static 'js/news.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
