@@ -7,7 +7,14 @@ from apps.requests.models import ResourceRequest
 from apps.resources.models import ExamPaper, Resource, ResourceStatus, Subject
 
 from .decorators import admin_required
-from .forms import ExamAdminForm, ResourceAdminForm, SubjectAdminForm, UserRoleForm
+from .forms import (
+    BulletinAdminForm,
+    ExamAdminForm,
+    ResourceAdminForm,
+    SubjectAdminForm,
+    UserRoleForm,
+)
+from .models import Bulletin
 
 
 @admin_required
@@ -184,3 +191,43 @@ def user_form(request, pk):
         "manage/form.html",
         {"form": form, "heading": f"Edit {instance.username}", "back_url": "manage_users"},
     )
+
+
+# ----------------------------------------------------------------- bulletins
+@admin_required
+def bulletin_list(request):
+    return render(
+        request,
+        "manage/bulletins.html",
+        {"bulletins": Bulletin.objects.all()},
+    )
+
+
+@admin_required
+def bulletin_form(request, pk=None):
+    instance = get_object_or_404(Bulletin, pk=pk) if pk else None
+    if request.method == "POST":
+        form = BulletinAdminForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Bulletin saved.")
+            return redirect("manage_bulletins")
+    else:
+        form = BulletinAdminForm(instance=instance)
+    return render(
+        request,
+        "manage/form.html",
+        {
+            "form": form,
+            "heading": "Edit bulletin" if instance else "Add bulletin",
+            "back_url": "manage_bulletins",
+        },
+    )
+
+
+@require_POST
+@admin_required
+def bulletin_delete(request, pk):
+    get_object_or_404(Bulletin, pk=pk).delete()
+    messages.success(request, "Bulletin deleted.")
+    return redirect("manage_bulletins")

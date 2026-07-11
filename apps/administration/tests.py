@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.test import TestCase
 
 from apps.accounts.models import Role
 from apps.administration.forms import SubjectAdminForm
+from apps.administration.models import Bulletin
 from apps.resources.models import Resource, ResourceStatus, Subject
 
 User = get_user_model()
@@ -111,3 +113,53 @@ class AdminFormLimitTests(TestCase):
         from apps.administration.forms import SubjectAdminForm
         form = SubjectAdminForm(data={"name": "x" * 71, "semester": 1, "description": ""})
         self.assertFalse(form.is_valid())
+
+
+class BulletinModelTests(TestCase):
+    def test_bulletin_requires_at_least_one_language(self):
+        with self.assertRaises(ValidationError):
+            Bulletin(text_en="", text_ar="").full_clean()
+
+    def test_bulletin_with_one_language_is_valid(self):
+        self.assertIsNone(Bulletin(text_en="Registration opens Monday").full_clean())
+
+
+class BulletinTickerTests(TestCase):
+    def test_active_bulletin_shows_in_footer(self):
+        Bulletin.objects.create(text_en="Exams start June 1", is_active=True)
+        response = self.client.get("/")
+        self.assertContains(response, "Exams start June 1")
+
+    def test_inactive_bulletin_is_hidden(self):
+        Bulletin.objects.create(text_en="Hidden notice", is_active=False)
+        response = self.client.get("/")
+        self.assertNotContains(response, "Hidden notice")
+
+    def test_arabic_text_renders_rtl(self):
+        Bulletin.objects.create(text_ar="التسجيل يفتح الإثنين", is_active=True)
+        response = self.client.get("/")
+        self.assertContains(response, 'dir="rtl"')
+
+
+class BulletinAdminTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user("adminuser", password="x", role=Role.ADMIN)
+        self.student = User.objects.create_user("stud", password="x")
+
+    def test_admin_can_create_bulletin(self):
+        self.client.force_login(self.admin)
+        self.client.post(
+            "/manage/bulletins/new/",
+            {"text_en": "New notice", "text_ar": "", "link": "", "order": 0, "is_active": "on"},
+        )
+        self.assertTrue(Bulletin.objects.filter(text_en="New notice").exists())
+
+    def test_non_admin_cannot_reach_bulletins(self):
+        self.client.force_login(self.student)
+        self.assertEqual(self.client.get("/manage/bulletins/").status_code, 302)
+
+    def test_admin_can_delete_bulletin(self):
+        self.client.force_login(self.admin)
+        b = Bulletin.objects.create(text_en="Disposable")
+        self.client.post(f"/manage/bulletins/{b.pk}/delete/")
+        self.assertFalse(Bulletin.objects.filter(pk=b.pk).exists())

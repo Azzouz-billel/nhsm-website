@@ -4,6 +4,8 @@ from django.core.validators import MaxLengthValidator
 from apps.accounts.models import User
 from apps.resources.models import ExamPaper, Resource, Subject
 
+from .models import Bulletin
+
 MAX_TEXT = 70
 
 
@@ -65,6 +67,17 @@ class UserRoleForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ("role", "academic_group", "is_active")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self)
+
+
+class BulletinAdminForm(forms.ModelForm):
+    class Meta:
+        model = Bulletin
+        fields = ("text_en", "text_ar", "link", "is_active", "order")
+        widgets = {"text_ar": forms.TextInput(attrs={"dir": "rtl", "lang": "ar"})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

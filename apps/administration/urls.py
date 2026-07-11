@@ -22,4 +22,9 @@ urlpatterns = [
 
     path("users/", views.user_list, name="manage_users"),
     path("users/<int:pk>/", views.user_form, name="manage_user_edit"),
+
+    path("bulletins/", views.bulletin_list, name="manage_bulletins"),
+    path("bulletins/new/", views.bulletin_form, name="manage_bulletin_create"),
+    path("bulletins/<int:pk>/", views.bulletin_form, name="manage_bulletin_edit"),
+    path("bulletins/<int:pk>/delete/", views.bulletin_delete, name="manage_bulletin_delete"),
 ]

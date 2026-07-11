@@ -1,0 +1,9 @@
+{# One news bulletin for the footer ticker. Expects `b` (a Bulletin). #}
+<span class="news-item">
+  {% if b.link %}<a href="{{ b.link }}" target="_blank" rel="noopener">{% endif %}
+  {% if b.text_en %}<span dir="ltr">{{ b.text_en }}</span>{% endif %}
+  {% if b.text_en and b.text_ar %}<span class="news-item__sep" aria-hidden="true">·</span>{% endif %}
+  {% if b.text_ar %}<span dir="rtl" lang="ar">{{ b.text_ar }}</span>{% endif %}
+  {% if b.link %}</a>{% endif %}
+  <span class="news-item__divider" aria-hidden="true">◆</span>
+</span>

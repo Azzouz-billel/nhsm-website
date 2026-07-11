@@ -116,6 +116,18 @@
     {% block content %}{% endblock %}
   </main>
 
+  {% if site_bulletins %}
+  <div class="news-ticker" aria-label="News bulletin">
+    <span class="news-ticker__label" aria-hidden="true">📢 News</span>
+    <div class="news-ticker__viewport">
+      <div class="news-ticker__track">
+        {% for b in site_bulletins %}{% include "partials/news_item.html" %}{% endfor %}
+        <span aria-hidden="true">{% for b in site_bulletins %}{% include "partials/news_item.html" %}{% endfor %}</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <footer class="site-footer">
     <div class="container site-footer-inner">
       <div class="footer-brand">
