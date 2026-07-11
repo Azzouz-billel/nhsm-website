@@ -70,6 +70,17 @@ class RateViewTests(TestCase):
         self.assertEqual(rating.score, 2)
         self.assertFalse(rating.is_approved)
 
+    def test_accepts_decimal_score(self):
+        self.client.force_login(self.student)
+        self._post("3.5", "half point")
+        rating = ProfessorRating.objects.get(professor=self.prof, user=self.student)
+        self.assertEqual(float(rating.score), 3.5)
+
+    def test_rejects_score_above_five(self):
+        self.client.force_login(self.student)
+        self._post("6")
+        self.assertEqual(ProfessorRating.objects.count(), 0)
+
     def test_honeypot_blocks_rating(self):
         self.client.force_login(self.student)
         self.client.post(
@@ -176,14 +187,29 @@ class ReviewQueueTests(TestCase):
 
 
 class AdminProfessorTests(TestCase):
-    def test_admin_can_add_professor(self):
+    def test_admin_can_add_professor_with_photo_url(self):
         admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
         self.client.force_login(admin)
         self.client.post(
             "/manage/professors/new/",
-            {"name": "Dr. Zaimi", "title": "Number theory", "is_active": "on"},
+            {
+                "name": "Dr. Zaimi",
+                "title": "Number theory",
+                "photo_url": "https://example.com/zaimi.jpg",
+                "is_active": "on",
+            },
         )
-        self.assertTrue(Professor.objects.filter(name="Dr. Zaimi").exists())
+        prof = Professor.objects.get(name="Dr. Zaimi")
+        self.assertEqual(prof.photo_url, "https://example.com/zaimi.jpg")
+
+    def test_admin_can_add_professor_without_photo(self):
+        admin = User.objects.create_user("adm2", password="x", role=Role.ADMIN)
+        self.client.force_login(admin)
+        self.client.post(
+            "/manage/professors/new/",
+            {"name": "Dr. NoPhoto", "title": "", "photo_url": "", "is_active": "on"},
+        )
+        self.assertTrue(Professor.objects.filter(name="Dr. NoPhoto").exists())
 
     def test_non_admin_cannot_reach_manage_professors(self):
         student = User.objects.create_user("stud", password="x")

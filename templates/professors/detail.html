@@ -9,8 +9,8 @@
     <p><a class="card-link" href="{% url 'professor_list' %}">← All professors</a></p>
 
     <div class="prof-header">
-      {% if professor.photo %}
-        <img class="prof-photo-lg" src="{{ professor.photo.url }}" alt="" width="120" height="120">
+      {% if professor.photo_url %}
+        <img class="prof-photo-lg" src="{{ professor.photo_url }}" alt="" width="180" height="180">
       {% else %}
         <div class="prof-photo-lg prof-photo--blank" aria-hidden="true">👤</div>
       {% endif %}
@@ -48,7 +48,7 @@
           <article class="prof-comment{% if not r.is_approved %} prof-comment--pending{% elif r.is_hidden %} prof-comment--hidden{% endif %}">
             <div class="prof-comment-head">
               <span class="stars" aria-hidden="true">{{ r.score|stars }}</span>
-              <span class="muted">{{ r.score }}/5 · {% if user.is_admin %}{{ r.user.username }}{% else %}Anonymous{% endif %} · {{ r.created_at|date:"M j, Y" }}{% if not r.is_approved %} · <strong>pending review</strong>{% elif r.is_hidden %} · hidden{% endif %}</span>
+              <span class="muted">{{ r.score|floatformat }}/5 · {% if user.is_admin %}{{ r.user.username }}{% else %}Anonymous{% endif %} · {{ r.created_at|date:"M j, Y" }}{% if not r.is_approved %} · <strong>pending review</strong>{% elif r.is_hidden %} · hidden{% endif %}</span>
             </div>
             {% if r.comment %}<p>{{ r.comment }}</p>{% endif %}
             {% if user.is_admin or user == r.user %}

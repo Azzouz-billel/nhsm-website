@@ -14,7 +14,9 @@ class Professor(models.Model):
     title = models.CharField(
         max_length=120, blank=True, help_text="Field or role, e.g. Complex analysis."
     )
-    photo = models.ImageField(upload_to="professors/", blank=True)
+    photo_url = models.URLField(
+        blank=True, help_text="Link to a photo (paste an image URL). Optional."
+    )
     is_active = models.BooleanField(
         default=True, help_text="Untick to hide without deleting."
     )

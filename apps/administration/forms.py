@@ -88,7 +88,7 @@ class BulletinAdminForm(forms.ModelForm):
 class ProfessorAdminForm(forms.ModelForm):
     class Meta:
         model = Professor
-        fields = ("name", "title", "photo", "is_active")
+        fields = ("name", "title", "photo_url", "is_active")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

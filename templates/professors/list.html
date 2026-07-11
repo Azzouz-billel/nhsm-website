@@ -21,8 +21,8 @@
     <div class="prof-list" data-prof-list>
       {% for p in professors %}
         <a class="prof-row" href="{% url 'professor_detail' p.pk %}" data-name="{{ p.name|lower }}">
-          {% if p.photo %}
-            <img class="prof-row-photo" src="{{ p.photo.url }}" alt="" width="120" height="120" loading="lazy">
+          {% if p.photo_url %}
+            <img class="prof-row-photo" src="{{ p.photo_url }}" alt="" width="120" height="120" loading="lazy">
           {% else %}
             <div class="prof-row-photo prof-photo--blank" aria-hidden="true">👤</div>
           {% endif %}

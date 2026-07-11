@@ -13,7 +13,7 @@
     {% for r in pending %}
       <tr>
         <td>{{ r.professor.name }}</td>
-        <td>{{ r.score }}/5</td>
+        <td>{{ r.score|floatformat }}/5</td>
         <td>{{ r.comment|default:"—" }}</td>
         <td class="muted">{{ r.user.username }}</td>
         <td class="muted">{{ r.created_at|date:"M j, Y" }}</td>

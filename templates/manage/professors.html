@@ -13,7 +13,7 @@
   <tbody>
     {% for p in professors %}
       <tr>
-        <td>{% if p.photo %}<img src="{{ p.photo.url }}" alt="" width="40" height="40" style="object-fit:cover;border:1px solid var(--border);">{% else %}—{% endif %}</td>
+        <td>{% if p.photo_url %}<img src="{{ p.photo_url }}" alt="" width="40" height="40" style="object-fit:cover;border:1px solid var(--border);">{% else %}—{% endif %}</td>
         <td>{{ p.name }}</td>
         <td class="muted">{{ p.title|default:"—" }}</td>
         <td class="muted">{{ p.is_active|yesno:"Yes,No" }}</td>

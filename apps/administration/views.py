@@ -251,7 +251,7 @@ def professor_list(request):
 def professor_form(request, pk=None):
     instance = get_object_or_404(Professor, pk=pk) if pk else None
     if request.method == "POST":
-        form = ProfessorAdminForm(request.POST, request.FILES, instance=instance)
+        form = ProfessorAdminForm(request.POST, instance=instance)
         if form.is_valid():
             form.save()
             messages.success(request, "Professor saved.")
