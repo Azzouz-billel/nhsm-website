@@ -98,6 +98,7 @@
         <li><a href="{% url 'timer' %}" {% if request.resolver_match.url_name == 'timer' %}class="active"{% endif %}>Timer</a></li>
         <li><a href="{% url 'leaderboard' %}" {% if request.resolver_match.url_name == 'leaderboard' %}class="active"{% endif %}>Leaderboard</a></li>
         <li><a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}>About</a></li>
+        <li><a href="{% url 'professor_list' %}" {% if 'professor' in request.resolver_match.url_name %}class="active"{% endif %}>Professors</a></li>
         <li><a href="{% url 'request_board' %}" {% if request.resolver_match.url_name == 'request_board' %}class="active"{% endif %}>Requests</a></li>
 
         <li class="nav-dropdown" data-dropdown>
