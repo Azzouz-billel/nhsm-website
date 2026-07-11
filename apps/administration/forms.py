@@ -2,6 +2,7 @@ from django import forms
 from django.core.validators import MaxLengthValidator
 
 from apps.accounts.models import User
+from apps.professors.models import Professor
 from apps.resources.models import ExamPaper, Resource, Subject
 
 from .models import Bulletin
@@ -78,6 +79,16 @@ class BulletinAdminForm(forms.ModelForm):
         model = Bulletin
         fields = ("text_en", "text_ar", "link", "is_active", "order")
         widgets = {"text_ar": forms.TextInput(attrs={"dir": "rtl", "lang": "ar"})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style(self)
+
+
+class ProfessorAdminForm(forms.ModelForm):
+    class Meta:
+        model = Professor
+        fields = ("name", "title", "photo", "is_active")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

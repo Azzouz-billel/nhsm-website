@@ -27,4 +27,9 @@ urlpatterns = [
     path("bulletins/new/", views.bulletin_form, name="manage_bulletin_create"),
     path("bulletins/<int:pk>/", views.bulletin_form, name="manage_bulletin_edit"),
     path("bulletins/<int:pk>/delete/", views.bulletin_delete, name="manage_bulletin_delete"),
+
+    path("professors/", views.professor_list, name="manage_professors"),
+    path("professors/new/", views.professor_form, name="manage_professor_create"),
+    path("professors/<int:pk>/", views.professor_form, name="manage_professor_edit"),
+    path("professors/<int:pk>/delete/", views.professor_delete, name="manage_professor_delete"),
 ]

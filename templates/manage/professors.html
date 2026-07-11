@@ -1,0 +1,32 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Professors{% endblock %}
+
+{% block manage_content %}
+<div class="manage-bar">
+  <span class="muted">{{ professors|length }} professor{{ professors|length|pluralize }}</span>
+  <a class="btn btn-primary btn-sm" href="{% url 'manage_professor_create' %}">+ Add professor</a>
+</div>
+
+<table class="lb-table manage-table">
+  <thead><tr><th>Photo</th><th>Name</th><th>Title</th><th>Active</th><th class="col-actions">Actions</th></tr></thead>
+  <tbody>
+    {% for p in professors %}
+      <tr>
+        <td>{% if p.photo %}<img src="{{ p.photo.url }}" alt="" width="40" height="40" style="object-fit:cover;border:1px solid var(--border);">{% else %}—{% endif %}</td>
+        <td>{{ p.name }}</td>
+        <td class="muted">{{ p.title|default:"—" }}</td>
+        <td class="muted">{{ p.is_active|yesno:"Yes,No" }}</td>
+        <td class="manage-row-actions">
+          <a class="btn btn-ghost btn-sm" href="{% url 'manage_professor_edit' p.pk %}">Edit</a>
+          <form method="post" action="{% url 'manage_professor_delete' p.pk %}" onsubmit="return confirm('Delete “{{ p.name|escapejs }}”? Its ratings go too.');">
+            {% csrf_token %}<button class="btn btn-ghost btn-sm danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="muted">No professors yet — add one so students can rate them.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

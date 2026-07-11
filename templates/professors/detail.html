@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load professor_extras %}
+
+{% block title %}{{ professor.name }} — Rate my professor — NHSM Hub{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <p><a class="card-link" href="{% url 'professor_list' %}">← All professors</a></p>
+
+    <div class="prof-header">
+      {% if professor.photo %}
+        <img class="prof-photo-lg" src="{{ professor.photo.url }}" alt="" width="120" height="120">
+      {% else %}
+        <div class="prof-photo-lg prof-photo--blank" aria-hidden="true">👤</div>
+      {% endif %}
+      <div>
+        <h2 style="margin-bottom:var(--space-2);">{{ professor.name }}</h2>
+        {% if professor.title %}<p class="muted">{{ professor.title }}</p>{% endif %}
+        <p class="prof-avg">
+          <span class="stars" aria-hidden="true">{{ avg|stars }}</span>
+          {% if count %}<strong>{{ avg|floatformat:1 }}</strong> / 5 · {{ count }} rating{{ count|pluralize }}{% else %}No ratings yet{% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="prof-cols">
+      <aside class="auth-card prof-form-wrap">
+        <h3>{% if my_rating %}Update your rating{% else %}Rate this professor{% endif %}</h3>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'professor_rate' professor.pk %}" class="form" novalidate>
+            {% csrf_token %}
+            <label class="rating-label">Score (0–5)</label>
+            <div class="star-input">{{ form.score }}</div>
+            {{ form.comment }}
+            {% if form.hp_url %}<div class="hp-field" aria-hidden="true">{{ form.hp_url }}</div>{% endif %}
+            <button class="btn btn-primary" type="submit">{% if my_rating %}Save changes{% else %}Submit rating{% endif %}</button>
+          </form>
+          <p class="muted rating-note">Shown anonymously to other students.</p>
+        {% else %}
+          <p class="muted"><a href="{% url 'login' %}">Log in</a> to rate — it's anonymous.</p>
+        {% endif %}
+      </aside>
+
+      <div class="prof-comments">
+        <h3>What students say</h3>
+        {% for r in ratings %}
+          <article class="prof-comment{% if r.is_hidden %} prof-comment--hidden{% endif %}">
+            <div class="prof-comment-head">
+              <span class="stars" aria-hidden="true">{{ r.score|stars }}</span>
+              <span class="muted">{{ r.score }}/5 · {% if user.is_admin %}{{ r.user.username }}{% else %}Anonymous{% endif %} · {{ r.created_at|date:"M j, Y" }}{% if r.is_hidden %} · hidden{% endif %}</span>
+            </div>
+            {% if r.comment %}<p>{{ r.comment }}</p>{% endif %}
+            {% if user.is_admin or user == r.user %}
+              <div class="prof-comment-actions">
+                {% if user.is_admin %}
+                  <form method="post" action="{% url 'professor_rating_hide' r.pk %}">
+                    {% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">{% if r.is_hidden %}Unhide{% else %}Hide{% endif %}</button>
+                  </form>
+                {% endif %}
+                <form method="post" action="{% url 'professor_rating_delete' r.pk %}" onsubmit="return confirm('Delete this rating?');">
+                  {% csrf_token %}<button class="btn btn-ghost btn-sm danger" type="submit">Delete</button>
+                </form>
+              </div>
+            {% endif %}
+          </article>
+        {% empty %}
+          <p class="muted">No comments yet — be the first to rate.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

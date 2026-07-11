@@ -836,6 +836,54 @@ img { max-width: 100%; display: block; }
   border: 0;
 }
 
+/* ------------------------------------------------------- rate my professor */
+.prof-card { text-align: center; color: var(--text); }
+.prof-card:hover { color: var(--text); }
+.prof-photo {
+  width: 88px; height: 88px; object-fit: cover;
+  border: 2px solid var(--border-strong);
+  margin: 0 auto var(--space-3);
+}
+.prof-photo--blank {
+  display: grid; place-items: center;
+  background: var(--surface-2); font-size: 2rem;
+}
+.prof-rating { margin: var(--space-2) 0 0; display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.stars { color: var(--gold); letter-spacing: 2px; }
+
+.prof-header { display: flex; gap: var(--space-5); align-items: center; margin-bottom: var(--space-6); flex-wrap: wrap; }
+.prof-photo-lg {
+  width: 120px; height: 120px; object-fit: cover;
+  border: 2px solid var(--border-strong); flex-shrink: 0;
+}
+.prof-avg { margin: var(--space-3) 0 0; display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.prof-avg .stars { font-size: 1.3rem; }
+
+.prof-cols { display: grid; grid-template-columns: 1fr; gap: var(--space-6); align-items: start; }
+@media (min-width: 820px) { .prof-cols { grid-template-columns: 300px 1fr; } }
+
+.rating-label, .rating-note { font-size: 0.9rem; }
+.rating-label { display: block; margin-bottom: var(--space-2); color: var(--text-muted); }
+.rating-note { margin-top: var(--space-3); }
+/* Score radios rendered as number chips (0–5). */
+.star-input ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-4); padding: 0; }
+.star-input label {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 42px; min-height: 42px; padding: 0 0.6rem;
+  border: 2px solid var(--border-strong); cursor: pointer;
+  font-family: var(--font-display); font-size: 0.7rem; color: var(--text);
+}
+.star-input input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.star-input label:hover { border-color: var(--gold); }
+.star-input li:has(input:checked) label { background: var(--gold); color: var(--brand-contrast); border-color: var(--gold); }
+.star-input li:has(input:focus-visible) label { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.prof-comment { border: 1px solid var(--border); background: var(--surface); padding: var(--space-4); margin-bottom: var(--space-3); }
+.prof-comment--hidden { opacity: 0.55; border-style: dashed; }
+.prof-comment-head { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); font-size: 0.9rem; }
+.prof-comment p { margin: 0; }
+.prof-comment-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+
 /* ------------------------------------------------------------------ messages */
 .messages { margin-bottom: var(--space-5); }
 .message {

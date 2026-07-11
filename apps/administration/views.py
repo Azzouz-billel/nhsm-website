@@ -6,10 +6,13 @@ from apps.accounts.models import Role, User
 from apps.requests.models import ResourceRequest
 from apps.resources.models import ExamPaper, Resource, ResourceStatus, Subject
 
+from apps.professors.models import Professor
+
 from .decorators import admin_required
 from .forms import (
     BulletinAdminForm,
     ExamAdminForm,
+    ProfessorAdminForm,
     ResourceAdminForm,
     SubjectAdminForm,
     UserRoleForm,
@@ -231,3 +234,43 @@ def bulletin_delete(request, pk):
     get_object_or_404(Bulletin, pk=pk).delete()
     messages.success(request, "Bulletin deleted.")
     return redirect("manage_bulletins")
+
+
+# ---------------------------------------------------------------- professors
+@admin_required
+def professor_list(request):
+    return render(
+        request,
+        "manage/professors.html",
+        {"professors": Professor.objects.all()},
+    )
+
+
+@admin_required
+def professor_form(request, pk=None):
+    instance = get_object_or_404(Professor, pk=pk) if pk else None
+    if request.method == "POST":
+        form = ProfessorAdminForm(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Professor saved.")
+            return redirect("manage_professors")
+    else:
+        form = ProfessorAdminForm(instance=instance)
+    return render(
+        request,
+        "manage/form.html",
+        {
+            "form": form,
+            "heading": "Edit professor" if instance else "Add professor",
+            "back_url": "manage_professors",
+        },
+    )
+
+
+@require_POST
+@admin_required
+def professor_delete(request, pk):
+    get_object_or_404(Professor, pk=pk).delete()
+    messages.success(request, "Professor deleted.")
+    return redirect("manage_professors")

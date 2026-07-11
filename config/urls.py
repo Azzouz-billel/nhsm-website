@@ -50,6 +50,7 @@ urlpatterns = [
     path("moderation/", include("apps.moderation.urls")),
     path("manage/", include("apps.administration.urls")),
     path("requests/", include("apps.requests.urls")),
+    path("professors/", include("apps.professors.urls")),
     path("", include("apps.productivity.urls")),
     path("", include("apps.resources.urls")),
 ]

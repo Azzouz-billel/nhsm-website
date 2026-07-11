@@ -16,6 +16,7 @@ class StaticViewSitemap(sitemaps.Sitemap):
             "annales",
             "timer",
             "leaderboard",
+            "professor_list",
             "request_board",
             "contact",
             "register",

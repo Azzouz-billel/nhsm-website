@@ -17,6 +17,7 @@
         <a href="{% url 'manage_exams' %}" class="{% if 'exam' in request.resolver_match.url_name %}active{% endif %}">Exams</a>
         <a href="{% url 'manage_users' %}" class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">Users</a>
         <a href="{% url 'manage_bulletins' %}" class="{% if 'bulletin' in request.resolver_match.url_name %}active{% endif %}">Bulletins</a>
+        <a href="{% url 'manage_professors' %}" class="{% if 'professor' in request.resolver_match.url_name %}active{% endif %}">Professors</a>
       </aside>
       <div class="manage-content">
         {% block manage_content %}{% endblock %}

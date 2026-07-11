@@ -4,7 +4,7 @@
 
 {% block manage_content %}
 <div class="auth-card manage-form">
-  <form method="post" class="form" novalidate>
+  <form method="post" class="form" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {% include "partials/form_fields.html" %}
     <div class="form-actions">

@@ -103,6 +103,7 @@
           <button type="button" class="nav-dropdown-toggle" data-dropdown-toggle
                   aria-haspopup="true" aria-expanded="false">More <span class="caret" aria-hidden="true">▾</span></button>
           <ul class="nav-dropdown-menu" data-dropdown-menu>
+            <li><a href="{% url 'professor_list' %}" {% if 'professor' in request.resolver_match.url_name %}class="active"{% endif %}>Professors</a></li>
             <li><a href="{% url 'request_board' %}" {% if request.resolver_match.url_name == 'request_board' %}class="active"{% endif %}>Requests</a></li>
             <li><a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a></li>
             {% if user.is_authenticated %}
@@ -163,6 +164,7 @@
         <a href="{% url 'annales' %}">Exams</a>
         <a href="{% url 'timer' %}">Timer</a>
         <a href="{% url 'leaderboard' %}">Leaderboard</a>
+        <a href="{% url 'professor_list' %}">Professors</a>
         <a href="{% url 'request_board' %}">Requests</a>
         <a href="{% url 'contact' %}">Contact</a>
       </nav>
