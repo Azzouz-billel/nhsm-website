@@ -870,24 +870,37 @@ img { max-width: 100%; display: block; }
   min-width: 0;
   height: 40px;
   overflow: hidden;
+  container-type: inline-size;   /* enables cqw so a message crosses the full bar */
 }
 .news-bar__list { list-style: none; margin: 0; padding: 0; }
+/* One message at a time; the active one scrolls fully across the bar in its
+   reading direction (English left→right, Arabic right→left). */
 .news-msg {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  height: 100%;
   display: flex;
   align-items: center;
   gap: 0.5em;
-  padding-inline: var(--space-4);
+  padding-inline: var(--space-3);
+  white-space: nowrap;
   font-size: 1.1rem;
   color: var(--text);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  visibility: hidden;
+  will-change: transform;
 }
-.news-msg[data-dir="ltr"] { justify-content: flex-start; text-align: left; transform: translateX(-22px); }
-.news-msg[data-dir="rtl"] { justify-content: flex-end; text-align: right; transform: translateX(22px); }
-.news-msg.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+.news-msg.is-active { visibility: visible; }
+.news-msg.is-active[data-dir="ltr"] { animation: news-ltr 12s linear; }
+.news-msg.is-active[data-dir="rtl"] { animation: news-rtl 12s linear; }
+@keyframes news-ltr {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100cqw); }
+}
+@keyframes news-rtl {
+  from { transform: translateX(100cqw); }
+  to   { transform: translateX(-100%); }
+}
 .news-msg a { color: var(--brand-strong); }
 .news-msg a:hover { color: var(--brand); text-decoration: underline; }
 .news-bar__close {
@@ -902,9 +915,12 @@ img { max-width: 100%; display: block; }
 }
 .news-bar__close:hover { color: var(--text); background: var(--surface-3); }
 .news-bar--closing { opacity: 0; transition: opacity 0.25s ease; }
+/* No motion: don't scroll — show one message, aligned to its side, and let JS
+   rotate them slowly. */
 @media (prefers-reduced-motion: reduce) {
-  .news-msg { transition: opacity 0.2s ease; transform: none; }
-  .news-msg[data-dir="ltr"], .news-msg[data-dir="rtl"] { transform: none; }
+  .news-msg { animation: none !important; right: 0; }
+  .news-msg[data-dir="ltr"] { justify-content: flex-start; }
+  .news-msg[data-dir="rtl"] { justify-content: flex-end; }
 }
 
 .site-footer {
