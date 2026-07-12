@@ -23,7 +23,7 @@ class RatingForm(forms.ModelForm):
         choices=RATING_TAGS,
         widget=forms.CheckboxSelectMultiple,
         required=False,
-        label="What describes this teaching? (optional)",
+        label="What describes this teaching? (choose up to 3)",
     )
     agree = forms.BooleanField(
         required=True,
@@ -39,6 +39,12 @@ class RatingForm(forms.ModelForm):
         if self.cleaned_data.get("hp_url"):
             raise forms.ValidationError("Spam detected.")
         return ""
+
+    def clean_tags(self):
+        tags = self.cleaned_data.get("tags", [])
+        if len(tags) > 3:
+            raise forms.ValidationError("Please choose at most 3 tags.")
+        return tags
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

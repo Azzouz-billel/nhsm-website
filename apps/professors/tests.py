@@ -76,6 +76,11 @@ class RateViewTests(TestCase):
         self._post(4, tags=["clear"], agree=False)
         self.assertEqual(ProfessorRating.objects.count(), 0)
 
+    def test_rejects_more_than_three_tags(self):
+        self.client.force_login(self.student)
+        self._post(4, tags=["clear", "fair", "patient", "engaging"])
+        self.assertEqual(ProfessorRating.objects.count(), 0)
+
     def test_edit_updates_and_returns_to_pending(self):
         self.client.force_login(self.student)
         rating = _rating(self.prof, self.student, score=5, approved=True)

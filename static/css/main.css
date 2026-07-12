@@ -777,6 +777,21 @@ img { max-width: 100%; display: block; }
 }
 .warn-note strong { color: var(--danger); }
 
+/* Fine-print variant: compact disclaimer, quieter than the red rules callout. */
+.warn-note--fine {
+  align-items: flex-start;
+  background: var(--surface-2);
+  border-color: var(--border);
+  border-left-color: var(--border);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.warn-note--fine p { margin: 0 0 0.4em; }
+.warn-note--fine p:last-child { margin-bottom: 0; }
+.warn-note--fine strong { color: var(--text); }
+
 /* ----------------------------------------------------------------- about page */
 .about-hero { display: grid; grid-template-columns: 1fr; gap: var(--space-6); align-items: center; }
 .about-hero .section-head { margin-bottom: 0; }
