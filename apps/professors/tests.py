@@ -42,10 +42,8 @@ class RateViewTests(TestCase):
         self.prof = Professor.objects.create(name="Dr. Zemirni")
         self.student = User.objects.create_user("alice", password="x")
 
-    def _post(self, score, tags=None, agree=True, **kwargs):
+    def _post(self, score, tags=None, **kwargs):
         data = {"score": score, "hp_url": ""}
-        if agree:
-            data["agree"] = "on"
         if tags:
             data["tags"] = tags
         return self.client.post(f"/professors/{self.prof.pk}/rate/", data, **kwargs)
@@ -70,11 +68,6 @@ class RateViewTests(TestCase):
         self._post(4, tags=["clear", "fair"])
         rating = ProfessorRating.objects.get(professor=self.prof, user=self.student)
         self.assertEqual(sorted(rating.tags), ["clear", "fair"])
-
-    def test_acknowledgment_is_required(self):
-        self.client.force_login(self.student)
-        self._post(4, tags=["clear"], agree=False)
-        self.assertEqual(ProfessorRating.objects.count(), 0)
 
     def test_rejects_more_than_three_tags(self):
         self.client.force_login(self.student)
@@ -104,7 +97,7 @@ class RateViewTests(TestCase):
         self.client.force_login(self.student)
         self.client.post(
             f"/professors/{self.prof.pk}/rate/",
-            {"score": 4, "agree": "on", "hp_url": "http://bot"},
+            {"score": 4, "hp_url": "http://bot"},
         )
         self.assertEqual(ProfessorRating.objects.count(), 0)
 

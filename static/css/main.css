@@ -788,8 +788,6 @@ img { max-width: 100%; display: block; }
   color: var(--muted);
   line-height: 1.5;
 }
-.warn-note--fine p { margin: 0 0 0.4em; }
-.warn-note--fine p:last-child { margin-bottom: 0; }
 .warn-note--fine strong { color: var(--text); }
 
 /* ----------------------------------------------------------------- about page */
@@ -904,7 +902,7 @@ img { max-width: 100%; display: block; }
 .rating-note { margin-top: var(--space-3); }
 /* Typed score field (0–5). */
 .score-input { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); }
-.score-field { width: 5rem; text-align: center; font-family: var(--font-display); }
+.score-field { width: 7.5rem; padding: var(--space-3) var(--space-2); text-align: center; font-family: var(--font-display); font-size: 0.95rem; }
 
 .prof-comment { border: 1px solid var(--border); background: var(--surface); padding: var(--space-4); margin-bottom: var(--space-3); }
 .prof-comment--hidden { opacity: 0.55; border-style: dashed; }
@@ -928,11 +926,6 @@ img { max-width: 100%; display: block; }
 .tag-choices > div { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); }
 .tag-choices label { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.95rem; cursor: pointer; }
 .tag-choices input { accent-color: var(--brand); }
-.agree-row {
-  display: flex; align-items: flex-start; gap: var(--space-2);
-  margin-bottom: var(--space-4); font-size: 0.9rem; color: var(--text-muted); cursor: pointer;
-}
-.agree-row input { margin-top: 0.2em; accent-color: var(--brand); }
 
 /* ------------------------------------------------------------------ messages */
 .messages { margin-bottom: var(--space-5); }

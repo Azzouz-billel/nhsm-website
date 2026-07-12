@@ -25,11 +25,6 @@ class RatingForm(forms.ModelForm):
         required=False,
         label="What describes this teaching? (choose up to 3)",
     )
-    agree = forms.BooleanField(
-        required=True,
-        label="I confirm this is my honest, respectful opinion about teaching — with "
-        "no accusations, insults, or private information.",
-    )
 
     class Meta:
         model = ProfessorRating
