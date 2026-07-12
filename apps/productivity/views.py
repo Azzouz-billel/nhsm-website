@@ -177,13 +177,14 @@ class LeaderboardAPIView(APIView):
             users = users.order_by("-minutes", "-stats__current_streak")
 
         me_pk = request.user.pk if request.user.is_authenticated else None
+        reveal = request.user.is_authenticated and request.user.is_superuser
         rows = []
         for index, user in enumerate(users[:50], start=1):
             is_me = user.pk == me_pk
             rows.append(
                 {
                     "rank": index,
-                    "name": "You" if is_me else user.board_name(),
+                    "name": "You" if is_me else user.board_name(reveal=reveal),
                     "group": user.get_academic_group_display() if user.academic_group else "",
                     "minutes": user.minutes,
                     "streak": user.stats.current_streak if user.stats else 0,

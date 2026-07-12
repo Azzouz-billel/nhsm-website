@@ -90,6 +90,112 @@ class UserRoleEditTests(TestCase):
         self.assertEqual(self.target.role, Role.APPROVER)
 
 
+class OwnerControlTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_superuser("owner", "o@x.dz", "x")
+        self.admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
+        self.other_admin = User.objects.create_user("adm2", password="x", role=Role.ADMIN)
+        self.student = User.objects.create_user("stud", password="x")
+
+    def test_admin_cannot_edit_the_owner(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(
+            self.client.get(f"/manage/users/{self.owner.pk}/").status_code, 403
+        )
+
+    def test_admin_cannot_edit_another_admin(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(
+            self.client.get(f"/manage/users/{self.other_admin.pk}/").status_code, 403
+        )
+
+    def test_admin_can_still_edit_a_student(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(
+            self.client.get(f"/manage/users/{self.student.pk}/").status_code, 200
+        )
+
+    def test_owner_can_edit_an_admin(self):
+        self.client.force_login(self.owner)
+        self.assertEqual(
+            self.client.get(f"/manage/users/{self.admin.pk}/").status_code, 200
+        )
+
+    def test_admin_cannot_promote_to_admin(self):
+        self.client.force_login(self.admin)
+        self.client.post(
+            f"/manage/users/{self.student.pk}/",
+            {"role": Role.ADMIN, "academic_group": "", "is_active": "on"},
+        )
+        self.student.refresh_from_db()
+        self.assertNotEqual(self.student.role, Role.ADMIN)
+
+    def test_owner_can_promote_to_admin(self):
+        self.client.force_login(self.owner)
+        self.client.post(
+            f"/manage/users/{self.student.pk}/",
+            {"role": Role.ADMIN, "academic_group": "", "is_active": "on"},
+        )
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.role, Role.ADMIN)
+
+    def test_role_form_hides_admin_choice_from_admins(self):
+        from apps.administration.forms import UserRoleForm
+
+        values = [v for v, _ in UserRoleForm(editor=self.admin).fields["role"].choices]
+        self.assertNotIn(Role.ADMIN, values)
+
+    def test_role_form_offers_admin_choice_to_owner(self):
+        from apps.administration.forms import UserRoleForm
+
+        values = [v for v, _ in UserRoleForm(editor=self.owner).fields["role"].choices]
+        self.assertIn(Role.ADMIN, values)
+
+
+class AnonymityRevealTests(TestCase):
+    def setUp(self):
+        from apps.productivity.models import StudySession
+        from django.utils import timezone
+
+        self.owner = User.objects.create_superuser("owner", "o@x.dz", "x")
+        self.viewer = User.objects.create_user("viewer", password="x")
+        self.anon = User.objects.create_user(
+            "anon", password="x", display_name="RealName", is_anonymous_on_board=True
+        )
+        now = timezone.now()
+        StudySession.objects.create(
+            user=self.anon, minutes=30, started_at=now, completed_at=now
+        )
+
+    def test_leaderboard_hides_name_from_normal_viewer(self):
+        self.client.force_login(self.viewer)
+        rows = self.client.get("/api/leaderboard").json()["rows"]
+        names = [r["name"] for r in rows]
+        self.assertIn("Anonymous", names)
+        self.assertNotIn("RealName", names)
+
+    def test_leaderboard_reveals_name_to_owner(self):
+        self.client.force_login(self.owner)
+        rows = self.client.get("/api/leaderboard").json()["rows"]
+        self.assertIn("RealName", [r["name"] for r in rows])
+
+    def test_request_board_reveals_author_to_owner(self):
+        from apps.requests.models import ResourceRequest
+
+        ResourceRequest.objects.create(author=self.anon, title="Need TD")
+        self.client.force_login(self.owner)
+        response = self.client.get("/requests/")
+        self.assertContains(response, "RealName")
+
+    def test_request_board_hides_author_from_normal_viewer(self):
+        from apps.requests.models import ResourceRequest
+
+        ResourceRequest.objects.create(author=self.anon, title="Need TD")
+        self.client.force_login(self.viewer)
+        response = self.client.get("/requests/")
+        self.assertNotContains(response, "RealName")
+
+
 class SubjectAdminFormTests(TestCase):
     def test_rejects_advanced_subject_without_speciality(self):
         form = SubjectAdminForm(data={"name": "Crypto Avancée", "semester": 8, "description": ""})

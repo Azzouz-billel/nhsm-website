@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import MaxLengthValidator
 
-from apps.accounts.models import User
+from apps.accounts.models import Role, User
 from apps.professors.models import Professor
 from apps.resources.models import ExamPaper, Resource, Subject
 
@@ -69,9 +69,23 @@ class UserRoleForm(forms.ModelForm):
         model = User
         fields = ("role", "academic_group", "is_active")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, editor=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.editor = editor
+        # Only the owner (superuser) may grant the Admin role.
+        if editor is not None and not editor.is_superuser:
+            self.fields["role"].choices = [
+                (value, label)
+                for value, label in self.fields["role"].choices
+                if value != Role.ADMIN
+            ]
         _style(self)
+
+    def clean_role(self):
+        role = self.cleaned_data["role"]
+        if role == Role.ADMIN and not (self.editor and self.editor.is_superuser):
+            raise forms.ValidationError("Only the owner can assign the Admin role.")
+        return role
 
 
 class BulletinAdminForm(forms.ModelForm):

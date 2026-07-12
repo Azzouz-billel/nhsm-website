@@ -119,7 +119,7 @@
         </li>
 
         {% if user.is_authenticated %}
-          <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>{{ user.board_name }}</a></li>
+          <li><a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>{{ user.board_name }}{% if user.is_owner %} <span class="owner-badge">👑 Owner</span>{% endif %}</a></li>
         {% else %}
           <li><a href="{% url 'login' %}">Log in</a></li>
           <li><a class="btn btn-primary btn-sm nav-cta" href="{% url 'register' %}">Sign up</a></li>

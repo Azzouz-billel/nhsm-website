@@ -62,6 +62,12 @@ class User(AbstractUser):
     )
 
     @property
+    def is_owner(self):
+        """The exclusive top tier — a Django superuser. Untouchable by admins,
+        and sees through anonymity everywhere."""
+        return self.is_superuser
+
+    @property
     def is_admin(self):
         """Full-power admin (or a Django superuser)."""
         return self.role == Role.ADMIN or self.is_superuser
@@ -71,9 +77,11 @@ class User(AbstractUser):
         """Can moderate. Admins and superusers inherit approver powers."""
         return self.role == Role.APPROVER or self.is_admin
 
-    def board_name(self):
-        """Name to show on public boards, honoring the anonymity flag."""
-        if self.is_anonymous_on_board:
+    def board_name(self, reveal=False):
+        """Name to show on public boards, honoring the anonymity flag.
+
+        ``reveal=True`` (owner viewing) bypasses anonymity to show the real name."""
+        if self.is_anonymous_on_board and not reveal:
             return "Anonymous"
         return self.display_name or self.username
 

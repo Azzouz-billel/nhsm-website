@@ -13,11 +13,18 @@
     {% for u in users %}
       <tr>
         <td>{{ u.username }}</td>
-        <td><span class="req-status role-{{ u.role }}">{{ u.get_role_display }}</span></td>
+        <td>
+          {% if u.is_superuser %}<span class="req-status role-owner">Owner</span>
+          {% else %}<span class="req-status role-{{ u.role }}">{{ u.get_role_display }}</span>{% endif %}
+        </td>
         <td class="muted">{{ u.get_academic_group_display|default:"—" }}</td>
         <td>{% if u.is_active %}✔{% else %}<span class="danger">off</span>{% endif %}</td>
         <td class="manage-row-actions">
-          <a class="btn btn-ghost btn-sm" href="{% url 'manage_user_edit' u.pk %}">Edit</a>
+          {% if request.user.is_superuser or not u.is_admin %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'manage_user_edit' u.pk %}">Edit</a>
+          {% else %}
+            <span class="muted">🔒 Protected</span>
+          {% endif %}
         </td>
       </tr>
     {% empty %}

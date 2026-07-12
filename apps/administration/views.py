@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -182,14 +183,17 @@ def user_list(request):
 @admin_required
 def user_form(request, pk):
     instance = get_object_or_404(User, pk=pk)
+    # Only the owner may edit an admin or the owner; admins manage students/approvers.
+    if instance.is_admin and not request.user.is_superuser:
+        return HttpResponseForbidden("Only the owner can edit an admin.")
     if request.method == "POST":
-        form = UserRoleForm(request.POST, instance=instance)
+        form = UserRoleForm(request.POST, instance=instance, editor=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, f"Updated {instance.username}.")
             return redirect("manage_users")
     else:
-        form = UserRoleForm(instance=instance)
+        form = UserRoleForm(instance=instance, editor=request.user)
     return render(
         request,
         "manage/form.html",

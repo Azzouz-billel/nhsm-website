@@ -9,7 +9,7 @@
       <div class="profile-avatar profile-avatar--placeholder" aria-hidden="true">{{ user.username|first|upper }}</div>
       <div>
         <p class="eyebrow">Your profile</p>
-        <h2 class="profile-name">{{ user.board_name }}</h2>
+        <h2 class="profile-name">{{ user.board_name }}{% if user.is_owner %} <span class="owner-badge">👑 Owner</span>{% endif %}</h2>
         <p class="muted">{{ user.get_role_display }}{% if user.academic_group %} · {{ user.get_academic_group_display }}{% endif %}</p>
       </div>
     </div>

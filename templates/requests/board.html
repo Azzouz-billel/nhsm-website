@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static account_extras %}
 
 {% block title %}Request board — NHSM Hub{% endblock %}
 {% block description %}Ask for missing resources and upvote the ones you need most. Contributors work through the most-wanted first.{% endblock %}
@@ -53,7 +53,7 @@
               </div>
               <h3>{{ req.title }}</h3>
               {% if req.description %}<p class="muted">{{ req.description }}</p>{% endif %}
-              <p class="req-byline">{% if req.author %}by {{ req.author.board_name }}{% endif %} · {{ req.created_at|date:"M j, Y" }}</p>
+              <p class="req-byline">{% if req.author %}by {{ req.author|reveal_name:request.user }}{% endif %} · {{ req.created_at|date:"M j, Y" }}</p>
 
               {% if req.status == 'fulfilled' and req.fulfilled_link %}
                 <a class="btn btn-primary btn-sm" href="{{ req.fulfilled_link }}" target="_blank" rel="noopener">Open resource →</a>
