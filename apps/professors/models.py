@@ -8,6 +8,32 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+# Fixed vocabulary of opinion-only teaching descriptors. Students pick from these
+# instead of writing free text — a rating can't contain a defamatory statement.
+RATING_TAGS = [
+    ("clear", "Clear explanations"),
+    ("fair", "Fair grading"),
+    ("approachable", "Approachable"),
+    ("engaging", "Engaging"),
+    ("organized", "Well organized"),
+    ("helpful", "Helpful outside class"),
+    ("knowledgeable", "Very knowledgeable"),
+    ("passionate", "Passionate"),
+    ("patient", "Patient"),
+    ("motivating", "Motivating"),
+    ("practical", "Practical examples"),
+    ("funny", "Good sense of humor"),
+    ("strict", "Strict"),
+    ("demanding", "Demanding"),
+    ("fast", "Fast-paced"),
+    ("heavy", "Heavy workload"),
+    ("tough", "Tough grader"),
+    ("monotone", "Monotone delivery"),
+    ("unclear", "Unclear at times"),
+    ("disorganized", "Disorganized"),
+]
+TAG_LABELS = dict(RATING_TAGS)
+
 
 class Professor(models.Model):
     name = models.CharField(max_length=120)
@@ -44,7 +70,9 @@ class ProfessorRating(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(5)],
         help_text="Any value from 0 to 5 (e.g. 3.5).",
     )
-    comment = models.CharField(max_length=280, blank=True)
+    tags = models.JSONField(
+        default=list, blank=True, help_text="Selected teaching-descriptor tags."
+    )
     is_approved = models.BooleanField(
         default=False,
         help_text="Shown publicly only after an admin approves it (pre-moderation).",

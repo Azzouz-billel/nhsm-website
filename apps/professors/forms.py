@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ProfessorRating
+from .models import RATING_TAGS, ProfessorRating
 
 
 class RatingForm(forms.ModelForm):
@@ -9,28 +9,31 @@ class RatingForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
     )
-    # The user types the score (0–5) rather than picking from stars.
+    # The user types the score (0–5).
     score = forms.DecimalField(
         min_value=0,
         max_value=5,
         decimal_places=1,
         max_digits=3,
-        widget=forms.NumberInput(attrs={"min": 0, "max": 5, "step": "0.1", "placeholder": "0–5 (e.g. 3.5)"}),
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5, "step": "0.1"}),
         label="Your score (0–5)",
+    )
+    # No free text — pick from a safe, fixed vocabulary of teaching descriptors.
+    tags = forms.MultipleChoiceField(
+        choices=RATING_TAGS,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="What describes this teaching? (optional)",
+    )
+    agree = forms.BooleanField(
+        required=True,
+        label="I confirm this is my honest, respectful opinion about teaching — with "
+        "no accusations, insults, or private information.",
     )
 
     class Meta:
         model = ProfessorRating
-        fields = ("score", "comment")
-        widgets = {
-            "comment": forms.Textarea(
-                attrs={
-                    "rows": 3,
-                    "maxlength": 280,
-                    "placeholder": "Why? A short note — clarity, fairness, how they teach…",
-                }
-            )
-        }
+        fields = ("score", "tags")
 
     def clean_hp_url(self):
         if self.cleaned_data.get("hp_url"):
@@ -39,6 +42,4 @@ class RatingForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["comment"].required = False
         self.fields["score"].widget.attrs["class"] = "field score-field"
-        self.fields["comment"].widget.attrs["class"] = "field"

@@ -1,3 +1,5 @@
+from collections import Counter
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
@@ -21,6 +23,7 @@ def _back(request, fallback_pk):
     return redirect("professor_detail", pk=fallback_pk)
 
 
+@login_required
 def professor_list(request):
     """All active professors with their average rating (approved comments only)."""
     professors = Professor.objects.filter(is_active=True).annotate(
@@ -30,10 +33,17 @@ def professor_list(request):
     return render(request, "professors/list.html", {"professors": professors})
 
 
+@login_required
 def professor_detail(request, pk):
     professor = get_object_or_404(Professor, pk=pk)
     public = professor.ratings.filter(is_approved=True, is_hidden=False)
     agg = public.aggregate(avg=Avg("score"))
+
+    # The professor's most common tags — the "general picture".
+    counter = Counter()
+    for tags in public.values_list("tags", flat=True):
+        counter.update(tags or [])
+    top_tags = [key for key, _ in counter.most_common(5)]
 
     my_rating = None
     is_admin = request.user.is_authenticated and request.user.is_admin
@@ -61,6 +71,7 @@ def professor_detail(request, pk):
             "ratings": shown,
             "avg": agg["avg"],
             "count": public.count(),
+            "top_tags": top_tags,
             "my_rating": my_rating,
             "form": RatingForm(instance=my_rating),
         },

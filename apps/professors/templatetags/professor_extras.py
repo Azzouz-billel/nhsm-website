@@ -1,6 +1,14 @@
 from django import template
 
+from ..models import TAG_LABELS
+
 register = template.Library()
+
+
+@register.filter
+def tag_label(key):
+    """Map a rating-tag key to its human label (e.g. 'clear' → 'Clear explanations')."""
+    return TAG_LABELS.get(key, key)
 
 
 @register.filter

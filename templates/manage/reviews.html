@@ -1,4 +1,5 @@
 {% extends "manage/base.html" %}
+{% load professor_extras %}
 
 {% block manage_title %}Pending reviews{% endblock %}
 
@@ -8,13 +9,13 @@
 </div>
 
 <table class="lb-table manage-table">
-  <thead><tr><th>Professor</th><th>Score</th><th>Comment</th><th>By</th><th>Date</th><th class="col-actions">Actions</th></tr></thead>
+  <thead><tr><th>Professor</th><th>Score</th><th>Tags</th><th>By</th><th>Date</th><th class="col-actions">Actions</th></tr></thead>
   <tbody>
     {% for r in pending %}
       <tr>
         <td>{{ r.professor.name }}</td>
         <td>{{ r.score|floatformat }}/5</td>
-        <td>{{ r.comment|default:"—" }}</td>
+        <td>{% for t in r.tags %}<span class="rating-tag">{{ t|tag_label }}</span> {% empty %}—{% endfor %}</td>
         <td class="muted">{{ r.user.username }}</td>
         <td class="muted">{{ r.created_at|date:"M j, Y" }}</td>
         <td class="manage-row-actions">

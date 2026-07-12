@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load professor_extras %}
 
-{% block title %}{{ professor.name }} — Rate my professor — NHSM Hub{% endblock %}
+{% block title %}{{ professor.name }} — Teaching feedback — NHSM Hub{% endblock %}
 
 {% block content %}
 <section class="section">
@@ -21,15 +21,24 @@
           <span class="stars" aria-hidden="true">{{ avg|stars }}</span>
           {% if count %}<strong>{{ avg|floatformat:1 }}</strong> / 5 · {{ count }} rating{{ count|pluralize }}{% else %}No ratings yet{% endif %}
         </p>
+        {% if top_tags %}
+          <p class="rating-tags">{% for t in top_tags %}<span class="rating-tag">{{ t|tag_label }}</span>{% endfor %}</p>
+        {% endif %}
       </div>
     </div>
 
-    <p class="warn-note">
+    <div class="warn-note">
       <span aria-hidden="true">⚠️</span>
-      <span>Please be <strong>honest and respectful</strong>. This is here to help new students
-        get a fair, general picture of each professor — not to insult anyone.
-        <strong>Offensive or unfair comments will not be approved.</strong></span>
-    </p>
+      <div>
+        <p style="margin:0 0 var(--space-2)"><strong>Independent student feedback about teaching.</strong>
+          Not affiliated with or endorsed by NHSM. Ratings are students' subjective opinions —
+          <strong>not statements of fact</strong>.</p>
+        <p style="margin:0 0 var(--space-2)">Be honest and respectful. No accusations, insults, or private
+          information — such content is removed and never approved.</p>
+        <p style="margin:0">Are you a professor and would like to be removed?
+          <a href="{% url 'contact' %}">Contact us</a>.</p>
+      </div>
+    </div>
 
     <div class="prof-cols">
       <aside class="auth-card prof-form-wrap">
@@ -39,7 +48,11 @@
             {% csrf_token %}
             <label class="rating-label" for="{{ form.score.id_for_label }}">Score (0–5)</label>
             <div class="score-input">{{ form.score }}<span class="muted">/ 5</span></div>
-            {{ form.comment }}
+            <fieldset class="tag-choices">
+              <legend class="rating-label">What describes this teaching? (optional)</legend>
+              {{ form.tags }}
+            </fieldset>
+            <label class="agree-row">{{ form.agree }} <span>{{ form.agree.label }}</span></label>
             {% if form.hp_url %}<div class="hp-field" aria-hidden="true">{{ form.hp_url }}</div>{% endif %}
             <button class="btn btn-primary" type="submit">{% if my_rating %}Save changes{% else %}Submit rating{% endif %}</button>
           </form>
@@ -57,7 +70,7 @@
               <span class="stars" aria-hidden="true">{{ r.score|stars }}</span>
               <span class="muted">{{ r.score|floatformat }}/5 · {% if user.is_admin %}{{ r.user.username }}{% else %}Anonymous{% endif %} · {{ r.created_at|date:"M j, Y" }}{% if not r.is_approved %} · <strong>pending review</strong>{% elif r.is_hidden %} · hidden{% endif %}</span>
             </div>
-            {% if r.comment %}<p>{{ r.comment }}</p>{% endif %}
+            {% if r.tags %}<p class="rating-tags">{% for t in r.tags %}<span class="rating-tag">{{ t|tag_label }}</span>{% endfor %}</p>{% endif %}
             {% if user.is_admin or user == r.user %}
               <div class="prof-comment-actions">
                 {% if user.is_admin %}

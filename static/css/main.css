@@ -899,6 +899,26 @@ img { max-width: 100%; display: block; }
 .prof-comment p { margin: 0; }
 .prof-comment-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
 
+/* Rating tags (safe preset descriptors) */
+.rating-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.rating-tag {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  background: var(--surface-3);
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+/* Tag checkboxes on the rating form */
+.tag-choices { border: 0; margin: 0 0 var(--space-4); padding: 0; }
+.tag-choices > div { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); }
+.tag-choices label { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.95rem; cursor: pointer; }
+.tag-choices input { accent-color: var(--brand); }
+.agree-row {
+  display: flex; align-items: flex-start; gap: var(--space-2);
+  margin-bottom: var(--space-4); font-size: 0.9rem; color: var(--text-muted); cursor: pointer;
+}
+.agree-row input { margin-top: 0.2em; accent-color: var(--brand); }
+
 /* ------------------------------------------------------------------ messages */
 .messages { margin-bottom: var(--space-5); }
 .message {
