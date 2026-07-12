@@ -762,6 +762,21 @@ img { max-width: 100%; display: block; }
 }
 .info-note a { font-weight: 600; }
 
+/* Red warning callout (rate-my-professor rules). */
+.warn-note {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  background: rgba(255, 77, 109, 0.12);
+  border: 1px solid var(--danger);
+  border-left: 4px solid var(--danger);
+  padding: var(--space-3) var(--space-4);
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: var(--space-5);
+}
+.warn-note strong { color: var(--danger); }
+
 /* ----------------------------------------------------------------- about page */
 .about-hero { display: grid; grid-template-columns: 1fr; gap: var(--space-6); align-items: center; }
 .about-hero .section-head { margin-bottom: 0; }

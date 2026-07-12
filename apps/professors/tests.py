@@ -186,6 +186,17 @@ class ReviewQueueTests(TestCase):
         self.assertEqual(self.client.get("/manage/reviews/").status_code, 302)
 
 
+class WarningNoticeTests(TestCase):
+    def test_warning_shown_to_everyone_on_list(self):
+        response = self.client.get("/professors/")
+        self.assertContains(response, "will not be approved")
+
+    def test_warning_shown_on_detail(self):
+        prof = Professor.objects.create(name="Dr. X")
+        response = self.client.get(f"/professors/{prof.pk}/")
+        self.assertContains(response, "will not be approved")
+
+
 class AdminProfessorTests(TestCase):
     def test_admin_can_add_professor_with_photo_url(self):
         admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
