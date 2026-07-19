@@ -28,7 +28,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 # of the same name overrides these defaults if set.
 CHARGILY_DONATION_URL = env(
     "CHARGILY_DONATION_URL",
-    default="http://pay.chargily.com/payment-links/01kwyrqtjam3xmf3p1s0wpzshm",
+    default="http://pay.chargily.com/payment-links/01kx0m25hnrqh0twx8b8wmhvwn",
 )
 REDOTPAY_DONATION_URL = env("REDOTPAY_DONATION_URL", default="")
 

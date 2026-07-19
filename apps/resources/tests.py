@@ -313,7 +313,7 @@ class ContactPageTests(TestCase):
 class DonationLinkTests(TestCase):
     def test_home_links_to_chargily_donation(self):
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "pay.chargily.com/payment-links/01kwyrqtjam3xmf3p1s0wpzshm")
+        self.assertContains(response, "pay.chargily.com/payment-links/01kx0m25hnrqh0twx8b8wmhvwn")
 
 
 class HomeStatsTests(TestCase):
