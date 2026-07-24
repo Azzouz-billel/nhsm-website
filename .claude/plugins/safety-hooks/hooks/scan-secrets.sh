@@ -1,1 +1,0 @@
-../../../hooks/scan-secrets.sh

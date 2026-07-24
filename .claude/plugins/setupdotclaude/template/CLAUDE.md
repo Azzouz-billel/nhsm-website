@@ -1,1 +1,0 @@
-../../../CLAUDE.template.md
