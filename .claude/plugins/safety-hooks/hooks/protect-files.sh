@@ -1,1 +1,0 @@
-../../../hooks/protect-files.sh
