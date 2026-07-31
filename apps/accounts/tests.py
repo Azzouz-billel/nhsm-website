@@ -7,6 +7,8 @@ User = get_user_model()
 
 REGISTER_URL = "/accounts/register/"
 THEME_URL = "/accounts/theme/"
+FORGOT_URL = "/accounts/forgot/"
+CHANGE_PASSWORD_URL = "/accounts/password/"
 
 VALID = {
     "username": "newstudent",
@@ -61,6 +63,121 @@ class UsernameLimitTests(TestCase):
         long_name = "x" * 31
         self.client.post(REGISTER_URL, dict(VALID, username=long_name))
         self.assertFalse(User.objects.filter(username=long_name).exists())
+
+
+class RecoveryCodeTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="forgetful", password="oldpass123!"
+        )
+
+    def _reset_payload(self, code, password="BrandNew123!"):
+        return {
+            "username": "forgetful",
+            "recovery_code": code,
+            "new_password1": password,
+            "new_password2": password,
+        }
+
+    def test_registration_creates_recovery_code(self):
+        self.client.post(REGISTER_URL, VALID)
+        self.assertTrue(User.objects.get(username="newstudent").recovery_code)
+
+    def test_wrong_code_keeps_password_and_is_generic(self):
+        old_hash = self.user.password
+        response = self.client.post(FORGOT_URL, self._reset_payload("AAAA-BBBB-CCCC"))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.password, old_hash)
+        self.assertContains(response, "Wrong username or recovery code", status_code=200)
+
+    def test_unknown_username_gets_same_generic_error(self):
+        payload = self._reset_payload(self.user.recovery_code)
+        payload["username"] = "ghost"
+        response = self.client.post(FORGOT_URL, payload)
+        self.assertContains(response, "Wrong username or recovery code", status_code=200)
+
+    def test_correct_code_resets_rotates_and_logs_in(self):
+        old_code = self.user.recovery_code
+        response = self.client.post(FORGOT_URL, self._reset_payload(old_code))
+        self.assertRedirects(response, "/accounts/profile/")
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("BrandNew123!"))
+        self.assertNotEqual(self.user.recovery_code, old_code)
+        # The used code no longer works.
+        self.client.logout()
+        response = self.client.post(FORGOT_URL, self._reset_payload(old_code, "Other123!"))
+        self.assertContains(response, "Wrong username or recovery code", status_code=200)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("BrandNew123!"))
+
+    def test_code_match_is_case_insensitive(self):
+        response = self.client.post(
+            FORGOT_URL, self._reset_payload(self.user.recovery_code.lower())
+        )
+        self.assertRedirects(response, "/accounts/profile/")
+
+
+class ChangePasswordTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="changer", password="Current123!"
+        )
+
+    def test_requires_login(self):
+        response = self.client.get(CHANGE_PASSWORD_URL)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_change_password(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            CHANGE_PASSWORD_URL,
+            {
+                "old_password": "Current123!",
+                "new_password1": "Updated123!",
+                "new_password2": "Updated123!",
+            },
+        )
+        self.assertRedirects(response, "/accounts/profile/")
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("Updated123!"))
+
+
+class AdminRegenerateCodeTests(TestCase):
+    URL = "/manage/users/{pk}/recovery-code/"
+
+    def setUp(self):
+        self.student = User.objects.create_user(username="stu", password="x")
+        self.admin = User.objects.create_user(
+            username="boss", password="x", role=Role.ADMIN
+        )
+
+    def test_admin_regenerates_student_code(self):
+        old_code = self.student.recovery_code
+        self.client.force_login(self.admin)
+        response = self.client.post(self.URL.format(pk=self.student.pk))
+        self.assertRedirects(response, "/manage/users/")
+        self.student.refresh_from_db()
+        self.assertNotEqual(self.student.recovery_code, old_code)
+
+    def test_student_is_rejected(self):
+        old_code = self.student.recovery_code
+        self.client.force_login(self.student)
+        response = self.client.post(self.URL.format(pk=self.student.pk))
+        self.assertEqual(response.status_code, 302)  # redirected to login
+        self.student.refresh_from_db()
+        self.assertEqual(self.student.recovery_code, old_code)
+
+    def test_admin_cannot_reset_another_admins_code(self):
+        other_admin = User.objects.create_user(
+            username="boss2", password="x", role=Role.ADMIN
+        )
+        old_code = other_admin.recovery_code
+        self.client.force_login(self.admin)
+        response = self.client.post(self.URL.format(pk=other_admin.pk))
+        self.assertEqual(response.status_code, 403)
+        other_admin.refresh_from_db()
+        self.assertEqual(other_admin.recovery_code, old_code)
 
 
 from django.test import override_settings

@@ -22,6 +22,7 @@ urlpatterns = [
 
     path("users/", views.user_list, name="manage_users"),
     path("users/<int:pk>/", views.user_form, name="manage_user_edit"),
+    path("users/<int:pk>/recovery-code/", views.user_regenerate_code, name="manage_user_recovery_code"),
 
     path("bulletins/", views.bulletin_list, name="manage_bulletins"),
     path("bulletins/new/", views.bulletin_form, name="manage_bulletin_create"),

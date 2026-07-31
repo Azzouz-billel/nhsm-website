@@ -6,12 +6,24 @@ Profile table) to keep the data model simple for a small maintenance team.
 every leaderboard / profile page load.
 """
 
+import secrets
 from datetime import timedelta
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+
+def generate_recovery_code():
+    """A personal account-recovery code, e.g. ``A1B2-C3D4-E5F6``.
+
+    Grouped hex is easy to read aloud and copy; 48 bits of entropy keeps it
+    safe from guessing. Since most students register without an email, this
+    code is the only way to prove ownership and reset a forgotten password.
+    """
+    code = secrets.token_hex(6).upper()
+    return "-".join(code[i : i + 4] for i in range(0, len(code), 4))
 
 
 class AcademicGroup(models.TextChoices):
@@ -59,6 +71,12 @@ class User(AbstractUser):
     )
     avatar = models.ImageField(
         upload_to="avatars/", blank=True, help_text="Profile picture."
+    )
+    recovery_code = models.CharField(
+        max_length=20,
+        default=generate_recovery_code,
+        editable=False,
+        help_text="Secret code used (with the username) to reset a forgotten password.",
     )
 
     @property

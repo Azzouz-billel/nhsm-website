@@ -3,7 +3,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from apps.accounts.models import Role, User
+from apps.accounts.models import Role, User, generate_recovery_code
 from apps.requests.models import ResourceRequest
 from apps.resources.models import ExamPaper, Resource, ResourceStatus, Subject
 
@@ -199,6 +199,28 @@ def user_form(request, pk):
         "manage/form.html",
         {"form": form, "heading": f"Edit {instance.username}", "back_url": "manage_users"},
     )
+
+
+@require_POST
+@admin_required
+def user_regenerate_code(request, pk):
+    """Issue a fresh recovery code for a student who lost both password and code.
+
+    The new code is shown to the admin (once, via the flash message) so they can
+    pass it to the student; the old code stops working immediately.
+    """
+    instance = get_object_or_404(User, pk=pk)
+    # Only the owner may touch an admin/owner account (same rule as user_form).
+    if instance.is_admin and not request.user.is_superuser:
+        return HttpResponseForbidden("Only the owner can reset an admin's code.")
+    instance.recovery_code = generate_recovery_code()
+    instance.save(update_fields=["recovery_code"])
+    messages.success(
+        request,
+        f"New recovery code for {instance.username}: {instance.recovery_code} "
+        "— pass it to them; the old code no longer works.",
+    )
+    return redirect("manage_users")
 
 
 # ----------------------------------------------------------------- bulletins

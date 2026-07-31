@@ -45,6 +45,19 @@
       </form>
     </div>
 
+    <div class="auth-card profile-form">
+      <h3>Security</h3>
+      <p class="muted">
+        Your recovery code: <code class="recovery-code">{{ user.recovery_code }}</code>
+      </p>
+      <p class="muted">
+        Save it somewhere safe — it's the only way to reset your password if you forget it.
+      </p>
+      <div class="form-actions">
+        <a class="btn btn-ghost" href="{% url 'change_password' %}">Change password</a>
+      </div>
+    </div>
+
     <form method="post" action="{% url 'logout' %}" class="profile-logout">
       {% csrf_token %}
       <button type="submit" class="btn btn-ghost">Log out</button>

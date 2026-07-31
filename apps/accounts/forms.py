@@ -1,5 +1,8 @@
+import secrets
+
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
+from django.contrib.auth.password_validation import validate_password
 from django.core.validators import MaxLengthValidator
 
 from .models import AcademicGroup, User
@@ -43,6 +46,10 @@ class RegistrationForm(UserCreationForm):
         username.max_length = 30
         username.validators.append(MaxLengthValidator(30))
         username.widget.attrs["maxlength"] = "30"
+        username.help_text = (
+            "Pick a username you won't forget — you need it (with your "
+            "recovery code) to reset your password."
+        )
         _style_fields(self.fields)
 
     def save(self, commit=True):
@@ -69,3 +76,56 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         _style_fields(self.fields)
+
+
+class StyledPasswordChangeForm(PasswordChangeForm):
+    """Django's password-change form with the site's .field widget styling."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _style_fields(self.fields)
+
+
+class RecoveryForm(forms.Form):
+    """Self-service password reset: username + personal recovery code.
+
+    The username and code are checked together so the error message never
+    reveals which of the two was wrong (no account enumeration).
+    """
+
+    username = forms.CharField(max_length=30)
+    recovery_code = forms.CharField(
+        max_length=20,
+        help_text="The code shown after sign-up and on your profile, e.g. A1B2-C3D4-E5F6.",
+    )
+    new_password1 = forms.CharField(label="New password", widget=forms.PasswordInput)
+    new_password2 = forms.CharField(
+        label="New password (again)", widget=forms.PasswordInput
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = None
+        _style_fields(self.fields)
+
+    def clean(self):
+        cleaned = super().clean()
+        password1 = cleaned.get("new_password1")
+        password2 = cleaned.get("new_password2")
+        if password1 and password2:
+            if password1 != password2:
+                self.add_error("new_password2", "The two passwords don't match.")
+            else:
+                validate_password(password1)
+
+        username = cleaned.get("username")
+        code = cleaned.get("recovery_code")
+        if username and code:
+            user = User.objects.filter(username__iexact=username).first()
+            normalized = code.strip().upper()
+            if user is None or not secrets.compare_digest(
+                user.recovery_code, normalized
+            ):
+                raise forms.ValidationError("Wrong username or recovery code.")
+            self.user = user
+        return cleaned

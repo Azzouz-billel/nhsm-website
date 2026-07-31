@@ -22,6 +22,10 @@
         <td class="manage-row-actions">
           {% if request.user.is_superuser or not u.is_admin %}
             <a class="btn btn-ghost btn-sm" href="{% url 'manage_user_edit' u.pk %}">Edit</a>
+            <form method="post" action="{% url 'manage_user_recovery_code' u.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-ghost btn-sm">New recovery code</button>
+            </form>
           {% else %}
             <span class="muted">🔒 Protected</span>
           {% endif %}
