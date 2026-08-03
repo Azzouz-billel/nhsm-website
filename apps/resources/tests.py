@@ -483,3 +483,15 @@ class UsefulLinksTests(TestCase):
     def test_library_lists_external_study_sites(self):
         response = self.client.get(reverse("resource_library"))
         self.assertContains(response, "farhi.bakir.free.fr")
+
+
+class SeedDemoGuardTests(TestCase):
+    """The demo accounts have publicly documented passwords — the seeder must
+    never run where DEBUG is off (and it is always off under the test runner)."""
+
+    def test_seed_demo_refuses_when_debug_off(self):
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+
+        with self.assertRaises(CommandError):
+            call_command("seed_demo")

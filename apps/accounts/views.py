@@ -7,6 +7,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 
+from config.throttle import rate_limit
+
 from .forms import (
     ProfileForm,
     RecoveryForm,
@@ -16,6 +18,7 @@ from .forms import (
 from .models import ThemePreference, generate_recovery_code
 
 
+@rate_limit("register", limit=10, period=3600)
 def register(request):
     if request.user.is_authenticated:
         return redirect("profile")
@@ -38,6 +41,7 @@ def register(request):
     return render(request, "accounts/register.html", {"form": form})
 
 
+@rate_limit("forgot", limit=10, period=3600, identity="username")
 def forgot_password(request):
     """Self-service reset: username + personal recovery code → new password.
 

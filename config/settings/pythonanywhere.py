@@ -49,3 +49,8 @@ CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Keep the forced-HTTPS redirect OFF on the free tier (avoids redirect loops).
 SECURE_SSL_REDIRECT = False
+
+# Same hardening headers as production.py — PA already terminates TLS for us.
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_CONTENT_TYPE_NOSNIFF = True

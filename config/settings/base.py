@@ -77,6 +77,11 @@ AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
 AXES_RESET_ON_SUCCESS = True
 AXES_HTTP_RESPONSE_CODE = 429
 
+# Cache-backed throttling for the other sensitive POST endpoints (see
+# config/throttle.py). Disabled under the test runner, same as axes; the
+# throttle tests re-enable it with override_settings.
+RATELIMIT_ENABLED = not TESTING
+
 AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesStandaloneBackend",  # must come first
     "django.contrib.auth.backends.ModelBackend",
@@ -153,4 +158,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 24,
+    # Scoped throttles are opt-in per view (throttle_scope); generous enough
+    # for real use, tight enough to blunt scripted abuse.
+    "DEFAULT_THROTTLE_RATES": {
+        "study_session": "120/hour",
+    },
 }

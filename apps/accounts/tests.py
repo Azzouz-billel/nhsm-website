@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from .models import Role, ThemePreference
 
@@ -143,6 +143,30 @@ class ChangePasswordTests(TestCase):
         self.assertTrue(self.user.check_password("Updated123!"))
 
 
+@override_settings(RATELIMIT_ENABLED=True)
+class RecoveryThrottleTests(TestCase):
+    PAYLOAD = {
+        "username": "throttle-victim",
+        "recovery_code": "AAAA-BBBB-CCCC",
+        "new_password1": "BrandNew123!",
+        "new_password2": "BrandNew123!",
+    }
+
+    def test_forgot_is_throttled_after_limit(self):
+        for _ in range(10):
+            response = self.client.post(FORGOT_URL, self.PAYLOAD)
+            self.assertEqual(response.status_code, 200)  # form error, but allowed
+        response = self.client.post(FORGOT_URL, self.PAYLOAD)
+        self.assertEqual(response.status_code, 429)
+
+    def test_throttle_is_per_username(self):
+        for _ in range(10):
+            self.client.post(FORGOT_URL, self.PAYLOAD)
+        other = dict(self.PAYLOAD, username="someone-else")
+        response = self.client.post(FORGOT_URL, other)
+        self.assertEqual(response.status_code, 200)
+
+
 class AdminRegenerateCodeTests(TestCase):
     URL = "/manage/users/{pk}/recovery-code/"
 
@@ -178,9 +202,6 @@ class AdminRegenerateCodeTests(TestCase):
         self.assertEqual(response.status_code, 403)
         other_admin.refresh_from_db()
         self.assertEqual(other_admin.recovery_code, old_code)
-
-
-from django.test import override_settings
 
 
 class RegistrationHoneypotTests(TestCase):

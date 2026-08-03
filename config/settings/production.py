@@ -9,6 +9,11 @@ from .base import env
 
 DEBUG = False
 
+# No fallback here (unlike base.py's dev default): a production deploy missing
+# SECRET_KEY must crash at startup, not run with a publicly known key —
+# otherwise anyone can forge session cookies.
+SECRET_KEY = env("SECRET_KEY")
+
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["nhsmhub.online"])
 
 # Hashed, compressed static files served by WhiteNoise (run collectstatic).

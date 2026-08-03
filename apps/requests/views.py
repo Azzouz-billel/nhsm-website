@@ -6,6 +6,8 @@ from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from config.throttle import rate_limit
+
 from .forms import RequestForm
 from .models import RequestStatus, RequestVote, ResourceRequest
 
@@ -57,6 +59,7 @@ def board(request):
 
 @login_required
 @require_POST
+@rate_limit("vote", limit=60, period=60)
 def vote(request, pk):
     """Toggle the current user's vote (one per request, enforced by the model)."""
     resource_request = get_object_or_404(ResourceRequest, pk=pk)

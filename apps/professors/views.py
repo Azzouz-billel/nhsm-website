@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from config.throttle import rate_limit
+
 from .forms import RatingForm
 from .models import Professor, ProfessorRating
 
@@ -80,6 +82,7 @@ def professor_detail(request, pk):
 
 @login_required
 @require_POST
+@rate_limit("rate", limit=20, period=3600)
 def rate(request, pk):
     """Create or update the student's rating — held for admin approval (pending)."""
     professor = get_object_or_404(Professor, pk=pk, is_active=True)

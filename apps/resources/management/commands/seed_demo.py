@@ -9,8 +9,9 @@ Drive links are placeholders — replace them with real Google Drive URLs.
 import random
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
@@ -90,6 +91,10 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
+        # The demo accounts have publicly documented passwords (see README) —
+        # seeding them on the live site would hand out open accounts.
+        if not settings.DEBUG:
+            raise CommandError("seed_demo is for local development only (DEBUG is off).")
         if options["reset"]:
             ResourceRequest.objects.all().delete()
             demo_usernames = [name.lower() for name, _, _ in DEMO_STUDENTS]

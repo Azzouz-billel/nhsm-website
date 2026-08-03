@@ -8,6 +8,7 @@ from django.utils import timezone
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.accounts.models import AcademicGroup
@@ -78,6 +79,8 @@ class StudySessionCreateAPIView(CreateAPIView):
 
     serializer_class = StudySessionSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "study_session"
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
