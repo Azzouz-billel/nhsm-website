@@ -17,6 +17,11 @@ class StudySession(models.Model):
         blank=True,
         related_name="study_sessions",
     )
+    label = models.CharField(
+        max_length=60,
+        blank=True,
+        help_text="Custom activity name when no module is picked (e.g. Revision).",
+    )
     minutes = models.PositiveIntegerField()
     started_at = models.DateTimeField()
     completed_at = models.DateTimeField()
@@ -26,4 +31,6 @@ class StudySession(models.Model):
         indexes = [models.Index(fields=["user", "completed_at"])]
 
     def __str__(self):
-        return f"{self.user} · {self.minutes}min"
+        subject_or_label = self.subject or self.label or "Unspecified"
+        return f"{self.user} · {subject_or_label} · {self.minutes}min"
+

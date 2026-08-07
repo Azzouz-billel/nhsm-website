@@ -1829,3 +1829,23 @@ html.js .reveal { opacity: 0; }
   height: 1px;
   overflow: hidden;
 }
+
+/* ----------------------------------------------------- Owner dashboard ----
+   Centered section titles (charts removed — plain tables only). */
+.owner-title {
+  text-align: center;
+  margin-top: var(--space-7);
+}
+.owner-title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin: var(--space-2) auto 0;
+  background: linear-gradient(90deg, var(--brand), var(--cyan));
+}
+.owner-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin: var(--space-4) 0 var(--space-2);
+}

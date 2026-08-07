@@ -31,8 +31,8 @@
         "<h3>" + escapeHtml(r.title) + "</h3>" +
         '<p class="subj">' + escapeHtml(r.subject_name) + "</p>" +
         '<div class="open">' +
-          '<a class="btn btn-primary btn-sm" href="' + encodeURI(r.drive_link) +
-            '" target="_blank" rel="noopener">Open in Drive →</a>' +
+          '<a class="btn btn-primary btn-sm" href="/resources/' + r.id + '/open/"' +
+            ' target="_blank" rel="noopener">Open in Drive →</a>' +
         "</div>" +
       "</article>"
     );

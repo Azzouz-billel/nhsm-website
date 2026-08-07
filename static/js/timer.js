@@ -16,6 +16,7 @@
     reset: root.querySelector("[data-reset]"),
     submit: root.querySelector("[data-submit]"),
     subject: root.querySelector("[data-subject]"),
+    custom: root.querySelector("[data-custom]"),
     focus: root.querySelector("[data-focus]"),
     brk: root.querySelector("[data-break]"),
     hint: root.querySelector("[data-hint]"),
@@ -44,6 +45,10 @@
   };
   var ticker = null;
   var audioCtx = null;
+
+  function hasActivity() {
+    return !!((els.subject && els.subject.value) || (els.custom && els.custom.value.trim()));
+  }
 
   function focusSeconds() {
     return clampInt(els.focus.value, 1, 60, 25) * 60;
@@ -123,8 +128,8 @@
 
   function start() {
     if (state.running) return;
-    if (auth && state.phase === "focus" && !els.subject.value) {
-      els.hint.textContent = "Pick a module so your time gets logged.";
+    if (auth && state.phase === "focus" && !hasActivity()) {
+      els.hint.textContent = "Pick a module or write your own activity so your time gets logged.";
       return;
     }
     els.hint.textContent = "";
@@ -170,13 +175,13 @@
       return;
     }
     var minutes = Math.round((state.total - state.remaining) / 60);
-    var saved = minutes >= 1 && !!els.subject.value;
+    var saved = minutes >= 1 && hasActivity();
     if (saved) {
       logBlock(minutes);
       state.completedFocus += 1;
       els.hint.textContent = "Saved " + minutes + " min ✓ — break time.";
-    } else if (!els.subject.value) {
-      els.hint.textContent = "Pick a module to log your time — taking a break.";
+    } else if (!hasActivity()) {
+      els.hint.textContent = "Pick a module or write an activity to log your time — taking a break.";
     } else {
       els.hint.textContent = "Studied under a minute — taking a break.";
     }
@@ -186,15 +191,19 @@
   }
 
   function logBlock(minutes) {
-    if (!auth || !els.subject.value) return;
+    if (!auth || !hasActivity()) return;
     var meta = document.querySelector('meta[name="csrf-token"]');
+    // The module wins when both are somehow set (same rule as the API).
+    var payload = { minutes: minutes };
+    if (els.subject.value) payload.subject = els.subject.value;
+    else payload.label = els.custom.value.trim();
     fetch(root.getAttribute("data-session-url"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": meta ? meta.content : "",
       },
-      body: JSON.stringify({ subject: els.subject.value, minutes: minutes }),
+      body: JSON.stringify(payload),
     })
       .then(function (res) {
         return res.ok ? res.json() : Promise.reject();
@@ -254,6 +263,7 @@
           focus: els.focus.value,
           brk: els.brk.value,
           subject: els.subject.value,
+          custom: els.custom.value,
         })
       );
     } catch (e) {
@@ -282,6 +292,7 @@
     if (saved.focus != null) els.focus.value = saved.focus;
     if (saved.brk != null) els.brk.value = saved.brk;
     if (saved.subject != null) els.subject.value = saved.subject;
+    if (saved.custom != null) els.custom.value = saved.custom;
 
     state.phase = saved.phase || "focus";
     state.completedFocus = saved.completedFocus || 0;
@@ -315,7 +326,16 @@
   els.skip.addEventListener("click", skip);
   els.reset.addEventListener("click", reset);
   if (els.submit) els.submit.addEventListener("click", submitPartial);
-  els.subject.addEventListener("change", persist);
+
+  // Module and custom label are mutually exclusive — last touch wins.
+  els.subject.addEventListener("change", function () {
+    if (els.subject.value) els.custom.value = "";
+    persist();
+  });
+  els.custom.addEventListener("input", function () {
+    if (els.custom.value.trim()) els.subject.value = "";
+    persist();
+  });
 
   // Editing durations re-arms the current phase when paused, and is saved
   // either way so the change survives a page navigation.

@@ -1,0 +1,176 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Owner overview{% endblock %}
+
+{% block manage_content %}
+<h3 class="owner-title">Online right now</h3>
+<div class="stat-cards">
+  <div class="stat-card"><div class="num">{{ online_total }}</div><div class="label">Visitors online (last 5 min)</div></div>
+  <div class="stat-card"><div class="num">{{ online_members|length }}</div><div class="label">Signed-in members</div></div>
+  <div class="stat-card"><div class="num">{{ online_guests }}</div><div class="label">Guests</div></div>
+</div>
+<div class="manage-bar">
+  {% if online_members %}
+    <span class="muted">Members online:
+      {% for name in online_members %}<span class="badge">{{ name }}</span>{% if not forloop.last %} {% endif %}{% endfor %}
+    </span>
+  {% else %}
+    <span class="muted">No signed-in members online right now.</span>
+  {% endif %}
+</div>
+
+<h3 class="owner-title">Traffic per day</h3>
+<table class="lb-table manage-table">
+  <thead><tr><th>Date</th><th>Visitors</th><th>Page views</th><th>Avg time on site</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>{{ traffic_today.date|date:"Y-m-d" }} <span class="muted">(today, live)</span></td>
+      <td>{{ traffic_today.visitors }}</td>
+      <td>{{ traffic_today.page_views }}</td>
+      <td class="muted">{{ traffic_today.avg }}</td>
+    </tr>
+    {% for day in traffic_days %}
+      <tr>
+        <td>{{ day.date|date:"Y-m-d" }}</td>
+        <td>{{ day.visitors }}</td>
+        <td>{{ day.page_views }}</td>
+        <td class="muted">{{ day.avg }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="muted">Approximate: a visitor = one browser session, time on site = first to last click (capped at 2h).</p>
+
+<h3 class="owner-title">Most opened modules</h3>
+{% if top_modules %}
+<table class="lb-table manage-table">
+  <thead><tr><th>Module</th><th>Semester</th><th>Opens</th></tr></thead>
+  <tbody>
+    {% for m in top_modules %}
+      <tr>
+        <td>{{ m.name }}</td>
+        <td class="muted">S{{ m.semester }}</td>
+        <td>{{ m.total }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% for semester, modules in modules_by_semester %}
+  <p class="owner-subtitle">Semester {{ semester }}</p>
+  <table class="lb-table manage-table">
+    <thead><tr><th>Module</th><th>Semester</th><th>Opens</th></tr></thead>
+    <tbody>
+      {% for m in modules %}
+        <tr>
+          <td>{{ m.name }}</td>
+          <td class="muted">S{{ m.semester }}</td>
+          <td>{{ m.total }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endfor %}
+{% else %}
+  <p class="muted">No opens tracked yet — counts start when students open resources from the library.</p>
+{% endif %}
+
+<h3 class="owner-title">Users</h3>
+<div class="stat-cards">
+  <div class="stat-card"><div class="num">{{ user_total }}</div><div class="label">Total users</div></div>
+  <div class="stat-card"><div class="num">{{ new_users_week }}</div><div class="label">New this week</div></div>
+  <div class="stat-card"><div class="num">{{ student_total }}</div><div class="label">Students</div></div>
+  <div class="stat-card"><div class="num">{{ approver_total }}</div><div class="label">Approvers</div></div>
+  <div class="stat-card"><div class="num">{{ admin_total }}</div><div class="label">Admins</div></div>
+</div>
+
+<h3 class="owner-title">Content</h3>
+<div class="stat-cards">
+  <div class="stat-card"><div class="num">{{ resource_total }}</div><div class="label">Resources · {{ resource_pending }} pending</div></div>
+  <div class="stat-card"><div class="num">{{ resource_approved }}</div><div class="label">Approved</div></div>
+  <div class="stat-card"><div class="num">{{ resource_rejected }}</div><div class="label">Rejected</div></div>
+  <div class="stat-card"><div class="num">{{ exam_total }}</div><div class="label">Exam papers</div></div>
+  <div class="stat-card"><div class="num">{{ subject_total }}</div><div class="label">Subjects</div></div>
+  <div class="stat-card"><div class="num">{{ bulletin_total }}</div><div class="label">Active bulletins</div></div>
+</div>
+
+<h3 class="owner-title">Activity</h3>
+<div class="stat-cards">
+  <div class="stat-card"><div class="num">{{ study_minutes }}</div><div class="label">Minutes studied (all time)</div></div>
+  <div class="stat-card"><div class="num">{{ study_minutes_today }}</div><div class="label">Minutes today</div></div>
+  <div class="stat-card"><div class="num">{{ study_sessions }}</div><div class="label">Focus sessions</div></div>
+  <div class="stat-card"><div class="num">{{ vote_total }}</div><div class="label">Request votes</div></div>
+  <div class="stat-card"><div class="num">{{ request_open }}</div><div class="label">Open requests · {{ request_progress }} in progress · {{ request_fulfilled }} fulfilled</div></div>
+  <div class="stat-card"><div class="num">{{ rating_total }}</div><div class="label">Professor ratings · {{ rating_pending }} pending</div></div>
+</div>
+
+<h3 class="owner-title">Latest signups</h3>
+<table class="lb-table manage-table">
+  <thead><tr><th>Username</th><th>Group</th><th>Role</th><th>Joined</th></tr></thead>
+  <tbody>
+    {% for u in recent_users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td class="muted">{{ u.get_academic_group_display|default:"—" }}</td>
+        <td class="muted">{{ u.get_role_display }}</td>
+        <td class="muted">{{ u.date_joined|date:"Y-m-d H:i" }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" class="muted">No users yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3 class="owner-title">Latest uploads</h3>
+<table class="lb-table manage-table">
+  <thead><tr><th>Title</th><th>Subject</th><th>Status</th><th>Uploader</th><th>Date</th></tr></thead>
+  <tbody>
+    {% for r in recent_resources %}
+      <tr>
+        <td>{{ r.title }}</td>
+        <td class="muted">{{ r.subject.name }}</td>
+        <td><span class="req-status {{ r.status }}">{{ r.get_status_display }}</span></td>
+        <td class="muted">{{ r.uploader.username|default:"—" }}</td>
+        <td class="muted">{{ r.created_at|date:"Y-m-d H:i" }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="muted">No resources yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3 class="owner-title">Latest requests</h3>
+<table class="lb-table manage-table">
+  <thead><tr><th>Title</th><th>Votes</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+    {% for q in recent_requests %}
+      <tr>
+        <td>{{ q.title }}</td>
+        <td class="muted">{{ q.votes_count }}</td>
+        <td><span class="req-status {{ q.status }}">{{ q.get_status_display }}</span></td>
+        <td class="muted">{{ q.created_at|date:"Y-m-d H:i" }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" class="muted">No requests yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3 class="owner-title">Latest professor ratings</h3>
+<table class="lb-table manage-table">
+  <thead><tr><th>Professor</th><th>Score</th><th>By</th><th>Status</th><th>Date</th></tr></thead>
+  <tbody>
+    {% for r in recent_ratings %}
+      <tr>
+        <td>{{ r.professor.name }}</td>
+        <td class="muted">{{ r.score }}/5</td>
+        <td class="muted">{{ r.user.username }}</td>
+        <td class="muted">{% if r.is_hidden %}Hidden{% elif r.is_approved %}Public{% else %}Pending{% endif %}</td>
+        <td class="muted">{{ r.created_at|date:"Y-m-d H:i" }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="muted">No ratings yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

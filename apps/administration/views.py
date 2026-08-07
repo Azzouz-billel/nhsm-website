@@ -1,15 +1,23 @@
+from datetime import timedelta
+
 from django.contrib import messages
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.accounts.models import Role, User, generate_recovery_code
-from apps.requests.models import ResourceRequest
+from apps.productivity.models import StudySession
+from apps.requests.models import RequestStatus, RequestVote, ResourceRequest
 from apps.resources.models import ExamPaper, Resource, ResourceStatus, Subject
 
 from apps.professors.models import Professor, ProfessorRating
 
-from .decorators import admin_required
+from config.middleware import get_online_summary, get_today_stats
+
+from .decorators import admin_required, owner_required
 from .forms import (
     BulletinAdminForm,
     ExamAdminForm,
@@ -18,7 +26,7 @@ from .forms import (
     SubjectAdminForm,
     UserRoleForm,
 )
-from .models import Bulletin
+from .models import Bulletin, DailyStats
 
 
 @admin_required
@@ -310,3 +318,108 @@ def review_queue(request):
         "professor", "user"
     )
     return render(request, "manage/reviews.html", {"pending": pending})
+
+
+# --------------------------------------------------------------------- owner
+@owner_required
+def owner_dashboard(request):
+    """Owner-only page: who's on the site right now + total site-wide info."""
+    today = timezone.localdate()
+    week_ago = today - timedelta(days=7)
+    online = get_online_summary()
+
+    study = StudySession.objects.aggregate(
+        sessions=Count("id"), minutes=Coalesce(Sum("minutes"), 0)
+    )
+    today_minutes = StudySession.objects.filter(
+        completed_at__date=today
+    ).aggregate(total=Coalesce(Sum("minutes"), 0))["total"]
+
+    # Traffic: live numbers for today, flushed rows for the days before.
+    def _avg(seconds, visitors):
+        if not visitors:
+            return "—"
+        per = seconds // visitors
+        return f"{per // 60}m {per % 60:02d}s"
+
+    live = get_today_stats()
+    traffic_today = {
+        "date": today,
+        "visitors": live["visitors"],
+        "page_views": live["page_views"],
+        "avg": _avg(live["total_time_seconds"], live["visitors"]),
+    }
+    traffic_days = list(DailyStats.objects.all()[:7])
+    for row in traffic_days:
+        row.avg = _avg(row.total_time_seconds, row.visitors)
+
+    # Most opened modules: opens summed per subject — overall top 5 + top 3
+    # per semester.
+    module_rows = (
+        Resource.objects.filter(opens__gt=0)
+        .values("subject__name", "subject__semester")
+        .annotate(total=Sum("opens"))
+        .order_by("-total")
+    )
+
+    def _module(row):
+        return {
+            "name": row["subject__name"],
+            "semester": row["subject__semester"],
+            "total": row["total"],
+        }
+
+    top_modules = [_module(r) for r in module_rows[:5]]
+    by_semester = {}
+    for row in module_rows:
+        bucket = by_semester.setdefault(row["subject__semester"], [])
+        if len(bucket) < 3:
+            bucket.append(_module(row))
+    modules_by_semester = sorted(by_semester.items())
+
+    context = {
+        "online_members": online["members"],
+        "online_guests": online["guests"],
+        "online_total": len(online["members"]) + online["guests"],
+        # Users
+        "user_total": User.objects.count(),
+        "student_total": User.objects.filter(role=Role.STUDENT).count(),
+        "approver_total": User.objects.filter(role=Role.APPROVER).count(),
+        "admin_total": User.objects.filter(role=Role.ADMIN).count(),
+        "new_users_week": User.objects.filter(date_joined__date__gte=week_ago).count(),
+        # Content
+        "resource_total": Resource.objects.count(),
+        "resource_pending": Resource.objects.filter(status=ResourceStatus.PENDING).count(),
+        "resource_approved": Resource.objects.filter(status=ResourceStatus.APPROVED).count(),
+        "resource_rejected": Resource.objects.filter(status=ResourceStatus.REJECTED).count(),
+        "exam_total": ExamPaper.objects.count(),
+        "subject_total": Subject.objects.count(),
+        # Requests & votes
+        "request_open": ResourceRequest.objects.filter(status=RequestStatus.OPEN).count(),
+        "request_progress": ResourceRequest.objects.filter(status=RequestStatus.IN_PROGRESS).count(),
+        "request_fulfilled": ResourceRequest.objects.filter(status=RequestStatus.FULFILLED).count(),
+        "vote_total": RequestVote.objects.count(),
+        # Professors
+        "professor_total": Professor.objects.count(),
+        "rating_total": ProfessorRating.objects.count(),
+        "rating_pending": ProfessorRating.objects.filter(is_approved=False).count(),
+        # Study activity
+        "study_sessions": study["sessions"],
+        "study_minutes": study["minutes"],
+        "study_minutes_today": today_minutes,
+        # Misc
+        "bulletin_total": Bulletin.objects.filter(is_active=True).count(),
+        # Traffic & resource usage
+        "traffic_today": traffic_today,
+        "traffic_days": traffic_days,
+        "top_modules": top_modules,
+        "modules_by_semester": modules_by_semester,
+        # Recent activity
+        "recent_users": User.objects.order_by("-date_joined")[:8],
+        "recent_resources": Resource.objects.select_related("subject", "uploader")[:8],
+        "recent_requests": ResourceRequest.objects.annotate(
+            votes_count=Count("votes")
+        ).order_by("-created_at")[:8],
+        "recent_ratings": ProfessorRating.objects.select_related("professor", "user")[:5],
+    }
+    return render(request, "manage/owner.html", context)

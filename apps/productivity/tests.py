@@ -71,6 +71,41 @@ class StudySessionAPITests(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_session_with_custom_label_only(self):
+        self.client.force_login(self.user)
+        response = self.client.post(SESSION_URL, {"label": "Revision", "minutes": 30})
+        self.assertEqual(response.status_code, 201)
+        session = StudySession.objects.get(user=self.user)
+        self.assertIsNone(session.subject)
+        self.assertEqual(session.label, "Revision")
+        self.user.stats.refresh_from_db()
+        self.assertEqual(self.user.stats.total_study_minutes, 30)
+
+    def test_session_without_subject_or_label_is_rejected(self):
+        self.client.force_login(self.user)
+        response = self.client.post(SESSION_URL, {"minutes": 25})
+        self.assertEqual(response.status_code, 400)
+        response = self.client.post(SESSION_URL, {"label": "  ", "minutes": 25})
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(StudySession.objects.filter(user=self.user).exists())
+
+    def test_module_wins_when_both_are_sent(self):
+        self.client.force_login(self.user)
+        self.client.post(
+            SESSION_URL,
+            {"subject": self.subject.pk, "label": "Revision", "minutes": 25},
+        )
+        session = StudySession.objects.get(user=self.user)
+        self.assertEqual(session.subject, self.subject)
+        self.assertEqual(session.label, "")
+
+    def test_label_appears_in_timer_breakdown(self):
+        self.client.force_login(self.user)
+        self.client.post(SESSION_URL, {"label": "Revision", "minutes": 30})
+        response = self.client.get("/timer/")
+        names = [row["name"] for row in response.context["per_subject"]]
+        self.assertIn("Revision", names)
+
 
 class LeaderboardTests(TestCase):
     def setUp(self):

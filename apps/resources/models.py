@@ -106,6 +106,9 @@ class Resource(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    opens = models.PositiveIntegerField(
+        default=0, help_text="Times the Drive link was opened (denormalised counter)."
+    )
 
     class Meta:
         ordering = ["-created_at"]

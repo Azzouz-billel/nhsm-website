@@ -269,3 +269,86 @@ class BulletinAdminTests(TestCase):
         b = Bulletin.objects.create(text_en="Disposable")
         self.client.post(f"/manage/bulletins/{b.pk}/delete/")
         self.assertFalse(Bulletin.objects.filter(pk=b.pk).exists())
+
+
+class OwnerDashboardTests(TestCase):
+    URL = "/manage/owner/"
+
+    def setUp(self):
+        self.owner = User.objects.create_superuser("owner", "o@x.dz", "x")
+        self.admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
+        self.student = User.objects.create_user("stud", password="x")
+
+    def test_owner_can_open_the_page(self):
+        self.client.force_login(self.owner)
+        self.assertEqual(self.client.get(self.URL).status_code, 200)
+
+    def test_admin_is_blocked(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get(self.URL).status_code, 302)
+
+    def test_student_is_blocked(self):
+        self.client.force_login(self.student)
+        self.assertEqual(self.client.get(self.URL).status_code, 302)
+
+    def test_anonymous_is_blocked(self):
+        self.assertEqual(self.client.get(self.URL).status_code, 302)
+
+    def test_signed_in_member_shows_as_online(self):
+        self.client.force_login(self.owner)
+        self.client.get("/")  # any page — the presence middleware records it
+        response = self.client.get(self.URL)
+        self.assertContains(response, '<span class="badge">owner</span>')
+
+    def test_guest_is_counted(self):
+        self.client.get("/")  # anonymous visit
+        self.client.force_login(self.owner)
+        response = self.client.get(self.URL)
+        self.assertContains(response, "Guests")
+
+    def test_traffic_and_top_resources_sections_render(self):
+        from apps.administration.models import DailyStats
+
+        DailyStats.objects.create(
+            date="2026-07-30", visitors=12, page_views=40, total_time_seconds=3600
+        )
+        self.client.force_login(self.owner)
+        response = self.client.get(self.URL)
+        self.assertContains(response, "Traffic per day")
+        self.assertContains(response, "2026-07-30")
+        self.assertContains(response, "Most opened modules")
+
+
+class AnalyticsMiddlewareTests(TestCase):
+    def test_visit_is_counted_in_today_live_stats(self):
+        from config.middleware import get_today_stats
+
+        before = get_today_stats()["page_views"]
+        self.client.get("/")
+        after = get_today_stats()
+        self.assertGreater(after["page_views"], before)
+        self.assertGreaterEqual(after["visitors"], 1)
+
+    def test_healthz_is_not_tracked(self):
+        from config.middleware import get_today_stats
+
+        before = get_today_stats()["page_views"]
+        self.client.get("/healthz")
+        self.assertEqual(get_today_stats()["page_views"], before)
+
+    def test_flush_writes_daily_stats_row(self):
+        from django.core.cache import cache
+        from config.middleware import STATS_DAY_PREFIX, flush_stats_day
+        from apps.administration.models import DailyStats
+
+        key = STATS_DAY_PREFIX + "2026-07-29"
+        cache.set(
+            key,
+            {"views": 5, "sessions": {"a": (1000, 1120), "b": (2000, 2300)}},
+            timeout=3600,
+        )
+        row = flush_stats_day(key)
+        self.assertEqual(row.visitors, 2)
+        self.assertEqual(row.page_views, 5)
+        self.assertEqual(row.total_time_seconds, 420)
+        self.assertTrue(DailyStats.objects.filter(date="2026-07-29").exists())

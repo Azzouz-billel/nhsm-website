@@ -495,3 +495,30 @@ class SeedDemoGuardTests(TestCase):
 
         with self.assertRaises(CommandError):
             call_command("seed_demo")
+
+
+class ResourceOpenTrackingTests(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(name="Analyse 1", semester=1)
+
+    def _resource(self, status):
+        return Resource.objects.create(
+            title="Cours",
+            subject=self.subject,
+            drive_link="https://drive.google.com/x",
+            status=status,
+        )
+
+    def test_open_counts_and_redirects_to_drive(self):
+        resource = self._resource(ResourceStatus.APPROVED)
+        response = self.client.get(f"/resources/{resource.pk}/open/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "https://drive.google.com/x")
+        resource.refresh_from_db()
+        self.assertEqual(resource.opens, 1)
+
+    def test_pending_resource_is_not_openable(self):
+        resource = self._resource(ResourceStatus.PENDING)
+        self.assertEqual(
+            self.client.get(f"/resources/{resource.pk}/open/").status_code, 404
+        )

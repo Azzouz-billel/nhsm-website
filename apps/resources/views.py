@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
-from django.shortcuts import redirect, render
+from django.db.models import Count, F, Q
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from rest_framework.generics import ListAPIView
 
@@ -164,6 +164,17 @@ class ResourceSearchAPIView(ListAPIView):
             )
 
         return qs
+
+
+def open_resource(request, pk):
+    """Count one open, then bounce the visitor to the actual Drive link.
+
+    Library cards point here instead of straight at Drive so the owner
+    dashboard can tell which resources are actually used.
+    """
+    resource = get_object_or_404(Resource, pk=pk, status=ResourceStatus.APPROVED)
+    Resource.objects.filter(pk=pk).update(opens=F("opens") + 1)
+    return redirect(resource.drive_link)
 
 
 def annales(request):

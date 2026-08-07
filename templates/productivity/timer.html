@@ -27,6 +27,10 @@
               {% endfor %}
             </select>
           </div>
+          <div class="ts-field">
+            <label for="timer-custom">Or activity</label>
+            <input id="timer-custom" class="field" type="text" placeholder="e.g. Revision" data-custom maxlength="60">
+          </div>
           <div class="ts-field ts-num">
             <label for="timer-focus">Focus</label>
             <input id="timer-focus" class="field" type="number" min="1" max="60" value="25" data-focus>
@@ -92,7 +96,7 @@
               <ul class="breakdown-list">
                 {% for row in per_subject %}
                   <li>
-                    <span>{{ row.subject__name|default:"No module" }}</span>
+                    <span>{{ row.name|default:"No module" }}</span>
                     <span class="muted">{{ row.total }} min</span>
                   </li>
                 {% endfor %}
@@ -118,5 +122,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script defer src="{% static 'js/timer.js' %}?v=2"></script>
+<script defer src="{% static 'js/timer.js' %}?v=4"></script>
 {% endblock %}

@@ -60,6 +60,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "config.middleware.PresenceMiddleware",
+    "config.middleware.AnalyticsMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "config.middleware.PermissionsPolicyMiddleware",
@@ -90,6 +92,7 @@ if TESTING:
     # A single backend keeps Client.force_login() usable across the suite without
     # a backend hint; the lockout test re-adds axes explicitly via override_settings.
     AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+    SILENCED_SYSTEM_CHECKS = ["axes.W003"]
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 

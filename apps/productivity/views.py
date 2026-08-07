@@ -52,7 +52,8 @@ def _subjects_for(user):
 def _subject_breakdown(user):
     return (
         StudySession.objects.filter(user=user)
-        .values("subject__name")
+        .annotate(name=Coalesce("subject__name", "label"))
+        .values("name")
         .annotate(total=Sum("minutes"))
         .order_by("-total")[:8]
     )
@@ -86,12 +87,14 @@ class StudySessionCreateAPIView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         minutes = serializer.validated_data["minutes"]
-        subject = serializer.validated_data["subject"]
+        subject = serializer.validated_data.get("subject")
+        label = serializer.validated_data.get("label", "")
 
         now = timezone.now()
         StudySession.objects.create(
             user=request.user,
             subject=subject,
+            label=label,
             minutes=minutes,
             started_at=now - timedelta(minutes=minutes),
             completed_at=now,
