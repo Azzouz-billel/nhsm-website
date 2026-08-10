@@ -14,7 +14,15 @@ DEBUG = False
 # otherwise anyone can forge session cookies.
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["nhsmhub.online"])
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=[
+        "nhsmhub.com",
+        "www.nhsmhub.com",
+        "nhsm-website.onrender.com",
+        "nhsmhub.online",
+    ],
+)
 
 # Hashed, compressed static files served by WhiteNoise (run collectstatic).
 STORAGES["staticfiles"] = {  # noqa: F405
