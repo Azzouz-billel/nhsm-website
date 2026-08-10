@@ -5,6 +5,7 @@ import hashlib
 import time
 
 from django.core.cache import cache
+from django.http import HttpResponsePermanentRedirect
 from django.utils import timezone
 
 # Presence tracking: which clients were seen in the last WINDOW seconds.
@@ -185,3 +186,26 @@ def flush_stats_day(day_key):
         },
     )
     return row
+
+
+class DomainRedirectMiddleware:
+    """301-redirect the old Render domain to the canonical one.
+
+    Google indexed nhsm-website.onrender.com first; a permanent redirect
+    moves that ranking to nhsmhub.com instead of splitting it across two
+    domains serving identical content. Registered first in MIDDLEWARE so
+    old-domain requests bounce before doing any work.
+    """
+
+    OLD_HOST = "nhsm-website.onrender.com"
+    CANONICAL = "https://nhsmhub.com"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.get_host() == self.OLD_HOST:
+            return HttpResponsePermanentRedirect(
+                self.CANONICAL + request.get_full_path()
+            )
+        return self.get_response(request)

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.accounts.models import Role
 from apps.administration.forms import SubjectAdminForm
@@ -352,3 +352,23 @@ class AnalyticsMiddlewareTests(TestCase):
         self.assertEqual(row.page_views, 5)
         self.assertEqual(row.total_time_seconds, 420)
         self.assertTrue(DailyStats.objects.filter(date="2026-07-29").exists())
+
+
+@override_settings(ALLOWED_HOSTS=["nhsm-website.onrender.com", "nhsmhub.com"])
+class DomainRedirectMiddlewareTests(TestCase):
+    def test_old_render_domain_redirects_permanently(self):
+        response = self.client.get(
+            "/resources/?page=2", HTTP_HOST="nhsm-website.onrender.com"
+        )
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(
+            response["Location"], "https://nhsmhub.com/resources/?page=2"
+        )
+
+    def test_canonical_domain_is_not_redirected(self):
+        response = self.client.get("/", HTTP_HOST="nhsmhub.com")
+        self.assertEqual(response.status_code, 200)
+
+    def test_canonical_link_always_points_at_nhsmhub_com(self):
+        response = self.client.get("/", HTTP_HOST="nhsmhub.com")
+        self.assertContains(response, '<link rel="canonical" href="https://nhsmhub.com/">')
