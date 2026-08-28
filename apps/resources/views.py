@@ -62,8 +62,18 @@ def home(request):
         "redotpay_url": settings.REDOTPAY_DONATION_URL,
         "quote_text": text,
         "quote_author": author,
+        "comments": _approved_comments(),
     }
     return render(request, "home.html", context)
+
+
+def _approved_comments():
+    """Latest approved wall-of-love notes (imported late: cross-app)."""
+    from apps.moderation.models import GuestbookComment
+
+    return GuestbookComment.objects.filter(is_approved=True).select_related(
+        "author"
+    )[:12]
 
 
 def about(request):

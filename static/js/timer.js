@@ -17,6 +17,10 @@
     submit: root.querySelector("[data-submit]"),
     subject: root.querySelector("[data-subject]"),
     custom: root.querySelector("[data-custom]"),
+    focusMode: root.querySelector("[data-focus-mode]"),
+    focusExit: root.querySelector("[data-focus-exit]"),
+    ambientToggle: root.querySelector("[data-ambient-toggle]"),
+    ambientLabel: root.querySelector("[data-ambient-label]"),
     focus: root.querySelector("[data-focus]"),
     brk: root.querySelector("[data-break]"),
     hint: root.querySelector("[data-hint]"),
@@ -28,12 +32,10 @@
   var CIRC = 2 * Math.PI * RADIUS;
   els.ring.style.strokeDasharray = CIRC;
 
-  var PHASE_LABEL = { focus: "Focus", break: "Short break", long: "Long break" };
+  var PHASE_LABEL = { focus: "Focus Session", break: "Short Break", long: "Long Break" };
 
   var auth = root.getAttribute("data-auth") === "1";
   var STORE_KEY = "nhsm-timer";
-  // Resuming a block that ended longer ago than this (e.g. a tab left open
-  // overnight) is treated as stale rather than logging a phantom focus block.
   var STALE_MS = 60 * 60 * 1000;
   var state = {
     phase: "focus",
@@ -45,6 +47,11 @@
   };
   var ticker = null;
   var audioCtx = null;
+
+  // Ambient Sound Synth (Web Audio API Rain)
+  var ambientPlaying = false;
+  var ambientSource = null;
+  var ambientGain = null;
 
   function hasActivity() {
     return !!((els.subject && els.subject.value) || (els.custom && els.custom.value.trim()));
@@ -122,7 +129,6 @@
     } else {
       setPhase("focus");
     }
-    // Keep auto-running into the next phase.
     render();
   }
 
@@ -167,8 +173,6 @@
     setPhase("focus");
   }
 
-  // Like Skip, but it banks the focus minutes studied so far before moving on
-  // to the break (Skip discards them). Always advances; saves when it can.
   function submitPartial() {
     if (state.phase !== "focus") {
       els.hint.textContent = "You're on a break already.";
@@ -193,7 +197,6 @@
   function logBlock(minutes) {
     if (!auth || !hasActivity()) return;
     var meta = document.querySelector('meta[name="csrf-token"]');
-    // The module wins when both are somehow set (same rule as the API).
     var payload = { minutes: minutes };
     if (els.subject.value) payload.subject = els.subject.value;
     else payload.label = els.custom.value.trim();
@@ -250,6 +253,89 @@
     }
   }
 
+  // Ambient Rain Audio Synthesis
+  function toggleAmbientSound() {
+    ensureAudio();
+    if (!audioCtx) return;
+    if (ambientPlaying) {
+      stopAmbientSound();
+    } else {
+      startAmbientSound();
+    }
+  }
+
+  function startAmbientSound() {
+    if (!audioCtx) return;
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+    var bufferSize = 2 * audioCtx.sampleRate;
+    var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    var output = noiseBuffer.getChannelData(0);
+    var b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (var i = 0; i < bufferSize; i++) {
+      var white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      output[i] *= 0.05;
+      b6 = white * 0.115926;
+    }
+    ambientSource = audioCtx.createBufferSource();
+    ambientSource.buffer = noiseBuffer;
+    ambientSource.loop = true;
+
+    var filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 1000;
+
+    ambientGain = audioCtx.createGain();
+    ambientGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+    ambientGain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.8);
+
+    ambientSource.connect(filter);
+    filter.connect(ambientGain);
+    ambientGain.connect(audioCtx.destination);
+
+    ambientSource.start();
+    ambientPlaying = true;
+    updateAmbientUI();
+  }
+
+  function stopAmbientSound() {
+    if (ambientGain && audioCtx) {
+      ambientGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+      setTimeout(function() {
+        if (ambientSource) {
+          try { ambientSource.stop(); } catch(e){}
+          ambientSource = null;
+        }
+      }, 400);
+    }
+    ambientPlaying = false;
+    updateAmbientUI();
+  }
+
+  function updateAmbientUI() {
+    if (els.ambientToggle && els.ambientLabel) {
+      if (ambientPlaying) {
+        els.ambientToggle.classList.add("btn-ambient-active");
+        els.ambientLabel.textContent = "Ambient Rain: Playing 🌧️";
+      } else {
+        els.ambientToggle.classList.remove("btn-ambient-active");
+        els.ambientLabel.textContent = "Ambient Rain: Off";
+      }
+    }
+  }
+
+  if (els.ambientToggle) {
+    els.ambientToggle.addEventListener("click", toggleAmbientSound);
+  }
+
   function persist() {
     try {
       localStorage.setItem(
@@ -267,13 +353,10 @@
         })
       );
     } catch (e) {
-      /* storage unavailable — the timer still works for this page view */
+      /* storage unavailable */
     }
   }
 
-  // Restore a timer saved on a previous page view so it keeps running across
-  // navigations. The countdown is wall-clock based (endAt), so time elapsed
-  // while away is accounted for instead of lost.
   function restore() {
     var raw;
     try {
@@ -303,8 +386,6 @@
       state.running = true;
       state.remaining = Math.round((state.endAt - Date.now()) / 1000);
       if (state.remaining <= 0) {
-        // The phase finished while we were away. Ignore a long-abandoned timer;
-        // otherwise complete that block and roll into the next phase.
         if (Date.now() - state.endAt > STALE_MS) {
           state.running = false;
           state.endAt = null;
@@ -327,7 +408,40 @@
   els.reset.addEventListener("click", reset);
   if (els.submit) els.submit.addEventListener("click", submitPartial);
 
-  // Module and custom label are mutually exclusive — last touch wins.
+  // Full Screen Focus Mode
+  function enterFocusMode() {
+    document.body.classList.add("focus-mode");
+    try {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(function () {});
+      }
+    } catch (e) {
+      /* fallback to CSS overlay */
+    }
+  }
+  function exitFocusMode() {
+    document.body.classList.remove("focus-mode");
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(function () {});
+      }
+    } catch (e) {
+      /* not fullscreen */
+    }
+  }
+  if (els.focusMode) els.focusMode.addEventListener("click", enterFocusMode);
+  if (els.focusExit) els.focusExit.addEventListener("click", exitFocusMode);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && document.body.classList.contains("focus-mode")) {
+      exitFocusMode();
+    }
+  });
+  document.addEventListener("fullscreenchange", function () {
+    if (!document.fullscreenElement) {
+      document.body.classList.remove("focus-mode");
+    }
+  });
+
   els.subject.addEventListener("change", function () {
     if (els.subject.value) els.custom.value = "";
     persist();
@@ -337,13 +451,102 @@
     persist();
   });
 
-  // Editing durations re-arms the current phase when paused, and is saved
-  // either way so the change survives a page navigation.
   [els.focus, els.brk].forEach(function (input) {
     input.addEventListener("change", function () {
       if (!state.running) setPhase(state.phase);
       else persist();
     });
+  });
+
+  // Box Breathing Widget
+  var breathBtn = document.querySelector("[data-breath-start]");
+  var breathCircle = document.querySelector("[data-breath-circle]");
+  var breathText = document.querySelector("[data-breath-text]");
+  var breathInterval = null;
+
+  if (breathBtn && breathCircle && breathText) {
+    var phases = [
+      { text: "Inhale...", scale: "1.3", class: "inhale" },
+      { text: "Hold...", scale: "1.3", class: "hold" },
+      { text: "Exhale...", scale: "0.85", class: "exhale" },
+      { text: "Hold...", scale: "0.85", class: "hold" },
+    ];
+    var breathIdx = 0;
+    var breathRunning = false;
+
+    breathBtn.addEventListener("click", function() {
+      if (breathRunning) {
+        clearInterval(breathInterval);
+        breathRunning = false;
+        breathText.textContent = "Click Start";
+        breathBtn.textContent = "Start 2-Min Reset";
+        breathCircle.style.transform = "scale(1)";
+        return;
+      }
+      breathRunning = true;
+      breathBtn.textContent = "Stop Exercise";
+      runBreathCycle();
+      breathInterval = setInterval(runBreathCycle, 4000);
+    });
+
+    function runBreathCycle() {
+      var p = phases[breathIdx % phases.length];
+      breathText.textContent = p.text;
+      breathCircle.style.transform = "scale(" + p.scale + ")";
+      breathIdx++;
+    }
+  }
+
+  // 1-Minute Stretch Prompt Generator
+  var stretches = [
+    { title: "20-20-20 Eye Rest", desc: "Look at an object 20 feet away for 20 seconds to relax your eye ciliary muscles." },
+    { title: "Neck Rolls", desc: "Slowly roll your head in a circle 5 times clockwise, then 5 times counter-clockwise." },
+    { title: "Shoulder Shrugs", desc: "Raise your shoulders to your ears, hold for 3 seconds, and release 5 times." },
+    { title: "Seated Spinal Twist", desc: "Sit tall, place your right hand on your left knee, and gently twist left for 15s." },
+    { title: "Wrist & Finger Flex", desc: "Extend arms forward, pull fingers back gently with opposite hand for 15s per side." }
+  ];
+  var stretchIdx = 0;
+  var stretchNextBtn = document.querySelector("[data-stretch-next]");
+  var stretchTitle = document.querySelector("[data-stretch-title]");
+  var stretchDesc = document.querySelector("[data-stretch-desc]");
+
+  if (stretchNextBtn && stretchTitle && stretchDesc) {
+    stretchNextBtn.addEventListener("click", function() {
+      stretchIdx = (stretchIdx + 1) % stretches.length;
+      stretchTitle.textContent = stretches[stretchIdx].title;
+      stretchDesc.textContent = stretches[stretchIdx].desc;
+    });
+  }
+
+  // NHSM Grade Simulator
+  var gpaEmd = document.querySelector("[data-gpa-emd]");
+  var gpaTd = document.querySelector("[data-gpa-td]");
+  var gpaTp = document.querySelector("[data-gpa-tp]");
+  var gpaRes = document.querySelector("[data-gpa-result]");
+
+  function calcGpa() {
+    if (!gpaRes) return;
+    var emd = parseFloat(gpaEmd ? gpaEmd.value : "") || 0;
+    var td = parseFloat(gpaTd ? gpaTd.value : "") || 0;
+    var tp = parseFloat(gpaTp ? gpaTp.value : "") || 0;
+
+    var hasTp = gpaTp && gpaTp.value.trim() !== "";
+    var finalScore = 0;
+    if (hasTp) {
+      finalScore = (emd * 0.50) + (td * 0.25) + (tp * 0.25);
+    } else {
+      finalScore = (emd * 0.60) + (td * 0.40);
+    }
+    if (!gpaEmd.value && !gpaTd.value && !gpaTp.value) {
+      gpaRes.innerHTML = 'Estimated Module Score: <strong>—</strong>';
+    } else {
+      var badge = finalScore >= 10 ? ' <span style="color:var(--success)">[PASS]</span>' : ' <span style="color:var(--danger)">[RATTRAPAGE]</span>';
+      gpaRes.innerHTML = 'Estimated Module Score: <strong>' + finalScore.toFixed(2) + ' / 20</strong>' + badge;
+    }
+  }
+
+  [gpaEmd, gpaTd, gpaTp].forEach(function(input) {
+    if (input) input.addEventListener("input", calcGpa);
   });
 
   restore();

@@ -120,6 +120,62 @@
   </div>
 </section>
 
+<!-- ===================== WALL OF ENCOURAGEMENT & REVIEWS ===================== -->
+<section class="section" id="wall">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <p class="eyebrow"> Student Community Wall</p>
+      <h2>Encouragement &amp; Helpful Feedback</h2>
+      <p class="muted">Share positive words to boost your fellow NHSM students, or describe how NHSM Hub helped you excel in your studies!</p>
+    </div>
+    {% if comments %}
+      <div class="wall-grid reveal">
+        {% for c in comments %}
+          <blockquote class="wall-card {% if c.is_pinned %}wall-card--pinned{% endif %}">
+            {% if c.is_pinned %}
+              <div class="pinned-tag">📌 Featured Encouragement &amp; Review</div>
+            {% endif %}
+            <p class="wall-text">“{{ c.text }}”</p>
+            <footer class="wall-meta">
+              <div class="wall-author-info">
+                <span class="wall-author">{{ c.author.board_name|default:c.author.username }}</span>
+                {% if c.author.get_academic_group_display %}
+                  <span class="badge badge-sm">{{ c.author.get_academic_group_display }}</span>
+                {% endif %}
+              </div>
+              <span class="muted font-mono" style="font-size:0.75rem;">{{ c.created_at|date:"M j, Y" }}</span>
+            </footer>
+          </blockquote>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted wall-empty reveal">No community notes published yet — be the first to leave an encouraging message or share how NHSM Hub helped your study journey!</p>
+    {% endif %}
+
+    <div class="wall-form-wrap reveal">
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'comment_add' %}" class="wall-form">
+          {% csrf_token %}
+          <div class="form-field" style="margin-bottom: var(--space-2);">
+            <label for="wall-comment-input" class="sr-only">Leave a message of encouragement or feedback</label>
+            <textarea id="wall-comment-input" name="text" class="field" rows="3" maxlength="280" required
+                      aria-label="Your encouragement or review"
+                      placeholder="Share an encouraging message for fellow students or describe how NHSM Hub helped you (e.g. 'The past exams saved me during EMD week! Keep pushing everyone!')"></textarea>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-2);">
+            <span class="muted" style="font-size: 0.8rem;"> Pre-moderated: Approved by Billel &amp; team before publishing.</span>
+            <button class="btn btn-primary" type="submit"> Send Encouragement</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="wall-auth-prompt">
+          <p class="muted">Want to share encouraging words or tell us how NHSM Hub helped you? <a href="{% url 'login' %}">Log in</a> to write a comment for the Community Wall.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
 {% endblock %}
 
 {% block reveal_js %}

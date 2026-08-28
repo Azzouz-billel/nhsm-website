@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from apps.accounts.models import Role
 from apps.administration.forms import SubjectAdminForm
 from apps.administration.models import Bulletin
+from apps.moderation.models import GuestbookComment
 from apps.resources.models import Resource, ResourceStatus, Subject
 
 User = get_user_model()
@@ -317,6 +318,41 @@ class OwnerDashboardTests(TestCase):
         self.assertContains(response, "Traffic per day")
         self.assertContains(response, "2026-07-30")
         self.assertContains(response, "Most opened modules")
+
+
+
+
+class ManageCommentsTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user("adm", password="x", role=Role.ADMIN)
+        self.author = User.objects.create_user("fan", password="x")
+        self.comment = GuestbookComment.objects.create(
+            author=self.author, text="Great site!"
+        )
+
+    def test_admin_sees_comments_page(self):
+        self.client.force_login(self.admin)
+        response = self.client.get("/manage/comments/")
+        self.assertContains(response, "Great site!")
+
+    def test_non_admin_is_blocked(self):
+        self.client.force_login(self.author)
+        self.assertEqual(self.client.get("/manage/comments/").status_code, 302)
+
+    def test_approve_hide_delete(self):
+        self.client.force_login(self.admin)
+        url = f"/manage/comments/{self.comment.pk}/review/"
+
+        self.client.post(url, {"action": "approve"})
+        self.comment.refresh_from_db()
+        self.assertTrue(self.comment.is_approved)
+
+        self.client.post(url, {"action": "hide"})
+        self.comment.refresh_from_db()
+        self.assertFalse(self.comment.is_approved)
+
+        self.client.post(url, {"action": "delete"})
+        self.assertFalse(GuestbookComment.objects.filter(pk=self.comment.pk).exists())
 
 
 class AnalyticsMiddlewareTests(TestCase):

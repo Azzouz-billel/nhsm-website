@@ -1,22 +1,33 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Focus timer — NHSM Hub{% endblock %}
-{% block description %}A Pomodoro focus timer that logs your study minutes per module and keeps a daily streak.{% endblock %}
+{% block title %}Focus Timer & Student Wellbeing — NHSM Hub{% endblock %}
+{% block description %}A Pomodoro focus timer with full-screen focus mode, ambient audio, student wellbeing exercises, and GPA calculator for NHSM students.{% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
     <div class="section-head">
-      <p class="eyebrow">Focus timer</p>
+      <p class="eyebrow">Focus Timer &amp; Student Hub</p>
       <h2>Study in focused blocks.</h2>
-      <p class="muted">Pick a module, start a 25-minute block, and take a break every cycle. {% if user.is_authenticated %}Your time is logged automatically.{% else %}<a href="{% url 'login' %}">Sign in</a> to track your time and streak.{% endif %}</p>
+      <p class="muted">Pick a module, launch full-screen focus mode, listen to calming rain ambient sounds, and maintain your streak. {% if user.is_authenticated %}Your time is logged automatically.{% else %}<a href="{% url 'login' %}">Sign in</a> to track your time and streak.{% endif %}</p>
     </div>
 
     <div class="timer-layout">
       <div class="timer-card" data-timer
            data-auth="{{ user.is_authenticated|yesno:'1,0' }}"
            data-session-url="{% url 'api_study_session_create' %}">
+        
+        <!-- Focus Mode Header (Visible when Focus Mode is active) -->
+        <div class="focus-mode-header" data-focus-header>
+          <div class="focus-brand">
+            <span class="focus-dot"></span> ZEN FOCUS MODE
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm btn-exit-focus" data-focus-exit title="Press ESC to exit">
+            ✕ Exit Focus (ESC)
+          </button>
+        </div>
+
         <div class="timer-settings">
           <div class="ts-field">
             <label for="timer-subject">Module</label>
@@ -57,11 +68,23 @@
           <span class="dot"></span><span class="dot"></span>
         </div>
 
+        <!-- Ambient Sound Control Bar -->
+        <div class="ambient-bar" data-ambient-bar>
+          <button type="button" class="btn btn-ghost btn-sm ambient-btn" data-ambient-toggle aria-label="Toggle ambient sound">
+            🌧️ <span data-ambient-label>Ambient Rain: Off</span>
+          </button>
+        </div>
+
         <div class="timer-controls">
           <button class="btn btn-primary" data-start>Start</button>
           <button class="btn btn-ghost" data-skip>Skip</button>
           <button class="btn btn-ghost" data-reset>Reset</button>
+          <button type="button" class="btn btn-ghost btn-zen-focus" data-focus-mode>
+            <svg class="icon-expand" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            Full Screen Focus
+          </button>
         </div>
+
         {% if user.is_authenticated %}
           <button type="button" class="btn btn-ghost btn-sm timer-save" data-submit>Save &amp; take a break</button>
         {% endif %}
@@ -119,8 +142,74 @@
     </div>
   </div>
 </section>
+
+<!-- ================= NON-STUDY / WELLBEING & STUDENT TOOLS ================= -->
+<section class="section" id="wellbeing">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <p class="eyebrow">Student Wellbeing &amp; Life</p>
+      <h2>Mental Reset &amp; Brain Break Zone</h2>
+      <p class="muted">Take care of your mind and body during hard study sessions. Practice box breathing or take a quick stretch break.</p>
+    </div>
+
+    <div class="wellbeing-grid">
+      <!-- Box Breathing Exercise -->
+      <article class="feature-card wellbeing-card" data-breathing>
+        <div class="wb-header">
+          <div class="icon">🧘</div>
+          <h3>Box Breathing (4-4-4-4)</h3>
+        </div>
+        <p class="muted">A proven technique used by mathematicians and athletes to lower stress and sharpen concentration.</p>
+        <div class="breathing-circle-wrap">
+          <div class="breathing-circle" data-breath-circle>
+            <span class="breath-text" data-breath-text>Click Start</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" data-breath-start>Start 2-Min Reset</button>
+      </article>
+
+      <!-- Quick Stretch Generator -->
+      <article class="feature-card wellbeing-card" data-stretch>
+        <div class="wb-header">
+          <div class="icon">🤸</div>
+          <h3>1-Minute Brain Break</h3>
+        </div>
+        <p class="muted">Prevent eye strain and back pain with quick targeted physical resets.</p>
+        <div class="stretch-prompt-box">
+          <p class="stretch-title" data-stretch-title>20-20-20 Eye Rest</p>
+          <p class="stretch-desc" data-stretch-desc>Look at an object 20 feet away for 20 seconds to relax your eye ciliary muscles.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" data-stretch-next>Next Stretch Prompt ➔</button>
+      </article>
+
+      <!-- NHSM Moyenne Calculator -->
+      <article class="feature-card wellbeing-card" data-gpa-calc>
+        <div class="wb-header">
+          <div class="icon">🧮</div>
+          <h3>NHSM Grade / Moyenne Simulator</h3>
+        </div>
+        <p class="muted">Estimate your semester average before official results. Enter scores below:</p>
+        <div class="gpa-fields">
+          <div class="form-field">
+            <label for="gpa-emd">EMD Score (/20)</label>
+            <input type="number" min="0" max="20" step="0.25" placeholder="14.5" class="field" id="gpa-emd" data-gpa-emd>
+          </div>
+          <div class="form-field">
+            <label for="gpa-td">TD / Continuous (/20)</label>
+            <input type="number" min="0" max="20" step="0.25" placeholder="15.0" class="field" id="gpa-td" data-gpa-td>
+          </div>
+          <div class="form-field">
+            <label for="gpa-tp">TP / Practical (/20)</label>
+            <input type="number" min="0" max="20" step="0.25" placeholder="13.0" class="field" id="gpa-tp" data-gpa-tp>
+          </div>
+        </div>
+        <div class="gpa-result" data-gpa-result>Estimated Module Score: <strong>—</strong></div>
+      </article>
+    </div>
+  </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
-<script defer src="{% static 'js/timer.js' %}?v=4"></script>
+<script defer src="{% static 'js/timer.js' %}?v=6"></script>
 {% endblock %}

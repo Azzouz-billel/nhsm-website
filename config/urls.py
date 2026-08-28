@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.urls import include, path
 
 from config.sitemaps import StaticViewSitemap
+from apps.moderation.views import comment_add
 
 SITEMAPS = {"static": StaticViewSitemap}
 
@@ -41,6 +42,7 @@ def health_check(request):
 urlpatterns = [
     path("googleb55567535a46ef21.html", google_site_verification),
     path("healthz", health_check),
+    path("comments/add/", comment_add, name="comment_add"),
     path("robots.txt", robots_txt),
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
     path("admin/", admin.site.urls),

@@ -1,0 +1,61 @@
+{% extends "manage/base.html" %}
+
+{% block manage_title %}Comments{% endblock %}
+
+{% block manage_content %}
+<div class="manage-bar">
+  <span class="muted">Wall-of-love comments — only approved ones show on the home page.</span>
+</div>
+
+<table class="lb-table manage-table">
+  <thead><tr><th>Comment</th><th>By</th><th>Date</th><th>Status</th><th class="col-actions">Actions</th></tr></thead>
+  <tbody>
+    {% for c in comments %}
+      <tr>
+        <td>{{ c.text }}</td>
+        <td class="muted">{{ c.author.username }}</td>
+        <td class="muted">{{ c.created_at|date:"M j, Y" }}</td>
+        <td>
+          {% if c.is_pinned %}
+            <span class="req-status approved" style="background: var(--pink); color: #fff;">📌 Pinned</span>
+          {% elif c.is_approved %}
+            <span class="req-status approved">Public</span>
+          {% else %}
+            <span class="req-status pending">Pending</span>
+          {% endif %}
+        </td>
+        <td class="manage-row-actions">
+          {% if c.is_pinned %}
+            <form method="post" action="{% url 'manage_comment_review' c.pk %}">
+              {% csrf_token %}<input type="hidden" name="action" value="unpin">
+              <button class="btn btn-ghost btn-sm" type="submit">Unpin</button>
+            </form>
+          {% else %}
+            <form method="post" action="{% url 'manage_comment_review' c.pk %}">
+              {% csrf_token %}<input type="hidden" name="action" value="pin">
+              <button class="btn btn-ghost btn-sm" type="submit">📌 Pin</button>
+            </form>
+          {% endif %}
+          {% if c.is_approved %}
+            <form method="post" action="{% url 'manage_comment_review' c.pk %}">
+              {% csrf_token %}<input type="hidden" name="action" value="hide">
+              <button class="btn btn-ghost btn-sm" type="submit">Hide</button>
+            </form>
+          {% else %}
+            <form method="post" action="{% url 'manage_comment_review' c.pk %}">
+              {% csrf_token %}<input type="hidden" name="action" value="approve">
+              <button class="btn btn-primary btn-sm" type="submit">Approve</button>
+            </form>
+          {% endif %}
+          <form method="post" action="{% url 'manage_comment_review' c.pk %}" onsubmit="return confirm('Delete this comment?');">
+            {% csrf_token %}<input type="hidden" name="action" value="delete">
+            <button class="btn btn-ghost btn-sm danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5" class="muted">No comments yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

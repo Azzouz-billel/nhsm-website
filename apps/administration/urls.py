@@ -36,5 +36,8 @@ urlpatterns = [
 
     path("reviews/", views.review_queue, name="manage_reviews"),
 
+    path("comments/", views.comment_list, name="manage_comments"),
+    path("comments/<int:pk>/review/", views.comment_review, name="manage_comment_review"),
+
     path("owner/", views.owner_dashboard, name="manage_owner"),
 ]

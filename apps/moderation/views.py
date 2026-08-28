@@ -1,9 +1,12 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from apps.resources.models import Resource, ResourceStatus
+from config.throttle import rate_limit
+
+from .forms import GuestbookCommentForm
 
 
 def _is_approver(user):
@@ -36,3 +39,28 @@ def review(request, pk):
         resource.reject(by_user=request.user)
         messages.success(request, f"Rejected “{resource.title}”.")
     return redirect("moderation_queue")
+
+
+@require_POST
+@login_required
+@rate_limit("comment", 5, 3600)
+def comment_add(request):
+    """A signed-in member leaves a note for the home page wall.
+
+    Always created unapproved — it only shows publicly once an admin
+    approves it from the manage area.
+    """
+    form = GuestbookCommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.is_approved = False
+        comment.is_pinned = False
+        comment.save()
+        messages.success(
+            request, "Thanks! Your comment appears after a quick review."
+        )
+    else:
+        first_error = form.errors.get("text", ["That comment didn't look right — keep it under 280 characters."])[0]
+        messages.error(request, first_error)
+    return redirect("home")

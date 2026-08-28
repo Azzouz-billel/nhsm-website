@@ -19,6 +19,7 @@
         <a href="{% url 'manage_bulletins' %}" class="{% if 'bulletin' in request.resolver_match.url_name %}active{% endif %}">Bulletins</a>
         <a href="{% url 'manage_professors' %}" class="{% if 'professor' in request.resolver_match.url_name %}active{% endif %}">Professors</a>
         <a href="{% url 'manage_reviews' %}" class="{% if request.resolver_match.url_name == 'manage_reviews' %}active{% endif %}">Reviews</a>
+        <a href="{% url 'manage_comments' %}" class="{% if 'comment' in request.resolver_match.url_name %}active{% endif %}">Comments</a>
         {% if request.user.is_owner %}
           <a href="{% url 'manage_owner' %}" class="{% if request.resolver_match.url_name == 'manage_owner' %}active{% endif %}">Owner</a>
         {% endif %}

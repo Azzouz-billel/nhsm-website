@@ -1,50 +1,133 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Contact — NHSM Hub{% endblock %}
-{% block description %}Get in touch with the team behind NHSM Hub.{% endblock %}
+{% block title %}Owner & Creator Profile — NHSM Hub{% endblock %}
+{% block description %}Learn more about Billel Azzouz, creator of NHSM Hub, his vision, tech stack, and team collaborators.{% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
-    <div class="section-head">
-      <p class="eyebrow">Contact</p>
-      <h2>Reach out.</h2>
+    <div class="section-head section-head--center">
+      <p class="eyebrow">Meet the Creator</p>
+      <h2>Behind NHSM Hub</h2>
+      <p class="muted">A student initiative built to bring course notes, exam archives, focus tools, and community to the National Higher School of Mathematics.</p>
     </div>
 
-    <div class="contact-layout">
-      <div class="auth-card contact-card">
-        <img class="contact-photo" src="{% static 'img/creator.jpg' %}" alt="Photo of Billel Azzouz" width="160"
-          height="160" loading="lazy">
-        <div class="contact-body">
+    <!-- Owner Showcase Hero Card -->
+    <div class="owner-showcase-card">
+      <div class="owner-avatar-wrap">
+        <img class="owner-photo" src="{% static 'img/creator.jpg' %}" alt="Photo of Billel Azzouz" width="180" height="180" loading="lazy">
+        <span class="owner-status-badge">🟢 Active Developer</span>
+      </div>
+
+      <div class="owner-details">
+        <div class="owner-title-bar">
           <h3>Billel Azzouz</h3>
-          <p class="muted">I created this website for NHSM students. If you need anything —
-            a bug to report, an idea, or a hand — reach out anytime.</p>
-          <div class="contact-links">
-            <a class="btn btn-primary btn-sm" href="mailto:billel.azzouz@nhsm.edu.dz">Email</a>
-            <a class="btn btn-ghost btn-sm" href="https://github.com/Azzouz-billel" target="_blank"
-              rel="noopener">GitHub</a>
-            <a class="btn btn-ghost btn-sm" href="https://www.instagram.com/billel_.azzouz/" target="_blank"
-              rel="noopener">Instagram</a>
-            <a class="btn btn-ghost btn-sm" href="https://t.me/billel_azz" target="_blank" rel="noopener">Telegram</a>
+          <span class="owner-role-tag">Founder &amp; Lead Architect</span>
+        </div>
+        <p class="owner-sub font-display">Student at NHSM Sidi Abdellah — Applied Mathematics &amp; Software Engineering</p>
+        
+        <p class="owner-bio">
+          I created NHSM Hub to empower every mathematics student at NHSM with instant access to high-quality course notes, archived exams with solutions, distraction-free study tools, and an encouraging community platform.
+        </p>
+
+        <!-- Achievements Grid -->
+        <div class="owner-achievements">
+          <div class="achieve-item">
+            <span class="achieve-num">S1–S10</span>
+            <span class="achieve-label">Semesters Covered</span>
           </div>
+          <div class="achieve-item">
+            <span class="achieve-num">100+</span>
+            <span class="achieve-label">Notes &amp; Exams</span>
+          </div>
+          <div class="achieve-item">
+            <span class="achieve-num">Zen Focus</span>
+            <span class="achieve-label">Pomodoro &amp; Sound</span>
+          </div>
+          <div class="achieve-item">
+            <span class="achieve-num">Wall of Love</span>
+            <span class="achieve-label">Moderated Feedback</span>
+          </div>
+        </div>
+
+        <!-- Tech Stack Tags -->
+        <div class="tech-tags">
+          <span class="tech-tag">Python &amp; Django</span>
+          <span class="tech-tag">Applied Mathematics</span>
+          <span class="tech-tag">Cryptology</span>
+          <span class="tech-tag">Data Science</span>
+          <span class="tech-tag">JavaScript / HTML5</span>
+          <span class="tech-tag">Linux / Web Performance</span>
+        </div>
+
+        <!-- Direct Social Badges -->
+        <div class="owner-social-grid">
+          <a class="btn btn-primary btn-sm" href="mailto:billel.azzouz@nhsm.edu.dz">
+            📧 Email Billel
+          </a>
+          <a class="btn btn-ghost btn-sm" href="https://github.com/Azzouz-billel" target="_blank" rel="noopener">
+            💻 GitHub @Azzouz-billel
+          </a>
+          <a class="btn btn-ghost btn-sm" href="https://www.instagram.com/billel_.azzouz/" target="_blank" rel="noopener">
+            📸 Instagram @billel_.azzouz
+          </a>
+          <a class="btn btn-ghost btn-sm" href="https://t.me/billel_azz" target="_blank" rel="noopener">
+            ✈️ Telegram @billel_azz
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collaborators & Gratitude Section -->
+    <div class="collab-section">
+      <div class="section-head section-head--center" style="margin-top: var(--space-6);">
+        <p class="eyebrow">Collaborators &amp; Contributors</p>
+        <h3>Built with support from NHSM peers</h3>
+        <p class="muted">Special thanks to fellow students who contributed materials, feedback, and encouragement.</p>
+      </div>
+
+      <div class="collab-grid">
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>Oussama Mokdad</h4>
+          <p class="muted">Resource &amp; Academic Contributor</p>
+        </div>
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>Guerrout Abderaouf</h4>
+          <p class="muted">Resource &amp; Content Support</p>
+        </div>
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>Bassel Mohamed</h4>
+          <p class="muted">Exam Series Contributor</p>
+        </div>
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>IRKI Abdelghani</h4>
+          <p class="muted">Student Feedback &amp; Reviewer</p>
+        </div>
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>Larabi Wahiba</h4>
+          <p class="muted">Course Notes Contributor</p>
+        </div>
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>HADIOUCHE Azouaou</h4>
+          <p class="muted">Academic Contributor</p>
+        </div>
+        <div class="collab-card">
+          <div class="collab-icon">⭐</div>
+          <h4>Hocine Boubekeur</h4>
+          <p class="muted">Community Advisor</p>
         </div>
       </div>
 
-      <div class="auth-card">
-        <h3>Built with</h3>
-        <p class="muted">NHSM Hub was made in collaboration with:</p>
-        <ul class="collab-list">
-          <li>Oussama Mokdad</li>
-          <li>Guerrout Abderaouf</li>
-          <li>Bassel Mohamed</li>
-          <li>IRKI Abdelghani</li>
-          <li>Larabi wahiba</li>
-          <li>HADIOUCHE Azouaou</li>
-          <li>Hocine Boubekeur</li>
-        </ul>
-        <p class="doaa" lang="ar" dir="rtl">جزاهم الله خيرًا</p>
-      </div>
+      <p class="doaa-banner" lang="ar" dir="rtl">
+        جزاهم الله خيرًا وبارك في جهودهم جميعًا ✨
+      </p>
     </div>
   </div>
 </section>

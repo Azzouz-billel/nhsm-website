@@ -5,6 +5,7 @@ from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -14,6 +15,7 @@ from apps.requests.models import RequestStatus, RequestVote, ResourceRequest
 from apps.resources.models import ExamPaper, Resource, ResourceStatus, Subject
 
 from apps.professors.models import Professor, ProfessorRating
+from apps.moderation.models import GuestbookComment
 
 from config.middleware import get_online_summary, get_today_stats
 
@@ -320,6 +322,43 @@ def review_queue(request):
     return render(request, "manage/reviews.html", {"pending": pending})
 
 
+@admin_required
+def comment_list(request):
+    """All wall-of-love comments: pending ones first so nothing waits unseen."""
+    comments = GuestbookComment.objects.select_related("author").order_by(
+        "is_approved", "-is_pinned", "-created_at"
+    )
+    return render(request, "manage/comments.html", {"comments": comments})
+
+
+@require_POST
+@admin_required
+def comment_review(request, pk):
+    comment = get_object_or_404(GuestbookComment, pk=pk)
+    action = request.POST.get("action")
+    if action == "approve":
+        comment.is_approved = True
+        comment.save(update_fields=["is_approved"])
+        messages.success(request, "Comment published on the home page.")
+    elif action == "hide":
+        comment.is_approved = False
+        comment.save(update_fields=["is_approved"])
+        messages.success(request, "Comment hidden from the home page.")
+    elif action == "pin":
+        comment.is_pinned = True
+        comment.is_approved = True
+        comment.save(update_fields=["is_pinned", "is_approved"])
+        messages.success(request, "Comment pinned to top of Wall of Love.")
+    elif action == "unpin":
+        comment.is_pinned = False
+        comment.save(update_fields=["is_pinned"])
+        messages.success(request, "Comment unpinned.")
+    elif action == "delete":
+        comment.delete()
+        messages.success(request, "Comment deleted.")
+    return redirect("manage_comments")
+
+
 # --------------------------------------------------------------------- owner
 @owner_required
 def owner_dashboard(request):
@@ -377,6 +416,8 @@ def owner_dashboard(request):
             bucket.append(_module(row))
     modules_by_semester = sorted(by_semester.items())
 
+    comment_pending = GuestbookComment.objects.filter(is_approved=False).count()
+
     context = {
         "online_members": online["members"],
         "online_guests": online["guests"],
@@ -421,5 +462,11 @@ def owner_dashboard(request):
             votes_count=Count("votes")
         ).order_by("-created_at")[:8],
         "recent_ratings": ProfessorRating.objects.select_related("professor", "user")[:5],
+        # Comments / Wall of Love
+        "comment_total": GuestbookComment.objects.count(),
+        "comment_pending": comment_pending,
+        "comment_approved": GuestbookComment.objects.filter(is_approved=True).count(),
+        "recent_comments": GuestbookComment.objects.select_related("author").order_by("-created_at")[:8],
     }
+
     return render(request, "manage/owner.html", context)
